@@ -1,0 +1,10 @@
+{
+  "homepage": "http://minecraft.curseforge.com/projects/iron-age-architecture",
+  "promos": {
+    "1.10.2-latest": "0.0.0",
+    "1.10.2-recommended": "0.0.0"
+  },
+  "1.10.2": {
+    "0.0.0": "No Release"
+  }
+}
