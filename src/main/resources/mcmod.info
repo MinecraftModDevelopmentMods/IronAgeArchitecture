@@ -1,0 +1,16 @@
+[
+{
+  "modid": "ironagearchitecture",
+  "name": "Iron Age Architecture",
+  "description": "Architecture from the Iron Age.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://mcmoddev.com",
+  "updateUrl": "https://www.curseforge.com/minecraft/mc-mods/iron-age-architecture",
+  "authorList": ["SkyBlade1978"],
+  "credits": "SkyBlade1978",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
