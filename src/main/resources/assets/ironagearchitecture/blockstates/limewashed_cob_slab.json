@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "half=bottom,variant=false": {
+      "model": "ironagearchitecture:limewashed_cob_slab"
+    },
+    "half=bottom,variant=true": {
+      "model": "ironagearchitecture:limewashed_cob_slab"
+    },
+    "half=top,variant=false": {
+      "model": "ironagearchitecture:limewashed_cob_upper_slab"
+    },
+    "half=top,variant=true": {
+      "model": "ironagearchitecture:limewashed_cob_upper_slab"
+    }
+  }
+}

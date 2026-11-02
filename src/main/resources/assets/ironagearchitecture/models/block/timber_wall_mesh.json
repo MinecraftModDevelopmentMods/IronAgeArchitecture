@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "ironagearchitecture:blocks/limewashed_cob"
+  },
+  "elements": []
+}

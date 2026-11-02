@@ -1,0 +1,142 @@
+import java.security.MessageDigest
+import java.util.zip.ZipFile
+import org.gradle.jvm.toolchain.JvmVendorSpec
+
+group = project.mod_group
+version = project.mod_version
+base.archivesName = project.mod_archive_name
+if (GradleVersion.current() != GradleVersion.version('9.6.1')) {
+    throw new GradleException('Use the checked-in Gradle 9.6.1 wrapper')
+}
+if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) {
+    throw new GradleException('Run Gradle with Java 17 or newer')
+}
+if (!(project.mod_version ==~ /\d+\.\d+\.\d+\.110021/)) {
+    throw new GradleException('Version must use Major.Minor.Bug.110021 for Forge 1.10.2')
+}
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(8)
+    toolchain.vendor = JvmVendorSpec.ADOPTIUM
+    withSourcesJar()
+    withJavadocJar()
+}
+def verifyBuildEnvironment = tasks.register('verifyBuildEnvironment') {
+    doLast {
+        def compiler = javaToolchains.compilerFor(java.toolchain).get().metadata
+        def actual = compiler.javaRuntimeVersion.toString() =~ /^1\.8\.0_(\d+)-b0*(\d+)$/
+        def expected = project.java_toolchain_version.toString() =~ /^8\.0\.(\d+)\+(\d+)$/
+        if (!actual.matches() || !expected.matches()
+                || (actual.group(1) as int) < (expected.group(1) as int)
+                || ((actual.group(1) as int) == (expected.group(1) as int)
+                    && (actual.group(2) as int) < (expected.group(2) as int))) {
+            throw new GradleException('Compiler must be Adoptium Java ' + java_toolchain_version + ' or newer Java 8')
+        }
+    }
+}
+tasks.withType(JavaCompile).configureEach {
+    dependsOn verifyBuildEnvironment
+    options.encoding = 'UTF-8'
+}
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addBooleanOption('notimestamp', true)
+}
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+minecraft {
+    mappings channel: 'stable', version: '29-1.10.2'
+    runs {
+        configureEach {
+            workingDir.convention layout.projectDirectory.dir(providers.gradleProperty('runDirectory').getOrElse('run'))
+            systemProperty 'forge.logging.console.level', 'info'
+        }
+        register('client') {
+            if (project.hasProperty('clientProbe')) {
+                systemProperty 'iaa.probe', 'true'
+                systemProperty 'iaa.clientProbe', 'true'
+                systemProperty 'iaa.keepRunning', 'true'
+                args '--width', '1280', '--height', '800'
+            }
+        }
+        register('server') { args '--nogui' }
+    }
+}
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
+}
+dependencies {
+    implementation minecraft.dependency('net.minecraftforge:forge:' + minecraft_version + '-' + forge_version)
+    testImplementation 'junit:junit:4.13.2'
+}
+tasks.named('processResources', ProcessResources) {
+    inputs.property('version', project.version)
+    filesMatching('mcmod.info') { expand version: project.version, mcversion: project.minecraft_version }
+}
+def developmentOutput = layout.buildDirectory.dir('forge10-development/main')
+def syncDevelopment = tasks.register('syncForge10DevelopmentResources', Sync) {
+    dependsOn tasks.named('classes')
+    from tasks.named('compileJava', JavaCompile).flatMap { it.destinationDirectory }
+    from sourceSets.main.output.resourcesDir
+    into developmentOutput
+}
+tasks.configureEach {
+    if (name == 'runClient' || name == 'runServer') {
+        dependsOn syncDevelopment
+        doFirst {
+            Set<File> split = [tasks.named('compileJava', JavaCompile).get().destinationDirectory.get().asFile,
+                    sourceSets.main.output.resourcesDir] as Set<File>
+            classpath = project.hasProperty('packagedClient') && name == 'runClient'
+                    ? files(classpath.filter { !split.contains(it) })
+                    : files(developmentOutput, classpath.filter { !split.contains(it) })
+        }
+    }
+}
+tasks.named('jar', Jar) {
+    archiveClassifier = 'deobf'
+    destinationDirectory = layout.buildDirectory.dir('libs-dev')
+    manifest.attributes('Implementation-Title': project.mod_name, 'Implementation-Version': project.version)
+}
+def releaseJar = renamer.classes(tasks.named('jar', Jar)) {
+    map.from minecraft.dependency.toSrgFile
+    archiveClassifier = null
+    output = layout.buildDirectory.file('libs/' + base.archivesName.get() + '-' + project.version + '.jar')
+}
+tasks.named('assemble') { dependsOn releaseJar, tasks.named('sourcesJar'), tasks.named('javadocJar') }
+tasks.register('verifyResources', Exec) { commandLine 'node', 'scripts/generate-resources.cjs', '--check' }
+tasks.named('check') { dependsOn tasks.named('verifyResources') }
+tasks.register('auditArtifacts') {
+    dependsOn tasks.named('assemble')
+    doLast {
+        File outputDir = layout.buildDirectory.dir('libs').get().asFile
+        List<String> receipts = []
+        ['.jar', '-sources.jar', '-javadoc.jar'].each { suffix ->
+            File archive = new File(outputDir, base.archivesName.get() + '-' + version + suffix)
+            if (!archive.isFile()) throw new GradleException('Missing ' + archive.name)
+            if (suffix == '.jar') new ZipFile(archive).withCloseable { zip ->
+                if (zip.getEntry('mcmod.info') == null || zip.getEntry('zone/moddev/mc/ironagearchitecture/IronAgeArchitecture.class') == null)
+                    throw new GradleException('Runtime mod metadata/classes missing')
+                if (zip.entries().toList().any { it.name.contains('/probe/') || it.name.endsWith('Test.class') })
+                    throw new GradleException('Test code leaked into runtime jar')
+                byte[] header = zip.getInputStream(zip.getEntry('zone/moddev/mc/ironagearchitecture/IronAgeArchitecture.class')).bytes
+                if (header[7] != 52) throw new GradleException('Runtime bytecode must target Java 8')
+            }
+            receipts.add(MessageDigest.getInstance('SHA-256').digest(archive.bytes).encodeHex().toString() + '  ' + archive.name)
+        }
+        new File(outputDir, 'SHA256SUMS.txt').setText(receipts.join('\n') + '\n', 'UTF-8')
+    }
+}
+apply from: 'gradle/ide/eclipse.gradle'
+def syncEclipse = tasks.register('syncEclipseOutput', Sync) {
+    dependsOn tasks.named('classes')
+    from tasks.named('compileJava', JavaCompile).flatMap { it.destinationDirectory }
+    from sourceSets.main.output.resourcesDir
+    into layout.projectDirectory.dir('bin/main')
+}
+tasks.named('prepareEclipse') { dependsOn syncEclipse }
+tasks.configureEach { if (name.startsWith('genEclipseRun')) dependsOn syncEclipse }

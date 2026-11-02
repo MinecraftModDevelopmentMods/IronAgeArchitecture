@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "ironagearchitecture:blocks/limewashed_cob",
+    "top": "ironagearchitecture:blocks/limewashed_cob",
+    "side": "ironagearchitecture:blocks/limewashed_cob"
+  }
+}

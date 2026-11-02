@@ -1,16 +1,16 @@
 [
-{
-  "modid": "ironagearchitecture",
-  "name": "Iron Age Architecture",
-  "description": "Architecture from the Iron Age.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "https://mcmoddev.com",
-  "updateUrl": "https://www.curseforge.com/minecraft/mc-mods/iron-age-architecture",
-  "authorList": ["SkyBlade1978"],
-  "credits": "SkyBlade1978",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}
+  {
+    "modid": "ironagearchitecture",
+    "name": "Iron Age Architecture",
+    "description": "Cob walls, timber frames, thatch and slate roofs for the Iron Age series.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/MinecraftModDevelopmentMods/IronAgeArchitecture",
+    "authorList": [
+      "SkyBlade1978",
+      "FoxNekitsune"
+    ],
+    "credits": "Original 2019 scaffold and model drafts retained in repository history.",
+    "dependencies": []
+  }
 ]

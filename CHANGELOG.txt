@@ -1,0 +1,18 @@
+0.1.2.110021 - First alpha (unreleased)
+
+This is the first building kit for Iron Age Architecture, starting on Minecraft 1.10.2.
+
+- Added raw and limewashed cob blocks, slabs and stairs.
+- Added wattle-and-daub walls in all six vanilla woods, with plain infill, posts,
+  rails, close studding, diagonal braces and matching corner and end pieces.
+- Added thin walls and short returns for building in half-block steps.
+- Added timber floors with exposed joists, joined edge beams and optional brackets.
+  Upper floors can project by half a block or a whole block, including around corners
+  and across several storeys.
+- Added smooth thatch and slate roofs, automatic roof corners and separate ridge caps.
+- Added crafting recipes using vanilla materials and configuration switches for the
+  main content families.
+
+Iron Age Architecture works on its own. Iron Age Furniture is optional.
+
+This is an early alpha. Feedback on the appearance and placement of the pieces is welcome.

@@ -1,0 +1,37 @@
+// A separate, explicitly requested verification mod for disposable runtimes.
+sourceSets {
+    probe {
+        compileClasspath += sourceSets.main.output + configurations.compileClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+eclipse.classpath.file.whenMerged { model ->
+    model.entries.findAll { it.kind == 'src' && it.path.startsWith('src/probe/') }.each {
+        it.entryAttributes['test'] = 'true'
+    }
+}
+def probeJar = tasks.register('probeJar', Jar) {
+    dependsOn tasks.named('probeClasses')
+    from sourceSets.probe.output
+    archiveClassifier = 'probe-deobf'
+    destinationDirectory = layout.buildDirectory.dir('probe-dev')
+}
+def probeRelease = renamer.classes(probeJar) {
+    map.from minecraft.dependency.toSrgFile
+    libraries.from sourceSets.main.output
+    archiveClassifier = 'probe'
+    output = layout.buildDirectory.file('probe/architecture-probe.jar')
+}
+tasks.register('prepareProbe') { dependsOn probeRelease }
+if (project.hasProperty('clientProbe')) {
+    def installClientProbe = tasks.register('installClientProbe', Copy) {
+        dependsOn probeJar
+        from probeJar
+        if (project.hasProperty('packagedClient')) {
+            dependsOn tasks.named('renameJar')
+            from layout.buildDirectory.file('libs/iron-age-architecture-' + project.version + '.jar')
+        }
+        into layout.projectDirectory.dir(providers.gradleProperty('runDirectory').getOrElse('run')).dir('mods')
+    }
+    tasks.configureEach { if (name == 'runClient') dependsOn installClientProbe }
+}
