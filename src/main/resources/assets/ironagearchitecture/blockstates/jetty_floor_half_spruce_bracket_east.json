@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "facing=north,panel=0": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=east,panel=0": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=south,panel=0": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=west,panel=0": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=north,panel=1": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=east,panel=1": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=south,panel=1": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=west,panel=1": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=north,panel=2": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=east,panel=2": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=south,panel=2": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=west,panel=2": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=north,panel=3": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=east,panel=3": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=south,panel=3": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    },
+    "facing=west,panel=3": {
+      "model": "ironagearchitecture:timber_wall_mesh"
+    }
+  }
+}

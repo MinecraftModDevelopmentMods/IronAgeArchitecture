@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "half=bottom,variant=false": {
+      "model": "ironagearchitecture:cob"
+    },
+    "half=bottom,variant=true": {
+      "model": "ironagearchitecture:cob"
+    },
+    "half=top,variant=false": {
+      "model": "ironagearchitecture:cob"
+    },
+    "half=top,variant=true": {
+      "model": "ironagearchitecture:cob"
+    }
+  }
+}
