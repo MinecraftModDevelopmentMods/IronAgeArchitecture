@@ -9,6 +9,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemSlab;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -34,6 +35,16 @@ public final class ArchitectureBlocks {
     public static final List<PartialWallBlock> PARTIALS = new ArrayList<>();
     public static final List<JettyFloorBlock> FLOORS = new ArrayList<>();
     public static final List<JettyBracketItem> BRACKETS = new ArrayList<>();
+    public static final List<WindowBlock> WINDOWS = new ArrayList<>();
+    public static WindowLeafBlock WINDOW_LEAF;
+    public static LeadedPaneItem LEADED_PANE;
+    public static List<ItemStack> visibleStacks() {
+        List<ItemStack> result=new ArrayList<>();
+        for(Block block:VISIBLE) for(int meta=0;meta<(block instanceof FrameBlock?((FrameBlock)block).variants():1);meta++) result.add(new ItemStack(block,1,meta));
+        for(JettyBracketItem item:BRACKETS) result.add(new ItemStack(item));
+        if(LEADED_PANE!=null) {result.add(new ItemStack(LEADED_PANE,1,0));result.add(new ItemStack(LEADED_PANE,1,1));}
+        return result;
+    }
     public static List<FrameBlock> meshes() {
         List<FrameBlock> result=new ArrayList<>(WALLS);result.addAll(PARTIALS);result.addAll(FLOORS);return result;
     }
@@ -55,15 +66,15 @@ public final class ArchitectureBlocks {
     public static void register() {
         if (ArchitectureConfig.cob) for (String finish : FINISHES) {
             Block full = block(new CobBlock(), finish);
-            item(full, new ItemBlock(full));
+            item(full, new EraItemBlock(full));
             COB.add(full);
             CobSlab half = block(new CobSlab(false), finish + "_slab");
             CobSlab doubled = block(new CobSlab(true), finish + "_double_slab");
             half.setHalf(half); doubled.setHalf(half);
-            item(half, new ItemSlab(half, half, doubled));
+            item(half, new EraItemSlab(half, half, doubled));
             SLABS.add(half);
             CobStairs stairs = block(new CobStairs(full.getDefaultState()), finish + "_stairs");
-            item(stairs, new ItemBlock(stairs));
+            item(stairs, new EraItemBlock(stairs));
             STAIRS.add(stairs);
         }
         if (ArchitectureConfig.frames) {
@@ -74,9 +85,29 @@ public final class ArchitectureBlocks {
                 if(family==FrameFamily.POST) FRAMES.add(frame);
             }
             registerJetties();
+            if(ArchitectureConfig.windows) registerWindows();
         }
         if (ArchitectureConfig.thatch) roofFamily("thatch", true);
         if (ArchitectureConfig.slate) roofFamily("slate", false);
+        EraCatalog.assignPrimaryTabs();
+    }
+    private static void registerWindows() {
+        WINDOW_LEAF=block(new WindowLeafBlock(),"open_window_leaf");
+        LEADED_PANE=new LeadedPaneItem();LEADED_PANE.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID,"leaded_pane"));
+        LEADED_PANE.setUnlocalizedName(IronAgeArchitecture.MODID+".leaded_pane");LEADED_PANE.setCreativeTab(EraTabs.tab(Era.LATE_MEDIEVAL_TUDOR));GameRegistry.register(LEADED_PANE);
+        for(String wood:WOODS) for(int finish=0;finish<2;finish++) for(boolean thin:new boolean[]{false,true}) for(boolean diamond:new boolean[]{true,false}) for(boolean right:new boolean[]{false,true}) for(boolean back:new boolean[]{false,true}) {
+            if(back&&!thin) continue;
+            String name="leaded_window_"+(thin?"thin_":"full_")+FINISHES[finish]+"_"+(diamond?"diamond_":"rectangle_")+wood+(right?"_right":"")+(back?"_back":"");
+            WindowBlock window=block(new WindowBlock(wood,finish,thin,diamond,right,back),name);WINDOWS.add(window);
+            if(!right&&!back) item(window,new WindowItem(window));Blocks.FIRE.setFireInfo(window,5,20);
+        }
+    }
+    public static WindowBlock findWindow(String wood,int finish,boolean thin,boolean diamond,boolean right) {
+        return findWindow(wood,finish,thin,diamond,right,false);
+    }
+    public static WindowBlock findWindow(String wood,int finish,boolean thin,boolean diamond,boolean right,boolean back) {
+        for(WindowBlock block:WINDOWS) if(block.wood.equals(wood)&&block.finish==finish&&block.thin==thin&&block.diamond==diamond&&block.right==right&&block.back==back) return block;
+        throw new IllegalArgumentException("Unregistered window "+wood+" "+finish+" "+thin+" "+diamond+" "+right);
     }
     private static FrameBlock wall(String wood,FrameFamily family) {
         FrameBlock frame=block(new FrameBlock(wood,family),family.registryPrefix+(wood==null?"":"_"+wood));
@@ -137,7 +168,7 @@ public final class ArchitectureBlocks {
     private static void roofFamily(String name, boolean flammable) {
         for (boolean ridge : new boolean[]{false, true}) {
             RoofBlock roof = block(ridge ? new RidgeBlock(flammable) : new RoofBlock(false, flammable), name + (ridge ? "_ridge" : "_roof"));
-            item(roof, new ItemBlock(roof));
+            item(roof, new EraItemBlock(roof));
             ROOFS.add(roof);
             if (flammable) Blocks.FIRE.setFireInfo(roof, 60, 20);
         }

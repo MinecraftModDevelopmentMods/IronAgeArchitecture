@@ -11,6 +11,7 @@ import zone.moddev.mc.ironagearchitecture.ArchitectureBlocks;
 
 /** Explicit half/full-reach bracket, attached to a floor without a multipart tile. */
 public final class JettyBracketItem extends Item {
+    @Override public net.minecraft.creativetab.CreativeTabs[] getCreativeTabs() {return zone.moddev.mc.ironagearchitecture.EraTabs.forItem(this);}
     public final String wood;
     public final boolean fullReach;
     public JettyBracketItem(String wood,boolean fullReach) {this.wood=wood;this.fullReach=fullReach;}
@@ -47,5 +48,7 @@ public final class JettyBracketItem extends Item {
         }
         return EnumActionResult.SUCCESS;
     }
-    @Override public void addInformation(ItemStack stack,EntityPlayer player,List<String> tooltip,boolean advanced) {tooltip.add("Use beneath a matching jetty floor edge.");}
+    @Override public void addInformation(ItemStack stack,EntityPlayer player,List<String> tooltip,boolean advanced) {
+        tooltip.add("Use beneath a matching jetty floor edge.");EraItemBlock.hint(tooltip,"bracket.reach");
+    }
 }

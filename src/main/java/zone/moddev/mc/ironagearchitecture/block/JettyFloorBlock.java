@@ -88,7 +88,26 @@ public final class JettyFloorBlock extends FrameBlock {
                 if(wood.equals(block.wood)&&block.covers(next,p[0]-dx*16,p[2]-dz*16)) mask|=1<<(q*4+side.getHorizontalIndex());
             }
         }
-        return mask;
+        IBlockState below=world.getBlockState(pos.down());
+        int support=0;
+        if(below.getBlock() instanceof FrameBlock&&!(below.getBlock() instanceof JettyFloorBlock)||below.getBlock() instanceof WindowBlock) {
+            for(int q=0;q<4;q++) {
+                double[] point=WallGeometry.rotate(q%2*8+4,0,q/2*8+4,facing);
+                boolean occupied=true;
+                if(below.getBlock() instanceof WindowBlock&&((WindowBlock)below.getBlock()).thin) {
+                    EnumFacing turn=below.getValue(WindowBlock.FACING),inverse=turn==EnumFacing.EAST?EnumFacing.WEST:turn==EnumFacing.WEST?EnumFacing.EAST:turn;
+                    occupied=(WallGeometry.rotate(point[0],0,point[2],inverse)[2]>=8)==((WindowBlock)below.getBlock()).back;
+                }
+                if(below.getBlock() instanceof PartialWallBlock) {
+                    EnumFacing turn=below.getValue(FACING);
+                    EnumFacing inverse=turn==EnumFacing.EAST?EnumFacing.WEST:turn==EnumFacing.WEST?EnumFacing.EAST:turn;
+                    double[] local=WallGeometry.rotate(point[0],0,point[2],inverse);
+                    occupied=((PartialWallBlock)below.getBlock()).profile.contains(local[0],local[2]);
+                }
+                if(occupied) support|=1<<q;
+            }
+        } else if(!(below.getBlock() instanceof JettyFloorBlock)&&below.getBlock().isSideSolid(below,world,pos.down(),EnumFacing.UP)) support=15;
+        return mask|((support&shape.mask)<<16);
     }
     @Override public List<WallGeometry.Part> parts(IBlockState state,int joins) {
         boolean full=(state.getValue(PANEL)&2)!=0;

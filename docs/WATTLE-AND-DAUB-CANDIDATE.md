@@ -1,5 +1,8 @@
 # Wattle and daub — 0.1.1.110021 local handoff
 
+This records the local checks when the candidate was prepared. References to uncommitted
+work and hosted checks describe that point; Git history records later commits and merges.
+
 The wall redesign is implemented for Minecraft 1.10.2 / Forge 12.18.3.2511. Wider Rye
 building families remain deferred. This candidate remains local and uncommitted on
 feature/1.10-initial-cottage-kit; there has been no feature push, PR, merge or release.

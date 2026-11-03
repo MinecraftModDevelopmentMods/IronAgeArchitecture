@@ -15,7 +15,30 @@ const woods = ['oak','spruce','birch','jungle','acacia','dark_oak'];
 const names = ['Oak','Spruce','Birch','Jungle','Acacia','Dark Oak'];
 const facings = {north:0,east:90,south:180,west:270};
 const shapes = ['straight','inner_left','inner_right','outer_left','outer_right'];
-const lang = {'itemGroup.ironagearchitecture':'Iron Age Architecture'};
+const lang = {'itemGroup.ironagearchitecture':'Iron Age Architecture',
+  'itemGroup.ironagearchitecture.iron_age':'Iron Age',
+  'itemGroup.ironagearchitecture.late_medieval_tudor':'Late Medieval & Tudor'};
+for (const [key, text] of Object.entries({
+  'wall.post':'Shape three matching post panels into a wall pattern.',
+  'wall.patterns':'Row: rails; column: studs; diagonal: braces; L: corners.',
+  'wall.swap':'Craft alone to swap the paired pattern.',
+  'wall.reset':'Three matching pieces in a row return post panels.',
+  'wall.corner':'Two shaped corners side by side recover short end posts.',
+  'wall.infill':'Full infill + four matching planks makes four post panels.',
+  'cut':'Cut a vertical pair; rejoin a horizontal pair.',
+  'wash':'Limewash singly, or eight pieces around bone meal.',
+  'floor.brackets':'Full floor + one stick makes two matching brackets.',
+  'floor.full':'Two full floors vertically make four half floors.',
+  'floor.quarter':'Two quarter floors side by side make one half floor.',
+  'floor.l':'Craft alone to recover three quarter floors.',
+  'bracket.reach':'One full bracket makes two halves; two halves rejoin.',
+  'roof.ridge':'Cut two slopes vertically for four ridge caps.',
+  'roof.slope':'Two ridge caps side by side make one roof slope.',
+  'cob':'Craft alone to make plain wattle and daub.',
+  'slab':'Two slabs side by side recover one cob.',
+  'wall.short':'Two short walls side by side make one thin wall.',
+  'stair':'Four stairs in a square recover three cob.'
+})) lang[`hint.${ns}.${key}`] = text;
 for (const finish of finishes) {
   const name = finish === 'cob' ? 'Cob' : 'Limewashed Cob';
   model(finish,{parent:'minecraft:block/cube_all',textures:{all:`${ns}:blocks/${finish}`}});
@@ -105,6 +128,22 @@ for (const material of ['thatch','slate']) {
     lang[`tile.${ns}.${name}.name`] = `${material==='thatch'?'Thatch':'Slate'} ${ridge?'Ridge Cap':'Roof'}`;
   }
 }
+model('window_mesh',{parent:'minecraft:block/block',textures:{particle:'minecraft:blocks/glass_silver'}});
+for(const [w,wood] of woods.entries()) for(const finish of [0,1]) for(const thin of [false,true]) for(const diamond of [true,false]) for(const right of [false,true]) for(const back of [false,true]) {
+  if(back&&!thin) continue;
+  const name=`leaded_window_${thin?'thin':'full'}_${finishes[finish]}_${diamond?'diamond':'rectangle'}_${wood}${right?'_right':''}${back?'_back':''}`;
+  const variants={};for(const facing of Object.keys(facings)) for(const open of [false,true]) for(const powered of [false,true]) variants[`facing=${facing},open=${open},powered=${powered}`]={model:`${ns}:window_mesh`};
+  state(name,variants);
+  if(!right&&!back) {item(name,'window_mesh');lang[`tile.${ns}.${name}.name`]=`${finish?'Limewashed ':''}${names[w]} ${diamond?'Diamond':'Rectangular'} Leaded Window${thin?' (Thin)':''}`;}
+}
+state('open_window_leaf',Object.fromEntries(Object.keys(facings).map(facing=>[`facing=${facing}`,{model:`${ns}:window_mesh`}])));
+for(let meta=0;meta<2;meta++) {item(`leaded_pane_${meta}`,'window_mesh');lang[`item.${ns}.leaded_pane.${meta}.name`]=`${meta?'Rectangular':'Diamond'} Leaded Pane`;}
+lang[`hint.${ns}.window.use`]='Right-click to open the casement; redstone operates the whole column.';
+lang[`hint.${ns}.window.place`]='Stack to share a hinge; sneak to choose a different alignment.';
+lang[`hint.${ns}.window.glaze`]='Craft alone to swap leading. Shape the wall before glazing.';
+lang[`hint.${ns}.pane.use`]='Add to a matching post panel; craft alone to swap leading.';
+lang[`message.${ns}.window.blocked`]='There is not enough clear space to open this window.';
+lang[`message.${ns}.window.join`]='Close the adjoining windows before joining these sections.';
 for (const locale of ['en_US','en_GB']) expected.set(`${assets}/lang/${locale}.lang`,Object.entries(lang).map(([k,v])=>`${k}=${v}`).join('\n')+'\n');
 expected.set('src/main/resources/mcmod.info',JSON.stringify([{modid:ns,name:'Iron Age Architecture',description:'Cob walls, timber frames, thatch and slate roofs for the Iron Age series.',version:'${version}',mcversion:'${mcversion}',url:'https://github.com/MinecraftModDevelopmentMods/IronAgeArchitecture',authorList:['SkyBlade1978','FoxNekitsune'],credits:'Original 2019 scaffold and model drafts retained in repository history.',dependencies:[]}],null,2)+'\n');
 expected.set('src/main/resources/pack.mcmeta',JSON.stringify({pack:{pack_format:2,description:'Iron Age Architecture resources'}},null,2)+'\n');
@@ -136,4 +175,4 @@ for(const [file,content] of expected) if(file.includes('/models/')&&file.endsWit
   for(const texture of Object.values(value.textures||{})) if(texture.startsWith(ns+':')&&!fs.existsSync(path.join(root,`${assets}/textures/${texture.split(':')[1]}.png`))) failures.push('missing texture '+texture);
 }
 if(failures.length) {console.error(failures.join('\n'));process.exitCode=1;}
-else console.log(`${check?'Verified':'Generated'} ${expected.size} resources; ${Object.keys(lang).length-1} visible block variants.`);
+else console.log(`${check?'Verified':'Generated'} ${expected.size} resources; ${Object.keys(lang).filter(k=>/^(tile|item)\./.test(k)&&k.endsWith('.name')).length} visible item variants.`);

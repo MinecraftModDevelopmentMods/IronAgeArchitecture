@@ -1,5 +1,8 @@
 # Jettied storeys — 0.1.2.110021 local handoff
 
+This records the local checks when the candidate was prepared. References to uncommitted
+work and hosted checks describe that point; Git history records later commits and merges.
+
 The jetty upgrade is implemented for Minecraft 1.10.2 / Forge 12.18.3.2511.
 It remains local and uncommitted on feature/1.10-initial-cottage-kit. No feature
 push, PR, merge or release has been performed. Manual gameplay/visual acceptance

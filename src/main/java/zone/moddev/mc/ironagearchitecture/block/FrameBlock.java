@@ -45,7 +45,7 @@ public class FrameBlock extends BlockHorizontal {
     }
     public int variants() { return family==FrameFamily.INFILL?2:4; }
     public int finish(int panel) { return family==FrameFamily.INFILL?panel&1:panel>>1; }
-    @Override protected BlockStateContainer createBlockState() { return new ExtendedBlockState(this,new IProperty<?>[]{FACING,PANEL},new IUnlistedProperty<?>[]{CONNECTIONS}); }
+    @Override protected BlockStateContainer createBlockState() { return new ExtendedBlockState(this,new IProperty<?>[]{FACING,PANEL},new IUnlistedProperty<?>[]{CONNECTIONS,TimberCorners.PROPERTY}); }
     @Override public IBlockState getStateFromMeta(int meta) { return getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta & 3)).withProperty(PANEL, ((meta >> 2) & 3)%variants()); }
     @Override public int getMetaFromState(IBlockState state) { return state.getValue(FACING).getHorizontalIndex() | (state.getValue(PANEL) << 2); }
     @Override public int damageDropped(IBlockState state) { return state.getValue(PANEL)%variants(); }
@@ -72,6 +72,11 @@ public class FrameBlock extends BlockHorizontal {
         IBlockState previous=world.getBlockState(pos);BlockPos previousPos=pos;
         for(int distance=1;distance<=16;distance++) {
             IBlockState neighbour=world.getBlockState(pos.offset(direction,distance));
+            if(neighbour.getBlock() instanceof WindowBlock) {
+                WindowBlock window=(WindowBlock)neighbour.getBlock();BlockPos at=pos.offset(direction,distance);
+                if(wood==null||!wood.equals(window.wood)||!WallRuns.touches(previous,previousPos,neighbour,at,direction)) return 0;
+                int joins=window.joins(neighbour,world,at);return ((joins&WindowGeometry.DOWN)==0?1:0)|((joins&WindowGeometry.UP)==0?2:0);
+            }
             if(!(neighbour.getBlock() instanceof FrameBlock)) return 0;
             FrameBlock block=(FrameBlock)neighbour.getBlock();
             if(block instanceof JettyFloorBlock) return 0;
@@ -90,6 +95,7 @@ public class FrameBlock extends BlockHorizontal {
         for(EnumFacing direction:EnumFacing.HORIZONTALS) {
             IBlockState neighbour=world.getBlockState(pos.offset(direction));
             if(neighbour.getBlock() instanceof FrameBlock&&!(neighbour.getBlock() instanceof JettyFloorBlock)) mask|=WallGeometry.bit(direction);
+            if(neighbour.getBlock() instanceof WindowBlock&&WallRuns.touches(state,pos,neighbour,pos.offset(direction),direction)) mask|=WallGeometry.bit(direction);
             if(family!=FrameFamily.INFILL) {
                 EnumFacing plane=direction.getAxis()==facing.getAxis()?facing.rotateY():facing;
                 int request=railRequest(world,pos,direction,plane);
@@ -97,6 +103,7 @@ public class FrameBlock extends BlockHorizontal {
                 if((request&2)!=0) mask|=WallGeometry.bit(direction)<<8;
             }
         }
+        mask=RailJoins.bridge(state,world,pos,mask);
         if(family==FrameFamily.RAIL) {
             mask|=verticalStud(world,pos.down(),facing)<<12;
             mask|=verticalStud(world,pos.up(),facing)<<16;
@@ -130,9 +137,15 @@ public class FrameBlock extends BlockHorizontal {
         return result;
     }
     @Override public IBlockState getExtendedState(IBlockState state,IBlockAccess world,BlockPos pos) {
-        return ((IExtendedBlockState)state).withProperty(CONNECTIONS,connections(state,world,pos));
+        return ((IExtendedBlockState)state).withProperty(CONNECTIONS,connections(state,world,pos)).withProperty(TimberCorners.PROPERTY,TimberCorners.derive(state,world,pos));
     }
     public List<WallGeometry.Part> parts(IBlockState state,int mask) { return WallGeometry.parts(family,state.getValue(PANEL),state.getValue(FACING),mask); }
+    public List<WallGeometry.Part> parts(IBlockState state,int mask,int corners) {
+        return TimberCorners.add(parts(state,mask),this instanceof PartialWallBlock,corners);
+    }
+    private List<WallGeometry.Part> worldParts(IBlockState state,IBlockAccess world,BlockPos pos) {
+        return parts(state,connections(state,world,pos),TimberCorners.derive(state,world,pos));
+    }
     @Override public boolean isOpaqueCube(IBlockState state) { return false; }
     // These are filled wall cells. Forge 1.10 must sample the neighbouring cell for
     // face light even though the plaster has a small cosmetic recess. Opacity still
@@ -141,15 +154,15 @@ public class FrameBlock extends BlockHorizontal {
     @Override public boolean isSideSolid(IBlockState state,IBlockAccess world,BlockPos pos,EnumFacing side) { return true; }
     @Override public AxisAlignedBB getBoundingBox(IBlockState state,IBlockAccess world,BlockPos pos) {
         AxisAlignedBB result=null;
-        for(WallGeometry.Part part:parts(state,connections(state,world,pos))) result=result==null?part.bounds(state.getValue(FACING)):result.union(part.bounds(state.getValue(FACING)));
+        for(WallGeometry.Part part:worldParts(state,world,pos)) result=result==null?part.bounds(state.getValue(FACING)):result.union(part.bounds(state.getValue(FACING)));
         return result;
     }
     @Override public void addCollisionBoxToList(IBlockState state,World world,BlockPos pos,AxisAlignedBB mask,List<AxisAlignedBB> boxes,@Nullable Entity entity) {
-        for(WallGeometry.Part part:parts(state,connections(state,world,pos))) addCollisionBoxToList(pos,mask,boxes,part.bounds(state.getValue(FACING)));
+        for(WallGeometry.Part part:worldParts(state,world,pos)) addCollisionBoxToList(pos,mask,boxes,part.bounds(state.getValue(FACING)));
     }
     @Nullable @Override public RayTraceResult collisionRayTrace(IBlockState state,World world,BlockPos pos,Vec3d start,Vec3d end) {
         RayTraceResult result=null;double closest=Double.POSITIVE_INFINITY;
-        for(WallGeometry.Part part:parts(state,connections(state,world,pos))) {
+        for(WallGeometry.Part part:worldParts(state,world,pos)) {
             RayTraceResult hit=rayTrace(pos,start,end,part.bounds(state.getValue(FACING)));
             if(hit!=null&&start.squareDistanceTo(hit.hitVec)<closest) {result=hit;closest=start.squareDistanceTo(hit.hitVec);}
         }

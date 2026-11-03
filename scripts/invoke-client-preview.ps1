@@ -1,6 +1,7 @@
 param(
-    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2\native-client',
-    [string]$ServerTemplate='D:\IronAgeFurniture\manual-testing\sylvester-iaf-0.3.0.110021-20260921',
+    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\horizontal-rails-0.1.8\native-client',
+    [string]$PreviewName='Horizontal Rails Preview',
+    [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$GradleHome='D:\GradleCaches\minecraft-mods-shared',
     [string]$AssetsDirectory='',
     [string]$Java8='C:\Users\johnb\.gradle\jdks\temurin-8-amd64-windows.2\bin\java.exe'
@@ -52,7 +53,7 @@ guiScale:2
 fancyGraphics:true
 '@ | Set-Content -LiteralPath (Join-Path $Runtime 'options.txt') -Encoding ascii
 $digest=(Get-FileHash -LiteralPath (Join-Path $Runtime ('mods/'+$runtimeJar)) -Algorithm SHA256).Hash.ToLowerInvariant()
-$args=@('-Xmx2G',('-Djava.library.path='+(Join-Path $slime 'natives')),'-Diaa.probe=true','-Diaa.clientProbe=true','-Diaa.keepRunning=true',('-Diaa.runtimeSha256='+$digest),'-cp',($classpath -join ';'),
+$args=@('-Xmx2G',('-Djava.library.path='+(Join-Path $slime 'natives')),'-Diaa.probe=true','-Diaa.clientProbe=true','-Diaa.keepRunning=true',('-Diaa.previewName='+$PreviewName),('-Diaa.runtimeSha256='+$digest),'-cp',($classpath -join ';'),
     'net.minecraft.launchwrapper.Launch','--tweakClass','net.minecraftforge.fml.common.launcher.FMLTweaker',
     '--username','ArchitecturePreview','--version','1.10.2','--gameDir',$Runtime,'--assetsDir',$AssetsDirectory,
     '--assetIndex','1.10','--uuid','00000000000000000000000000000001','--accessToken','0','--userType','legacy','--versionType','release','--width','1280','--height','800')

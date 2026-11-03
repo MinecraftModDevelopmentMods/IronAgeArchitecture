@@ -13,7 +13,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 
 /** Inventory metadata describes the panel, never its world-facing bits. */
-public final class FrameItem extends ItemBlock {
+public final class FrameItem extends EraItemBlock {
     public FrameItem(FrameBlock block) { super(block); setHasSubtypes(true); setMaxDamage(0); }
     @Override public int getMetadata(int damage) { return Math.floorMod(damage, ((FrameBlock)block).variants()); }
     @Override public String getUnlocalizedName(ItemStack stack) { return super.getUnlocalizedName() + "." + getMetadata(stack.getMetadata()); }
@@ -42,6 +42,25 @@ public final class FrameItem extends ItemBlock {
         if(block instanceof JettyFloorBlock) {
             tooltip.add("Upper-half timber floor; face the direction of the joists.");
             if(((JettyFloorBlock)block).shape==FloorShape.L) tooltip.add("Click the corner that should remain empty.");
+            switch(((JettyFloorBlock)block).shape) {
+                case FULL:hint(tooltip,"floor.full");break;
+                case HALF:hint(tooltip,"cut");break;
+                case QUARTER:hint(tooltip,"floor.quarter");break;
+                case L:hint(tooltip,"floor.l");break;
+            }
+            if(((JettyFloorBlock)block).shape==FloorShape.FULL) hint(tooltip,"floor.brackets");
+        } else {
+            FrameBlock wall=(FrameBlock)block;
+            boolean corner=wall instanceof PartialWallBlock&&((PartialWallBlock)wall).profile.corner;
+            if(wall.family==FrameFamily.INFILL) hint(tooltip,wall instanceof PartialWallBlock?
+                (((PartialWallBlock)wall).profile==WallProfile.THIN?"cut":"wall.short"):"wall.infill");
+            else {
+                if(wall.variants()==4) hint(tooltip,"wall.swap");
+                if(corner) hint(tooltip,"wall.corner");
+                else if(wall.family==FrameFamily.POST) {hint(tooltip,"wall.post");hint(tooltip,"wall.patterns");}
+                else hint(tooltip,"wall.reset");
+            }
+            if(wall.finish(getMetadata(stack.getMetadata()))==0) hint(tooltip,"wash");
         }
     }
 }

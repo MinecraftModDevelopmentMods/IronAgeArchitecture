@@ -9,6 +9,23 @@ import zone.moddev.mc.ironagearchitecture.block.*;
 import zone.moddev.mc.ironagearchitecture.block.WallGeometry.*;
 
 public class JettyGeometryTest {
+    @Test public void bracketFacesPointOutOfTheSolidInsteadOfIntoIt() {
+        for(FloorShape shape:FloorShape.values()) for(boolean full:new boolean[]{false,true}) for(EnumFacing side:EnumFacing.HORIZONTALS) {
+            if(JettyFloorGeometry.bracketAnchor(shape,side,full)==null) continue;
+            List<Part> parts=JettyFloorGeometry.parts(shape,false,0,side,full);
+            Part bracket=parts.get(parts.size()-1);
+            double[] centre=new double[3];
+            for(double[] p:bracket.outline) {centre[0]+=p[0]/bracket.outline.length;centre[1]+=p[1]/bracket.outline.length;}
+            centre[2]=(bracket.front+bracket.back)/2;
+            for(SurfaceGeometry.Face face:SurfaceGeometry.faces(Collections.singletonList(bracket),EnumFacing.NORTH)) {
+                double[] a=face.points[0],b=face.points[1],c=face.points[2];
+                double nx=(b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]);
+                double ny=(b[2]-a[2])*(c[0]-a[0])-(b[0]-a[0])*(c[2]-a[2]);
+                double nz=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+                assertTrue("Inward bracket face: "+shape+" "+side+" full="+full,nx*(a[0]-centre[0])+ny*(a[1]-centre[1])+nz*(a[2]-centre[2])>1e-6);
+            }
+        }
+    }
     @Test public void allWallPartsStayInsideTheirSavedFootprint() {
         for(WallProfile p:WallProfile.values()) for(FrameFamily f:FrameFamily.values()) {
             if(p.corner&&f!=FrameFamily.TERMINAL) continue;
@@ -78,5 +95,18 @@ public class JettyGeometryTest {
                 for(double[] point:part.outline) if(point[0]==x&&point[1]==z) found=true;
             assertTrue("Corner tie missing at "+x+", "+z,found);
         }
+    }
+    @Test public void floorClosesTheWallHeadWithoutFillingTheCantileverAir() {
+        List<Part> parts=JettyFloorGeometry.parts(FloorShape.FULL,false,3<<16,null,false);
+        boolean closed=false,overhangFilled=false;
+        for(Part part:parts) {
+            AxisAlignedBB box=part.bounds(EnumFacing.NORTH);
+            if(box.minY<=.25&&box.maxY>=.25&&box.minX<=.25&&box.maxX>=.25) {
+                if(box.minZ<=.25&&box.maxZ>=.25) closed=true;
+                if(box.minZ<=.75&&box.maxZ>=.75) overhangFilled=true;
+            }
+        }
+        assertTrue("Half-block opening above the lower wall",closed);
+        assertFalse("Empty space beyond the supporting wall must remain open",overhangFilled);
     }
 }

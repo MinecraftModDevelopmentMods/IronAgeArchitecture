@@ -23,15 +23,19 @@ public final class PartialWallGeometry {
                 int bits=(mask>>(h==0?4:8))&15;
                 if(bits==0) continue;
                 double y=h==0?0:13;
-                WallGeometry.box(result,x,y,z+.01,profile.x1,y+3,z+1.25,Grain.EAST_WEST);
-                WallGeometry.box(result,x,y,z+6.75,profile.x1,y+3,z+7.99,Grain.EAST_WEST);
-                WallGeometry.box(result,x+.01,y,z,x+1.25,y+3,profile.z1,Grain.NORTH_SOUTH);
-                WallGeometry.box(result,x+6.75,y,z,x+7.99,y+3,profile.z1,Grain.NORTH_SOUTH);
+                if((bits&WallGeometry.bit(facing.rotateY()))!=0) {
+                    WallGeometry.box(result,x,y,z+.125,profile.x1,y+3,z+1.25,Grain.EAST_WEST);
+                    WallGeometry.box(result,x+8-inner,y,z+6.75,profile.x1,y+3,z+7.875,Grain.EAST_WEST);
+                }
+                if((bits&WallGeometry.bit(facing.getOpposite()))!=0) {
+                    WallGeometry.box(result,x+.125,y,z,x+1.25,y+3,profile.z1,Grain.NORTH_SOUTH);
+                    WallGeometry.box(result,x+6.75,y,z+8-inner,x+7.875,y+3,profile.z1,Grain.NORTH_SOUTH);
+                }
             }
         } else {
             WallGeometry.box(result,profile.x0,0,.75,profile.x1,16,7.25,Grain.DAUB);
             int sourcePanel=family==FrameFamily.TERMINAL?1:panel;
-            for(Part part:WallGeometry.parts(family,sourcePanel,facing,mask)) {
+            for(Part part:WallGeometry.rawParts(family,sourcePanel,facing,mask)) {
                 if(part.grain==Grain.DAUB) continue;
                 double[][] polygon=part.outline;
                 // Principal/end posts belong to the short piece, not a severed half-post.
@@ -48,6 +52,6 @@ public final class PartialWallGeometry {
                 if(back>front) result.add(new Part(polygon,front,back,part.grain,part.localFacing));
             }
         }
-        return Collections.unmodifiableList(result);
+        return !profile.corner&&family!=FrameFamily.RAIL?WallGeometry.trimRails(result,facing,mask):Collections.unmodifiableList(result);
     }
 }
