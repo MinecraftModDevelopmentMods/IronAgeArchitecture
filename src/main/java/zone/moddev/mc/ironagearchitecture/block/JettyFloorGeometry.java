@@ -14,6 +14,13 @@ public final class JettyFloorGeometry {
     }
     public static List<Part> parts(FloorShape shape,boolean alongX,int joins,EnumFacing bracket,boolean fullReach) {
         List<Part> result=new ArrayList<>();
+        // Close the wall head in this floor cell, without filling the air under the jetty.
+        int supports=(joins>>16)&15&shape.mask;
+        for(int q=0;q<4;q++) if((supports&(1<<q))!=0) {
+            int x=q%2*8,z=q/2*8;
+            boolean across=(supports&(1<<(q^1)))!=0;
+            WallGeometry.box(result,x,0,z,x+8,8,z+8,across?Grain.EAST_WEST:Grain.NORTH_SOUTH);
+        }
         for(int q=0;q<4;q++) if((shape.mask&(1<<q))!=0) {
             int x=q%2*8,z=q/2*8;
             boolean n=exposed(shape,q,EnumFacing.NORTH,joins),s=exposed(shape,q,EnumFacing.SOUTH,joins),
@@ -45,7 +52,9 @@ public final class JettyFloorGeometry {
                 bracket==EnumFacing.WEST?EnumFacing.NORTH:EnumFacing.SOUTH;
             // Transform into block coordinates before extrusion, retaining a convex sloping web.
             double tangent=anchor[1],edge=anchor[0];
-            double[][] points=new double[][]{{edge,6},{edge,8},{edge+reach,2},{edge+reach,0},{edge+reach-2,0},{edge,6}};
+            // Counter-clockwise outline: the extrusion's caps and edges must face outwards.
+            // Do not repeat the first point; that would add a zero-area closing edge.
+            double[][] points={{edge,6},{edge+reach-2,0},{edge+reach,0},{edge+reach,2},{edge,8}};
             // local web x increases inward from the edge; localFacing places it on the chosen side.
             result.add(new Part(points,tangent-1.5,tangent+1.5,Grain.FALLING,local));
         }

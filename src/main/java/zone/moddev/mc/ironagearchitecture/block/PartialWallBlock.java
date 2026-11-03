@@ -102,6 +102,13 @@ public final class PartialWallBlock extends FrameBlock {
             IBlockState previous=state;BlockPos previousPos=pos;
             for(int distance=1;distance<=16;distance++) {
                 BlockPos at=pos.offset(direction,distance);IBlockState next=world.getBlockState(at);
+                if(next.getBlock() instanceof WindowBlock) {
+                    WindowBlock window=(WindowBlock)next.getBlock();
+                    if(wood!=null&&wood.equals(window.wood)&&WallRuns.touches(previous,previousPos,next,at,direction)) {
+                        int joins=window.joins(next,world,at);if((joins&WindowGeometry.DOWN)==0) mask|=WallGeometry.bit(direction)<<4;if((joins&WindowGeometry.UP)==0) mask|=WallGeometry.bit(direction)<<8;
+                    }
+                    break;
+                }
                 if(!(next.getBlock() instanceof FrameBlock)||!timber((FrameBlock)next.getBlock())||!WallRuns.touches(previous,previousPos,next,at,direction)) break;
                 FrameBlock block=(FrameBlock)next.getBlock();
                 if(block.family==FrameFamily.RAIL) {mask|=WallGeometry.bit(direction)<<((next.getValue(PANEL)&1)==0?4:8);break;}
@@ -109,6 +116,7 @@ public final class PartialWallBlock extends FrameBlock {
                 previous=next;previousPos=at;
             }
         }
+        mask=RailJoins.bridge(state,world,pos,mask);
         if(family==FrameFamily.RAIL) for(int dy:new int[]{-1,1}) {
             IBlockState next=world.getBlockState(pos.up(dy));
             if(!(next.getBlock() instanceof PartialWallBlock)) continue;

@@ -1,5 +1,8 @@
 # Initial cottage kit — local handoff
 
+This records the local checks when the candidate was prepared. References to uncommitted
+work and hosted checks describe that point; Git history records later commits and merges.
+
 Version: **0.1.0.110021**, Minecraft 1.10.2, Forge 12.18.3.2511.
 
 The implementation is local and uncommitted on feature/1.10-initial-cottage-kit.

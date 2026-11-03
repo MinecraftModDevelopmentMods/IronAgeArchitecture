@@ -13,7 +13,10 @@ import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
 /** Invalidate the bounded, render-derived rail runs after a live client block update. */
 final class WallRenderListener implements IWorldEventListener {
     @Override public void notifyBlockUpdate(World world,BlockPos pos,IBlockState old,IBlockState next,int flags) {
-        if(old.getBlock() instanceof FrameBlock||next.getBlock() instanceof FrameBlock)
+        if(old.getBlock() instanceof FrameBlock||next.getBlock() instanceof FrameBlock
+            ||old.getBlock() instanceof zone.moddev.mc.ironagearchitecture.block.WindowBlock||next.getBlock() instanceof zone.moddev.mc.ironagearchitecture.block.WindowBlock
+            ||old.getBlock() instanceof zone.moddev.mc.ironagearchitecture.block.WindowLeafBlock||next.getBlock() instanceof zone.moddev.mc.ironagearchitecture.block.WindowLeafBlock
+            ||world.getBlockState(pos.up()).getBlock() instanceof zone.moddev.mc.ironagearchitecture.block.JettyFloorBlock)
             world.markBlockRangeForRenderUpdate(pos.add(-16,-1,-16),pos.add(16,1,16));
     }
     @Override public void notifyLightSet(BlockPos pos) { }

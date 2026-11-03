@@ -1,7 +1,8 @@
 param(
-    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub')][string]$Mode='core',
-    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2',
-    [string]$ServerTemplate='D:\IronAgeFurniture\manual-testing\sylvester-iaf-0.3.0.110021-20260921',
+    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled')][string]$Mode='core',
+    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\horizontal-rails-0.1.8',
+    [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
+    [string]$FurnitureJar='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\furniture\mods\iron-age-furniture-0.3.0.110021.jar',
     [string]$Java8='C:\Users\johnb\.gradle\jdks\temurin-8-amd64-windows.2\bin\java.exe'
 )
 $ErrorActionPreference='Stop'
@@ -32,7 +33,23 @@ if($Mode -eq 'legacy-daub') {
     Copy-Item -LiteralPath (Join-Path $staging 'Wattle and Daub Preview') -Destination (Join-Path $folder 'world') -Recurse
 }
 if($Mode -eq 'furniture') {
-    Copy-Item -LiteralPath (Join-Path $ServerTemplate 'mods/iron-age-furniture-0.3.0.110021.jar') -Destination (Join-Path $folder 'mods')
+    Copy-Item -LiteralPath $FurnitureJar -Destination (Join-Path $folder 'mods')
+}
+if($Mode -eq 'legacy-jetties') {
+    if(Test-Path -LiteralPath (Join-Path $folder 'world')) {throw 'Legacy jetty probe requires a fresh disposable destination'}
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $staging=Join-Path $folder 'jetty-preview-source'
+    [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\IronAgeArchitecture\candidates\0.1.2.110021-jettied-storeys\Jettied Street Preview.zip',$staging)
+    Copy-Item -LiteralPath (Join-Path $staging 'Jettied Street Preview') -Destination (Join-Path $folder 'world') -Recurse
+}
+$eraModes=@{'iron-age'=@('iron_age');'late-medieval'=@('late_medieval_tudor');'mixed-eras'=@('iron_age','late_medieval_tudor');'no-eras'=@();'invalid-era'=@('misspelled_era')}
+if($eraModes.ContainsKey($Mode)) {
+    New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
+    ("recipes {`n S:survivalEras <`n"+($eraModes[$Mode] -join "`n")+"`n >`n}`n") | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+}
+if($Mode -eq 'windows-disabled') {
+    New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
+    "blocks {`n B:leadedWindows=false`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }
 if($Mode -eq 'disabled') {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
@@ -67,6 +84,8 @@ $args+=('-Diaa.runtimeSha256='+(Get-FileHash -LiteralPath (Join-Path $folder ('m
 if($Mode -eq 'reload') {$args+='-Diaa.reload=true'}
 if($Mode -eq 'legacy') {$args+='-Diaa.legacy=true'}
 if($Mode -eq 'legacy-daub') {$args+='-Diaa.legacyDaub=true'}
+if($Mode -eq 'legacy-jetties') {$args+='-Diaa.legacyJetties=true'}
+if($Mode -eq 'core') {$args+=@('-Diaa.eraMatrix=true','-Diaa.recipeMatrix=true')}
 if($Mode -eq 'disabled') {$args+='-Diaa.expectedVariants=0'}
 $args+=@('-jar',$forge,'nogui')
 Push-Location $folder

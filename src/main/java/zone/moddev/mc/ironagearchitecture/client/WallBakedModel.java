@@ -21,6 +21,8 @@ import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
 import zone.moddev.mc.ironagearchitecture.block.JettyFloorBlock;
+import zone.moddev.mc.ironagearchitecture.block.SurfaceGeometry;
+import zone.moddev.mc.ironagearchitecture.block.TimberCorners;
 import zone.moddev.mc.ironagearchitecture.block.WallGeometry;
 import zone.moddev.mc.ironagearchitecture.block.WallGeometry.Grain;
 import zone.moddev.mc.ironagearchitecture.block.WallGeometry.Part;
@@ -31,7 +33,7 @@ public final class WallBakedModel implements IBakedModel {
     private final FrameBlock block;
     private final IBlockState state;
     private final TextureAtlasSprite daub,wood,end,boards;
-    private final Map<Integer,List<BakedQuad>> cache=new ConcurrentHashMap<>();
+    private final Map<Long,List<BakedQuad>> cache=new ConcurrentHashMap<>();
     public WallBakedModel(IBakedModel base,FrameBlock block,IBlockState state) {
         this.base=base;this.block=block;this.state=state;
         daub=sprite("ironagearchitecture:blocks/"+(block.finish(state.getValue(FrameBlock.PANEL))==0?"cob":"limewashed_cob"));
@@ -43,31 +45,40 @@ public final class WallBakedModel implements IBakedModel {
     @Override public List<BakedQuad> getQuads(@Nullable IBlockState extended,@Nullable EnumFacing side,long seed) {
         if(side!=null) return Collections.emptyList();
         Integer mask=extended instanceof IExtendedBlockState?((IExtendedBlockState)extended).getValue(FrameBlock.CONNECTIONS):null;
-        int key=mask==null?0:mask;
+        Integer patch=extended instanceof IExtendedBlockState?((IExtendedBlockState)extended).getValue(TimberCorners.PROPERTY):null;
+        int joins=mask==null?0:mask,corners=patch==null?0:patch;long key=(joins&0xffffffffL)|((long)corners<<32);
         List<BakedQuad> found=cache.get(key);
         if(found!=null) return found;
         List<BakedQuad> quads=new ArrayList<>();
-        for(Part part:block.parts(state,key)) {
-            int n=part.outline.length;
-            if(n==4) {
-                add(quads,part,new double[][]{point(part,0,false),point(part,3,false),point(part,2,false),point(part,1,false)});
-                add(quads,part,new double[][]{point(part,0,true),point(part,1,true),point(part,2,true),point(part,3,true)});
-            } else for(int i=1;i<n-1;i++) {
-                add(quads,part,new double[][]{point(part,0,false),point(part,i+1,false),point(part,i,false),point(part,i,false)});
-                add(quads,part,new double[][]{point(part,0,true),point(part,i,true),point(part,i+1,true),point(part,i+1,true)});
-            }
-            for(int i=0;i<n;i++) {
-                int j=(i+1)%n;
-                add(quads,part,new double[][]{point(part,i,false),point(part,j,false),point(part,j,true),point(part,i,true)});
-            }
+        for(SurfaceGeometry.Face face:SurfaceGeometry.faces(block.parts(state,joins,corners),state.getValue(FrameBlock.FACING))) {
+            double[][] p=face.points;
+            if(p.length==4) add(quads,face.part,p);
+            else for(int i=1;i<p.length-1;i++) add(quads,face.part,new double[][]{p[0],p[i],p[i+1],p[i+1]});
         }
         found=Collections.unmodifiableList(quads);
         if(cache.size()>128) cache.clear();
         cache.put(key,found);
         return found;
     }
-    private static double[] point(Part part,int i,boolean back) { return new double[]{part.outline[i][0],part.outline[i][1],back?part.back:part.front}; }
     private void add(List<BakedQuad> quads,Part part,double[][] points) {
+        EnumFacing facing=state.getValue(BlockHorizontal.FACING);
+        double[][] positions=new double[4][3];
+        for(int v=0;v<4;v++) {
+            double[] point=points[part.horizontal?3-v:v];
+            double[] transformed=part.transform(point[0],point[1],point[2],facing);
+            for(int axis=0;axis<3;axis++) positions[v][axis]=(float)(transformed[axis]/16);
+        }
+        // Clipping can leave slivers narrower than a render vertex's float precision.
+        // Discard them after conversion, rather than emitting collapsed triangles at joins.
+        double area=0;
+        for(int i=1;i<3;i++) {
+            double[] a=positions[0],b=positions[i],c=positions[i+1];
+            double x=(b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]);
+            double y=(b[2]-a[2])*(c[0]-a[0])-(b[0]-a[0])*(c[2]-a[2]);
+            double z=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+            area+=x*x+y*y+z*z;
+        }
+        if(area<1e-18) return;
         double[] a=points[0],b=points[1],c=points[2];
         double nx=(b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]);
         double ny=(b[2]-a[2])*(c[0]-a[0])-(b[0]-a[0])*(c[2]-a[2]);
@@ -79,15 +90,17 @@ public final class WallBakedModel implements IBakedModel {
                 ||part.grain==Grain.EAST_WEST&&Math.abs(nx)>.9
                 ||part.grain==Grain.NORTH_SOUTH&&Math.abs(nz)>.9;
         TextureAtlasSprite texture=part.grain==Grain.DAUB?daub:part.grain==Grain.BOARDS_X||part.grain==Grain.BOARDS_Z?boards:alongEnd?end:wood;
-        EnumFacing facing=state.getValue(BlockHorizontal.FACING);
+        if(part.timber!=null) texture=sprite("ironagearchitecture:blocks/beam_"+part.timber);
         double[] origin=part.transform(0,0,0,facing),normalPoint=part.transform(nx,ny,nz,facing);
         float rx=(float)(normalPoint[0]-origin[0]),ry=(float)(normalPoint[1]-origin[1]),rz=(float)(normalPoint[2]-origin[2]);
         VertexFormat format=DefaultVertexFormats.ITEM;
         UnpackedBakedQuad.Builder builder=new UnpackedBakedQuad.Builder(format);
         builder.setTexture(texture);builder.setApplyDiffuseLighting(true);
         builder.setQuadOrientation(EnumFacing.getFacingFromVector(rx,ry,rz));
-        for(double[] point:points) {
-            double[] p=part.transform(point[0],point[1],point[2],facing);
+        for(int vertex=0;vertex<points.length;vertex++) {
+            // Horizontal ties exchange local Y/Z; reverse winding to keep their outside faces.
+            double[] point=points[part.horizontal?points.length-1-vertex:vertex];
+            double[] p=positions[vertex];
             double u,v;
             if(alongEnd) {u=Math.abs(ny)>.9?point[0]:Math.abs(nx)>.9?point[2]:point[0];v=Math.abs(ny)>.9?point[2]:16-point[1];}
             else if(part.grain==Grain.RISING||part.grain==Grain.FALLING) {
@@ -104,7 +117,7 @@ public final class WallBakedModel implements IBakedModel {
             // Keep edge faces inside their sprite, including at oblique mipmapped floor edges.
             float tu=texture.getInterpolatedU(.008+.999*Math.max(0,Math.min(16,u))),tv=texture.getInterpolatedV(.008+.999*Math.max(0,Math.min(16,v)));
             for(int element=0;element<format.getElementCount();element++) switch(format.getElement(element).getUsage()) {
-                case POSITION:builder.put(element,(float)(p[0]/16),(float)(p[1]/16),(float)(p[2]/16),1);break;
+                case POSITION:builder.put(element,(float)p[0],(float)p[1],(float)p[2],1);break;
                 case COLOR:builder.put(element,1,1,1,1);break;
                 case UV:builder.put(element,tu,tv,0,1);break;
                 case NORMAL:builder.put(element,rx,ry,rz,0);break;

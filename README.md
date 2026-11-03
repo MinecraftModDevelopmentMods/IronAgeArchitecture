@@ -18,6 +18,11 @@ to a richly framed townhouse. Matching timbers join around corners and through i
 All six vanilla wood types are available. Cob comes in blocks, slabs and stairs, and smooth
 thatch and slate roofs have automatic corners and separate ridge caps.
 
+Leaded windows bring some light into the houses. Choose diamond or rectangular leading,
+match the timber and daub to your walls, then stack sections to make taller casements.
+They swing outwards with a right-click or redstone, and each column opens separately.
+Full and half-depth surrounds fit both ordinary walls and projecting upper floors.
+
 ## Overhanging upper floors
 
 Projecting upper storeys, known as jetties, are a central part of the kit. Half-depth walls,
@@ -32,6 +37,34 @@ floor edges, and matching corner pieces let the overhang continue around the sid
 
 The first alpha targets **Minecraft 1.10.2 with Forge**. Everything is crafted from vanilla
 ingredients, and the main content families can be enabled or disabled in the configuration.
+
+Start with plain wattle and daub, surround it with matching planks to make post panels,
+then arrange those panels into rails, studs, braces and corners. The same patterns work
+for full walls, thin walls and short pieces. Paired designs swap one-for-one, and offcuts
+can be joined back together. Item tooltips give a reminder while you build.
+
+You can limewash pieces before or after shaping, singly or in batches of eight. The
+[crafting guide](docs/BUILDING-GUIDE.md#crafting) covers the wall patterns, floors,
+brackets and roofs.
+
+## Building through the ages
+
+The series covers a broad span of traditional buildings. Creative tabs group the pieces by era:
+**Iron Age** starts with shared cob, plain daub and thatch, while **Late Medieval & Tudor**
+contains the timber-framed houses, jetties and the rest of the current village kit.
+Basic materials appear in both palettes.
+
+The framed palette takes its name from the late medieval and Tudor buildings that inspired it.
+Mermaid Street grew over several centuries: Historic England dates the
+[Mermaid Hotel's timber frame](https://historicengland.org.uk/listing/the-list/list-entry/1251961)
+to the late 15th century, and records a 15th-century front range and 16th-century wing at
+[5–6 Mermaid Street](https://historicengland.org.uk/listing/the-list/list-entry/1251938).
+These are building palettes for Minecraft rather than exact historical reconstructions.
+
+For a survival world set in a particular period, choose one or more eras in
+`config/ironagearchitecture.cfg`. Shared recipes stay available when any selected era uses
+them. All eras are enabled by default. See the [configuration guide](docs/BUILDING-GUIDE.md#era-palettes)
+for the settings.
 
 Iron Age Architecture works independently of Iron Age Furniture. You can use the two together
 to build and furnish your village.

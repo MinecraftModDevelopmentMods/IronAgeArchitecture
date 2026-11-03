@@ -37,6 +37,7 @@ public final class WallRuns {
     }
     public static List<Run> of(IBlockState state,BlockPos pos) {
         List<Run> list=new ArrayList<>();
+        if(state.getBlock() instanceof WindowBlock) {WindowBlock window=(WindowBlock)state.getBlock();add(list,pos,state.getValue(WindowBlock.FACING),0,16,window.back?8:0,window.thin?(window.back?16:8):16);return list;}
         if(!(state.getBlock() instanceof FrameBlock)||state.getBlock() instanceof JettyFloorBlock) return list;
         EnumFacing facing=state.getValue(FrameBlock.FACING);
         if(state.getBlock() instanceof PartialWallBlock) {

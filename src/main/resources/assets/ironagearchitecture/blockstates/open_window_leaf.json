@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=east": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=south": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=west": {
+      "model": "ironagearchitecture:window_mesh"
+    }
+  }
+}

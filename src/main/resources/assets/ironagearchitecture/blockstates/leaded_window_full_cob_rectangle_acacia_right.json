@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "facing=north,open=false,powered=false": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=north,open=false,powered=true": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=north,open=true,powered=false": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=north,open=true,powered=true": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=east,open=false,powered=false": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=east,open=false,powered=true": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=east,open=true,powered=false": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=east,open=true,powered=true": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=south,open=false,powered=false": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=south,open=false,powered=true": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=south,open=true,powered=false": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=south,open=true,powered=true": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=west,open=false,powered=false": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=west,open=false,powered=true": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=west,open=true,powered=false": {
+      "model": "ironagearchitecture:window_mesh"
+    },
+    "facing=west,open=true,powered=true": {
+      "model": "ironagearchitecture:window_mesh"
+    }
+  }
+}

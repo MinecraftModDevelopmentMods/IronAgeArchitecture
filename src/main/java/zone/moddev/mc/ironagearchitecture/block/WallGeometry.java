@@ -18,6 +18,7 @@ public final class WallGeometry {
         public final Grain grain;
         public final EnumFacing localFacing;
         public final boolean horizontal;
+        public final String timber;
         public Part(double[][] outline,double front,double back,Grain grain) {
             this(outline,front,back,grain,EnumFacing.NORTH);
         }
@@ -25,13 +26,22 @@ public final class WallGeometry {
             this(outline,front,back,grain,localFacing,false);
         }
         public Part(double[][] outline,double front,double back,Grain grain,EnumFacing localFacing,boolean horizontal) {
+            this(outline,front,back,grain,localFacing,horizontal,null);
+        }
+        public Part(double[][] outline,double front,double back,Grain grain,EnumFacing localFacing,boolean horizontal,String timber) {
             this.outline=outline;this.front=front;this.back=back;this.grain=grain;
-            this.localFacing=localFacing;this.horizontal=horizontal;
+            this.localFacing=localFacing;this.horizontal=horizontal;this.timber=timber;
         }
         public double[] transform(double x,double y,double z,EnumFacing facing) {
             double[] local=horizontal?rotate(x,z,y,localFacing):rotate(x,y,z,localFacing);
             return rotate(local[0],local[1],local[2],facing);
         }
+        public double[] inverse(double x,double y,double z,EnumFacing facing) {
+            double[] world=rotate(x,y,z,reverse(facing));
+            double[] local=rotate(world[0],world[1],world[2],reverse(localFacing));
+            return horizontal?new double[]{local[0],local[2],local[1]}:local;
+        }
+        private static EnumFacing reverse(EnumFacing facing) {return facing==EnumFacing.EAST?EnumFacing.WEST:facing==EnumFacing.WEST?EnumFacing.EAST:facing;}
         public AxisAlignedBB bounds(EnumFacing facing) {
             double minX=16,minY=16,minZ=16,maxX=0,maxY=0,maxZ=0;
             for(double[] p:outline) for(double z:new double[]{front,back}) {
@@ -92,7 +102,7 @@ public final class WallGeometry {
         Grain grain=rising?Grain.RISING:Grain.FALLING;
         polygon=clip(clip(polygon,x0,true),x1,false);
         // Braces sit a fraction behind posts/rails, avoiding coplanar overlapping timber faces.
-        double inset=rising?.035:.045;
+        double inset=rising?.25:.375;
         parts.add(new Part(polygon,inset,DEPTH,grain,localFacing));
         parts.add(new Part(polygon,16-DEPTH,16-inset,grain,localFacing));
     }
@@ -100,6 +110,11 @@ public final class WallGeometry {
     private static boolean requested(int mask,int shift,EnumFacing worldDirection) { return (mask&(bit(worldDirection)<<shift))!=0; }
 
     public static List<Part> parts(FrameFamily family,int panel,EnumFacing facing,int mask) {
+        List<Part> result=rawParts(family,panel,facing,mask);
+        return family==FrameFamily.RAIL||family==FrameFamily.INFILL||family==FrameFamily.TERMINAL&&(panel&1)==0?result:trimRails(result,facing,mask);
+    }
+    /** Partial walls trim only after their posts have moved and their outlines have been cut. */
+    static List<Part> rawParts(FrameFamily family,int panel,EnumFacing facing,int mask) {
         List<Part> result=new ArrayList<>();
         boolean corner=family==FrameFamily.TERMINAL&&(panel&1)==0;
         if(corner) {
@@ -155,25 +170,48 @@ public final class WallGeometry {
             double x0=left?0:8,x1=right?16:8;
             if(corner) {
                 if(right) {
-                    box(result,0,y0,.01,16,y1,DEPTH,Grain.EAST_WEST);
-                    box(result,0,y0,16-DEPTH,16,y1,16-.01,Grain.EAST_WEST);
+                    box(result,0,y0,.125,16,y1,DEPTH,Grain.EAST_WEST);
+                    box(result,16-POST,y0,16-DEPTH,16,y1,16-.125,Grain.EAST_WEST);
                 }
                 if(south) {
-                    box(result,.01,y0,0,DEPTH,y1,16,Grain.NORTH_SOUTH);
-                    box(result,16-DEPTH,y0,0,16-.01,y1,16,Grain.NORTH_SOUTH);
+                    box(result,.125,y0,0,DEPTH,y1,16,Grain.NORTH_SOUTH);
+                    box(result,16-DEPTH,y0,16-POST,16-.125,y1,16,Grain.NORTH_SOUTH);
                 }
             } else {
                 // Braces/studs are intersections within a rail run; principal posts can terminate one.
                 if((family==FrameFamily.BRACE||family==FrameFamily.STUD||(family==FrameFamily.POST&&(panel&1)!=0))&&(left||right)) {x0=0;x1=16;}
                 if(family==FrameFamily.TERMINAL&&right) x0=0;
-                box(result,x0,y0,.01,x1,y1,DEPTH,Grain.EAST_WEST);
-                box(result,x0,y0,16-DEPTH,x1,y1,16-.01,Grain.EAST_WEST);
+                box(result,x0,y0,.125,x1,y1,DEPTH,Grain.EAST_WEST);
+                box(result,x0,y0,16-DEPTH,x1,y1,16-.125,Grain.EAST_WEST);
                 if(north||south) {
                     double z0=north?0:8,z1=south?16:8;
-                    box(result,.01,y0,z0,DEPTH,y1,z1,Grain.NORTH_SOUTH);
-                    box(result,16-DEPTH,y0,z0,16-.01,y1,z1,Grain.NORTH_SOUTH);
+                    box(result,.125,y0,z0,DEPTH,y1,z1,Grain.NORTH_SOUTH);
+                    box(result,16-DEPTH,y0,z0,16-.125,y1,z1,Grain.NORTH_SOUTH);
                 }
             }
+        }
+        return Collections.unmodifiableList(result);
+    }
+    static List<Part> trimRails(List<Part> source,EnumFacing facing,int mask) {
+        List<Part> result=new ArrayList<>();
+        for(Part rail:source) {
+            if(rail.grain!=Grain.EAST_WEST||rail.localFacing!=EnumFacing.NORTH||rail.horizontal) {result.add(rail);continue;}
+            double bottom=16,top=0;
+            for(double[] p:rail.outline) {bottom=Math.min(bottom,p[1]);top=Math.max(top,p[1]);}
+            int shift=bottom<8?4:8;
+            boolean left=requested(mask,shift,facing.rotateYCCW()),right=requested(mask,shift,facing.rotateY());
+            if(left==right) {result.add(rail);continue;}
+            double low=Double.POSITIVE_INFINITY,high=Double.NEGATIVE_INFINITY;
+            for(Part member:source) {
+                if(member.horizontal||member.localFacing!=EnumFacing.NORTH||member.grain!=Grain.VERTICAL&&member.grain!=Grain.RISING&&member.grain!=Grain.FALLING) continue;
+                double[][] transposed=new double[member.outline.length][];
+                for(int i=0;i<transposed.length;i++) transposed[i]=new double[]{member.outline[i][1],member.outline[i][0]};
+                for(double[] p:clip(clip(transposed,bottom,true),top,false)) {low=Math.min(low,p[1]);high=Math.max(high,p[1]);}
+            }
+            // A one-sided automatic run ends on real timber, rather than over the next infill bay.
+            if(low>high) continue;
+            double[][] outline=clip(rail.outline,left?high:low,!left);
+            if(outline.length>=3) result.add(new Part(outline,rail.front,rail.back,rail.grain,rail.localFacing,rail.horizontal));
         }
         return Collections.unmodifiableList(result);
     }

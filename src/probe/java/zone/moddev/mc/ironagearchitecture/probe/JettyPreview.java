@@ -112,7 +112,9 @@ public final class JettyPreview {
         for(WallProfile profile:new WallProfile[]{WallProfile.THIN,WallProfile.SHORT_LEFT,WallProfile.SHORT_RIGHT}) for(EnumFacing facing:EnumFacing.HORIZONTALS) {
             if(footprint(profile,facing)!=mask) continue;
             PartialWallBlock block=ArchitectureBlocks.findPartial(family==FrameFamily.INFILL?null:wood,family,profile);
-            int panel=family==FrameFamily.INFILL||family==FrameFamily.TERMINAL?finish:finish*2+pattern;
+            // The house plan describes a world-space diagonal; a rear-half strip reverses local X.
+            int placedPattern=family==FrameFamily.BRACE&&facing.rotateY().getAxisDirection()==EnumFacing.AxisDirection.NEGATIVE?pattern^1:pattern;
+            int panel=family==FrameFamily.INFILL||family==FrameFamily.TERMINAL?finish:finish*2+placedPattern;
             world.setBlockState(pos,block.getDefaultState().withProperty(FrameBlock.FACING,facing).withProperty(FrameBlock.PANEL,panel),2);return;
         }
         throw new IllegalStateException("Unrepresented wall footprint "+mask+" at "+pos);
