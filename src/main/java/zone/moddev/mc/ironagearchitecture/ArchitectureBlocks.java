@@ -38,11 +38,22 @@ public final class ArchitectureBlocks {
     public static final List<WindowBlock> WINDOWS = new ArrayList<>();
     public static WindowLeafBlock WINDOW_LEAF;
     public static LeadedPaneItem LEADED_PANE;
+    public static GutterItem GUTTER, GUTTER_OUTLET;
+    public static DownpipeBlock DOWNPIPE, DOWNPIPE_OFFSET, DOWNPIPE_SHOE;
+
+    public static int variants(Block block) {
+        if (block instanceof FrameBlock) return ((FrameBlock)block).variants();
+        return block == DOWNPIPE_OFFSET ? 4 : 1;
+    }
     public static List<ItemStack> visibleStacks() {
         List<ItemStack> result=new ArrayList<>();
-        for(Block block:VISIBLE) for(int meta=0;meta<(block instanceof FrameBlock?((FrameBlock)block).variants():1);meta++) result.add(new ItemStack(block,1,meta));
+        for(Block block:VISIBLE) for(int meta=0;meta<variants(block);meta++) result.add(new ItemStack(block,1,meta));
         for(JettyBracketItem item:BRACKETS) result.add(new ItemStack(item));
         if(LEADED_PANE!=null) {result.add(new ItemStack(LEADED_PANE,1,0));result.add(new ItemStack(LEADED_PANE,1,1));}
+        if (GUTTER != null) {
+            result.add(new ItemStack(GUTTER));
+            result.add(new ItemStack(GUTTER_OUTLET));
+        }
         return result;
     }
     public static List<FrameBlock> meshes() {
@@ -51,7 +62,8 @@ public final class ArchitectureBlocks {
     public static FrameBlock DAUB;
     public static final List<RoofBlock> ROOFS = new ArrayList<>();
     public static TileHangingBlock CLAY_HANGING, CLAY_HANGING_THIN;
-    public static TrimmedRoofBlock CLAY_FASCIA, CLAY_VERGE, CLAY_RIDGE_END;
+    public static FasciaBlock CLAY_FASCIA;
+    public static TrimmedRoofBlock CLAY_VERGE, CLAY_RIDGE_END;
     private ArchitectureBlocks() { }
     public static <T extends Block> T block(T block, String name) {
         block.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID, name));
@@ -97,11 +109,27 @@ public final class ArchitectureBlocks {
             CLAY_HANGING_THIN = block(new TileHangingBlock(true), "clay_tile_hanging_thin");
             item(CLAY_HANGING, new TileHangingItem(CLAY_HANGING));
             item(CLAY_HANGING_THIN, new TileHangingItem(CLAY_HANGING_THIN));
-            CLAY_FASCIA = roofTrim("clay_tile_fascia", TrimmedRoofBlock.Kind.FASCIA);
+            CLAY_FASCIA = block(new FasciaBlock(), "clay_tile_fascia");
+            item(CLAY_FASCIA, new EraItemBlock(CLAY_FASCIA));
+            ROOFS.add(CLAY_FASCIA);
             CLAY_VERGE = roofTrim("clay_tile_verge", TrimmedRoofBlock.Kind.VERGE);
             CLAY_RIDGE_END = roofTrim("clay_tile_ridge_end", TrimmedRoofBlock.Kind.RIDGE_END);
+            GUTTER = gutter("iron_gutter", false);
+            GUTTER_OUTLET = gutter("iron_gutter_outlet", true);
+            DOWNPIPE = block(new DownpipeBlock(DownpipeBlock.Kind.STRAIGHT), "iron_downpipe");
+            item(DOWNPIPE, new DownpipeItem(DOWNPIPE));
+            DOWNPIPE_OFFSET = block(new DownpipeBlock(DownpipeBlock.Kind.OFFSET), "iron_downpipe_offset");
+            item(DOWNPIPE_OFFSET, new DownpipeItem(DOWNPIPE_OFFSET));
+            DOWNPIPE_SHOE = block(new DownpipeBlock(DownpipeBlock.Kind.SHOE), "iron_downpipe_shoe");
+            item(DOWNPIPE_SHOE, new DownpipeItem(DOWNPIPE_SHOE));
         }
         EraCatalog.assignPrimaryTabs();
+    }
+    private static GutterItem gutter(String name, boolean outlet) {
+        GutterItem item = new GutterItem(outlet);
+        item.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID, name));
+        item.setUnlocalizedName(IronAgeArchitecture.MODID + "." + name);
+        return GameRegistry.register(item);
     }
     private static void registerWindows() {
         WINDOW_LEAF=block(new WindowLeafBlock(),"open_window_leaf");

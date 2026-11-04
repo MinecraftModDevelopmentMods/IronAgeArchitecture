@@ -16,6 +16,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import zone.moddev.mc.ironagearchitecture.ArchitectureBlocks;
 import zone.moddev.mc.ironagearchitecture.CommonProxy;
+import zone.moddev.mc.ironagearchitecture.block.DownpipeBlock;
+import zone.moddev.mc.ironagearchitecture.block.GutterItem;
 import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
 import zone.moddev.mc.ironagearchitecture.block.RoofBlock;
 import zone.moddev.mc.ironagearchitecture.block.JettyBracketItem;
@@ -30,12 +32,14 @@ public final class ClientProxy extends CommonProxy {
         super.preInit();
         MinecraftForge.EVENT_BUS.register(this);
         for (Block block : ArchitectureBlocks.VISIBLE) {
-            int count = block instanceof FrameBlock ? ((FrameBlock)block).variants() : 1;
+            int count = ArchitectureBlocks.variants(block);
             for (int meta = 0; meta < count; meta++) {
-                String name = block.getRegistryName().toString() + (block instanceof FrameBlock ? "_" + meta : "");
+                String name = block.getRegistryName().toString() + (block instanceof FrameBlock || block == ArchitectureBlocks.DOWNPIPE_OFFSET ? "_" + meta : "");
                 ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block),meta,new ModelResourceLocation(name,"inventory"));
             }
         }
+        if (ArchitectureBlocks.GUTTER != null) for (GutterItem item : gutterItems())
+            ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
         for(JettyBracketItem item:ArchitectureBlocks.BRACKETS) ModelLoader.setCustomModelResourceLocation(item,0,new ModelResourceLocation(item.getRegistryName(),"inventory"));
         if(ArchitectureBlocks.LEADED_PANE!=null) for(int meta=0;meta<2;meta++) ModelLoader.setCustomModelResourceLocation(ArchitectureBlocks.LEADED_PANE,meta,new ModelResourceLocation("ironagearchitecture:leaded_pane_"+meta,"inventory"));
     }
@@ -60,6 +64,24 @@ public final class ClientProxy extends CommonProxy {
                 event.getModelRegistry().putObject(key,new WallBakedModel(event.getModelRegistry().getObject(key),block,state));
             }
         }
+        if (ArchitectureBlocks.GUTTER != null) {
+            for (GutterItem item : gutterItems()) {
+                ModelResourceLocation key = new ModelResourceLocation(item.getRegistryName(), "inventory");
+                event.getModelRegistry().putObject(key, RoofBakedModel.gutter(event.getModelRegistry().getObject(key), item.outlet));
+            }
+            for (DownpipeBlock pipe : new DownpipeBlock[]{ArchitectureBlocks.DOWNPIPE, ArchitectureBlocks.DOWNPIPE_OFFSET, ArchitectureBlocks.DOWNPIPE_SHOE}) {
+                for (IBlockState state : pipe.getBlockState().getValidStates()) {
+                    ModelResourceLocation key = new ModelResourceLocation(pipe.getRegistryName(), variant(state));
+                    event.getModelRegistry().putObject(key, RoofBakedModel.pipe(event.getModelRegistry().getObject(key), pipe, state));
+                }
+                for (int i = 0; i < ArchitectureBlocks.variants(pipe); i++) {
+                    String name = pipe.getRegistryName().toString() + (pipe.isOffset() ? "_" + i : "");
+                    ModelResourceLocation key = new ModelResourceLocation(name, "inventory");
+                    IBlockState state = pipe.getDefaultState().withProperty(DownpipeBlock.PROFILE, i);
+                    event.getModelRegistry().putObject(key, RoofBakedModel.pipe(event.getModelRegistry().getObject(key), pipe, state));
+                }
+            }
+        }
         for (RoofBlock block : ArchitectureBlocks.ROOFS) {
             String texture = "ironagearchitecture:blocks/" + block.textureKey();
             for (IBlockState state : block.getBlockState().getValidStates()) {
@@ -73,6 +95,10 @@ public final class ClientProxy extends CommonProxy {
                     block.getDefaultState(),Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture)));
         }
     }
+    private static GutterItem[] gutterItems() {
+        return new GutterItem[]{ArchitectureBlocks.GUTTER, ArchitectureBlocks.GUTTER_OUTLET};
+    }
+
     @SubscribeEvent public void stitch(TextureStitchEvent.Pre event) {
         event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/glass_silver"));event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/iron_block"));
         for(String wood:ArchitectureBlocks.WOODS) {

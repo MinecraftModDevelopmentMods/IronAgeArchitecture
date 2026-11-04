@@ -112,6 +112,7 @@ final class RecipeProbe {
         Block block=Block.getBlockFromItem(item);
         if(block instanceof JettyFloorBlock) return "floor:"+((JettyFloorBlock)block).wood;
         if(block instanceof FrameBlock) {FrameBlock wall=(FrameBlock)block;return wall.family==FrameFamily.INFILL?"daub:"+wall.finish(stack.getMetadata()):"frame:"+wall.wood+":"+wall.finish(stack.getMetadata());}
+        if(item instanceof GutterItem || block instanceof DownpipeBlock) return "iron_drain";
         if(block instanceof RoofBlock) return "roof:"+((RoofBlock)block).materialKey;
         if(block instanceof TileHangingBlock) return "roof:clay_tile";
         for(int finish=0;finish<ArchitectureBlocks.COB.size();finish++) if(ArchitectureBlocks.COB.get(finish)==block||ArchitectureBlocks.SLABS.get(finish)==block||ArchitectureBlocks.STAIRS.get(finish)==block) return "daub:"+finish;

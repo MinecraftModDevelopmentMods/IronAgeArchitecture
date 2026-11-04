@@ -15,6 +15,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
+import zone.moddev.mc.ironagearchitecture.block.DownpipeBlock;
+import zone.moddev.mc.ironagearchitecture.block.FasciaBlock;
 import zone.moddev.mc.ironagearchitecture.block.RoofBlock;
 import zone.moddev.mc.ironagearchitecture.block.RoofGeometry;
 import zone.moddev.mc.ironagearchitecture.block.RoofShape;
@@ -27,14 +29,16 @@ public final class RoofBakedModel implements IBakedModel {
     private final TextureAtlasSprite sprite;
     private final IBakedModel base;
     public RoofBakedModel(IBakedModel base, RoofBlock block, IBlockState state, TextureAtlasSprite sprite) {
-        this.base = base; this.sprite = sprite;
+        this(base, sprite);
         RoofShape shape = block.geometryShape(state);
         EnumFacing facing = state.getValue(BlockHorizontal.FACING);
         if (block instanceof TrimmedRoofBlock) {
             TrimmedRoofBlock.Kind kind = ((TrimmedRoofBlock) block).kind;
             TextureAtlasSprite wood = net.minecraft.client.Minecraft.getMinecraft().getTextureMapBlocks()
                 .getAtlasSprite("ironagearchitecture:blocks/beam_dark_oak");
-            addTrim(kind, state.getValue(TrimmedRoofBlock.RIGHT), facing, wood);
+            addTrim(kind, kind == TrimmedRoofBlock.Kind.VERGE && state.getValue(TrimmedRoofBlock.RIGHT), facing, wood);
+            if (block instanceof FasciaBlock && state.getValue(FasciaBlock.FITTING) != 0)
+                DrainMesh.gutter(state.getValue(FasciaBlock.FITTING) == 2, state.getValue(FasciaBlock.ENDS), ironFaces(facing));
             return;
         }
         for (double[][] face : RoofGeometry.top(shape,block.isRidge())) add(face,facing,true);
@@ -52,6 +56,45 @@ public final class RoofBakedModel implements IBakedModel {
                 if (ah + bh > 0) add(new double[][]{{ax,0,az},{ax,ah,az},{bx,bh,bz},{bx,0,bz}},facing,false);
             }
         }
+    }
+
+    private RoofBakedModel(IBakedModel base, TextureAtlasSprite sprite) {
+        this.base = base;
+        this.sprite = sprite;
+    }
+
+    static RoofBakedModel gutter(IBakedModel base, boolean outlet) {
+        RoofBakedModel model = new RoofBakedModel(base, iron());
+        DrainMesh.gutter(outlet, 3, (a,b,c,d) -> {
+            // Raise the standalone fitting into the centre of the inventory model.
+            model.ironFaces(EnumFacing.NORTH).add(inventoryPoint(a), inventoryPoint(b), inventoryPoint(c), inventoryPoint(d));
+        });
+        return model;
+    }
+
+    private static double[] inventoryPoint(double[] point) {
+        return new double[]{point[0], point[1] + 6, point[2] - 6.5};
+    }
+
+    static RoofBakedModel pipe(IBakedModel base, DownpipeBlock block, IBlockState state) {
+        RoofBakedModel model = new RoofBakedModel(base, iron());
+        DrainMesh.pipe(block.path(state), model.ironFaces(state.getValue(DownpipeBlock.FACING)));
+        return model;
+    }
+
+    private static TextureAtlasSprite iron() {
+        return net.minecraft.client.Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("minecraft:blocks/iron_block");
+    }
+
+    private DrainMesh.Face ironFaces(EnumFacing facing) {
+        TextureAtlasSprite metal = iron();
+        return (a,b,c,d) -> {
+            double[][] pixels = {a,b,c,d};
+            double[][] points = new double[4][3];
+            for (int i = 0; i < 4; i++)
+                for (int axis = 0; axis < 3; axis++) points[i][axis] = pixels[i][axis] / 16;
+            add(points, facing, false, metal, null, .43F, .46F, .47F);
+        };
     }
 
     private void addTrim(TrimmedRoofBlock.Kind kind, boolean right, EnumFacing facing, TextureAtlasSprite wood) {
@@ -112,6 +155,11 @@ public final class RoofBakedModel implements IBakedModel {
 
     private void add(double[][] points, EnumFacing facing, boolean top, TextureAtlasSprite texture,
             @Nullable TrimmedRoofBlock.Kind board) {
+        add(points, facing, top, texture, board, 1, 1, 1);
+    }
+
+    private void add(double[][] points, EnumFacing facing, boolean top, TextureAtlasSprite texture,
+            @Nullable TrimmedRoofBlock.Kind board, float red, float green, float blue) {
         if (java.util.Arrays.equals(points[0],points[1]))
             points = new double[][]{points[0],points[2],points[3],points[3]};
         double[][] rotated = new double[4][];
@@ -137,7 +185,7 @@ public final class RoofBakedModel implements IBakedModel {
             for (int element = 0; element < format.getElementCount(); element++) {
                 switch (format.getElement(element).getUsage()) {
                     case POSITION: builder.put(element,(float)p[0],(float)p[1],(float)p[2],1); break;
-                    case COLOR: builder.put(element,1,1,1,1); break;
+                    case COLOR: builder.put(element,red,green,blue,1); break;
                 case UV: builder.put(element,texture.getInterpolatedU(textureU),texture.getInterpolatedV(textureV),0,1); break;
                     case NORMAL: builder.put(element,(float)(nx/length),(float)(ny/length),(float)(nz/length),0); break;
                     default: builder.put(element); break;

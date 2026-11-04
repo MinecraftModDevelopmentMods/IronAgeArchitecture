@@ -13,7 +13,8 @@ import zone.moddev.mc.ironagearchitecture.block.*;
 
 /** Three attached cottages with eaves and projecting gables over a stepped street. */
 final class RyeTilePreview {
-    static final String NAME = "Rye Roof Trim Preview";
+    static final String NAME = "Rye Downpipe Shoe Preview";
+    static final BlockPos RAIN_FOOT = new BlockPos(-35, 10, 0);
     static final BlockPos SPAWN = new BlockPos(-34, 9, -5);
 
     static void build(WorldServer world) {
@@ -33,6 +34,8 @@ final class RyeTilePreview {
         house(world, -57, 14, 7, 7, 7, "spruce", false, false);
         house(world, -50, 12, 9, 9, 6, "dark_oak", true, false);
         house(world, -41, 10, 7, 7, 6, "oak", false, true);
+        halfJettyDrain(world);
+        fullJettyDrain(world);
 
         // A short garden wall and hedge frame the exposed downhill end of the row.
         for (int z = 1; z <= 7; z++) {
@@ -41,6 +44,72 @@ final class RyeTilePreview {
             set(world, x, ground, z, Blocks.COBBLESTONE_WALL.getStateFromMeta(z % 3 == 0 ? 1 : 0));
             if (z >= 4) set(world, x, ground + 1, z, Blocks.LEAVES.getStateFromMeta(4));
         }
+    }
+
+    private static void halfJettyDrain(WorldServer world) {
+        int outlet = -56;
+        IBlockState floor = ArchitectureBlocks.findFloor("spruce", FloorShape.HALF, null).getDefaultState()
+            .withProperty(FrameBlock.FACING, EnumFacing.SOUTH);
+        PartialWallBlock post = ArchitectureBlocks.findPartial("spruce", FrameFamily.POST, WallProfile.THIN);
+        for (int x = -57; x <= -51; x++) {
+            if (x == outlet) {
+                for (int y = 18; y <= 19; y++) set(world, x, y, 0,
+                    ArchitectureBlocks.findWall("spruce", FrameFamily.POST).getDefaultState()
+                        .withProperty(FrameBlock.FACING, EnumFacing.NORTH).withProperty(FrameBlock.PANEL, 2));
+                continue;
+            }
+            set(world, x, 17, -1, floor);
+            for (int y = 18; y <= 19; y++) {
+                IBlockState old = world.getBlockState(new BlockPos(x, y, 0));
+                IBlockState thin;
+                if (old.getBlock() instanceof WindowBlock) {
+                    thin = ArchitectureBlocks.findWindow("spruce", 1, true, false, x < -54, true).getDefaultState()
+                        .withProperty(WindowBlock.FACING, EnumFacing.NORTH);
+                } else {
+                    thin = post.getDefaultState().withProperty(FrameBlock.FACING, EnumFacing.SOUTH)
+                        .withProperty(FrameBlock.PANEL, 2);
+                }
+                set(world, x, y, -1, thin);
+                set(world, x, y, 0, Blocks.AIR.getDefaultState());
+            }
+        }
+        gutter(world, -58, -51, 20, outlet);
+        for (int y = 17; y <= 19; y++) pipe(world, outlet, y, -1, false, 2);
+        pipe(world, outlet, 16, -1, true, 1);
+        pipe(world, outlet, 15, -1, false, 1);
+        world.setBlockState(new BlockPos(outlet, 14, -1), ArchitectureBlocks.DOWNPIPE_SHOE.state(EnumFacing.SOUTH, 1), 2);
+    }
+
+    private static void fullJettyDrain(WorldServer world) {
+        int outlet = -35;
+        // Set the brick ground floor one block back beneath the timber storey.
+        for (int x = -41; x <= -35; x++) for (int y = 10; y <= 12; y++) {
+            IBlockState old = world.getBlockState(new BlockPos(x, y, 0));
+            set(world, x, y, 1, old);
+            set(world, x, y, 0, Blocks.AIR.getDefaultState());
+        }
+        gutter(world, -41, -34, 15, outlet);
+        pipe(world, outlet, 14, -1, true, 0);
+        pipe(world, outlet, 13, -1, false, 0);
+        pipe(world, outlet, 12, -1, true, 2);
+        pipe(world, outlet, 12, 0, true, 3);
+        pipe(world, outlet, 11, 0, false, 0);
+        world.setBlockState(RAIN_FOOT, ArchitectureBlocks.DOWNPIPE_SHOE.state(EnumFacing.SOUTH, 0), 2);
+    }
+
+    private static void gutter(WorldServer world, int from, int to, int y, int outlet) {
+        for (int x = from; x <= to; x++) {
+            BlockPos pos = new BlockPos(x, y, -1);
+            IBlockState fascia = world.getBlockState(pos);
+            if (fascia.getBlock() != ArchitectureBlocks.CLAY_FASCIA)
+                throw new IllegalStateException("Preview gutter is missing its fascia at " + pos);
+            world.setBlockState(pos, fascia.withProperty(FasciaBlock.FITTING, x == outlet ? 2 : 1), 2);
+        }
+    }
+
+    private static void pipe(WorldServer world, int x, int y, int z, boolean offset, int profile) {
+        DownpipeBlock piece = offset ? ArchitectureBlocks.DOWNPIPE_OFFSET : ArchitectureBlocks.DOWNPIPE;
+        set(world, x, y, z, piece.state(EnumFacing.SOUTH, profile));
     }
 
     private static int streetHeight(int x) { return 14 - Math.floorDiv(x + 57, 4); }

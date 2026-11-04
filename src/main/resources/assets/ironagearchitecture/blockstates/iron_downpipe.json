@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "facing=north,profile=0": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=north,profile=1": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=north,profile=2": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=north,profile=3": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=east,profile=0": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=east,profile=1": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=east,profile=2": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=east,profile=3": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=south,profile=0": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=south,profile=1": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=south,profile=2": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=south,profile=3": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=west,profile=0": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=west,profile=1": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=west,profile=2": {
+      "model": "ironagearchitecture:drain_mesh"
+    },
+    "facing=west,profile=3": {
+      "model": "ironagearchitecture:drain_mesh"
+    }
+  }
+}

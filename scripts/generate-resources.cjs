@@ -138,10 +138,35 @@ for (const [material,label] of [['thatch','Thatch'],['slate','Slate'],['clay_til
 for (const [part,label] of [['fascia','Fascia'],['verge','Verge'],['ridge_end','Ridge End']]) {
   const name = `clay_tile_${part}`, variants = {};
   const mesh = part === 'ridge_end' ? 'clay_tile_cap_mesh' : 'clay_tile_mesh';
-  for (const facing of Object.keys(facings)) for (const right of [false,true])
-    variants[`facing=${facing},right=${right}`] = {model:`${ns}:${mesh}`};
+  for (const facing of Object.keys(facings)) {
+    if (part === 'fascia') {
+      for (let ends=0;ends<4;ends++) for (let fitting=0;fitting<3;fitting++)
+        variants[`ends=${ends},facing=${facing},fitting=${fitting}`] = {model:`${ns}:${mesh}`};
+    } else for (const right of [false,true])
+      variants[`facing=${facing},right=${right}`] = {model:`${ns}:${mesh}`};
+  }
   state(name,variants); item(name,mesh);
   lang[`tile.${ns}.${name}.name`] = `Clay Tile ${label}`;
+}
+model('drain_mesh',{parent:'minecraft:block/block',textures:{particle:'minecraft:blocks/iron_block'}});
+for (const [name,label] of [['iron_gutter','Iron Gutter'],['iron_gutter_outlet','Iron Gutter Outlet']]) {
+  item(name,'drain_mesh');
+  lang[`item.${ns}.${name}.name`] = label;
+}
+for (const [name,labels] of [
+  ['iron_downpipe',['Iron Downpipe']],
+  ['iron_downpipe_shoe',['Iron Downpipe Shoe']],
+  ['iron_downpipe_offset',['Eave Offset','Half-block Offset','Full-block Outer Elbow','Full-block Inner Elbow']]
+]) {
+  const variants = {};
+  for (const facing of Object.keys(facings)) for (let profile=0;profile<4;profile++)
+    variants[`facing=${facing},profile=${profile}`] = {model:`${ns}:drain_mesh`};
+  state(name,variants);
+  for (const [i,label] of labels.entries()) {
+    const suffix = labels.length > 1 ? '_' + i : '';
+    item(name + suffix,'drain_mesh');
+    lang[`tile.${ns}.${name}${suffix ? '.' + i : ''}.name`] = label;
+  }
 }
 model('clay_tile_hanging',{parent:'minecraft:block/cube_all',textures:{all:`${ns}:blocks/clay_tile`}});
 const tileFaces = Object.fromEntries(['down','up','north','south','west','east'].map(face =>
@@ -165,6 +190,19 @@ for(const [w,wood] of woods.entries()) for(const finish of [0,1]) for(const thin
 }
 state('open_window_leaf',Object.fromEntries(Object.keys(facings).map(facing=>[`facing=${facing}`,{model:`${ns}:window_mesh`}])));
 for(let meta=0;meta<2;meta++) {item(`leaded_pane_${meta}`,'window_mesh');lang[`item.${ns}.leaded_pane.${meta}.name`]=`${meta?'Rectangular':'Diamond'} Leaded Pane`;}
+for (const [key,label] of Object.entries({
+  'gutter.fit':'Fit to the outside face of a bare clay fascia. Sneak and use an empty hand to recover it.',
+  'gutter.outlet':'Place a downpipe beneath the outlet to carry rain down.',
+  'gutter.craft':'Three iron ingots in a row make six gutters. Add an ingot to make an outlet.',
+  'pipe.place':'Place against a pipe end to line up. Sneak, face the wall and click to pick the depth.',
+  'pipe.craft':'Three iron ingots in a column make six pipes. Add a stick to make an offset.',
+  'pipe.offset.0':'Fits under an outlet and brings the pipe back to the wall.',
+  'pipe.offset.1':'Fits under an outside pipe and brings it half a block in.',
+  'pipe.offset.2':'Place beneath the upper pipe with its side opening toward the wall.',
+  'pipe.offset.3':'Place beside the outer elbow, one cell closer to the wall.',
+  'pipe.cycle':'Craft alone to switch to the next offset shape.',
+  'pipe.shoe':'Craft a downpipe alone. Fit beneath the last pipe to let rain spill out above the ground.'
+})) lang[`hint.${ns}.${key}`] = label;
 lang[`hint.${ns}.window.use`]='Right-click to open the casement; redstone operates the whole column.';
 lang[`hint.${ns}.window.place`]='Stack to share a hinge; sneak to choose a different alignment.';
 lang[`hint.${ns}.window.glaze`]='Craft alone to swap leading. Shape the wall before glazing.';

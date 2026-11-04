@@ -26,6 +26,7 @@ public final class ArchitectureRecipes {
             }
         }
         if(ArchitectureConfig.windows) registerWindows();
+        if (ArchitectureConfig.clayTiles) registerGuttering();
         for(RoofBlock roof:ArchitectureBlocks.ROOFS) if(!roof.isRidge() && !(roof instanceof TrimmedRoofBlock)) {
             Object material;
             switch (roof.materialKey) {
@@ -52,6 +53,18 @@ public final class ArchitectureRecipes {
             }
         }
     }
+    private static void registerGuttering() {
+        shaped(new ItemStack(ArchitectureBlocks.GUTTER, 6), "III", 'I', Items.IRON_INGOT);
+        shapeless(new ItemStack(ArchitectureBlocks.GUTTER_OUTLET), ArchitectureBlocks.GUTTER, Items.IRON_INGOT);
+        shaped(new ItemStack(ArchitectureBlocks.DOWNPIPE, 6), "I", "I", "I", 'I', Items.IRON_INGOT);
+        shapeless(new ItemStack(ArchitectureBlocks.DOWNPIPE_OFFSET), ArchitectureBlocks.DOWNPIPE, Items.STICK);
+        shapeless(new ItemStack(ArchitectureBlocks.DOWNPIPE_SHOE), ArchitectureBlocks.DOWNPIPE);
+        for (int profile = 0; profile < 4; profile++) {
+            shapeless(new ItemStack(ArchitectureBlocks.DOWNPIPE_OFFSET, 1, (profile + 1) & 3),
+                new ItemStack(ArchitectureBlocks.DOWNPIPE_OFFSET, 1, profile));
+        }
+    }
+
     private static void registerCob() {
         shapeless(new ItemStack(ArchitectureBlocks.COB.get(0),8),Blocks.DIRT,Blocks.DIRT,Blocks.DIRT,Blocks.DIRT,
             Items.CLAY_BALL,Items.CLAY_BALL,Items.CLAY_BALL,Items.CLAY_BALL,Items.WHEAT);
