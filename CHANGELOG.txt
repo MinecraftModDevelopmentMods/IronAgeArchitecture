@@ -1,3 +1,16 @@
+0.1.10.110021 - Alpha
+
+I've added the clay tiles and timber roof trim I've been trying out on the Rye cottages.
+
+- Build with weathered clay tile slopes and matching ridge caps. The slopes turn hips
+  and valleys like the existing roofs.
+- Hang the same tiles on gables and upper walls. Thin panels line up with half-depth
+  timber walls and leaded windows.
+- Finish straight eaves with dark oak fascia boards. Matching verge and ridge end pieces
+  give a projecting gable a continuous timber edge and a thin underside.
+- Start with bricks and sticks, then turn the slopes into ridge caps, trim or hanging
+  panels. The clay pieces are in the Late Medieval & Tudor palette.
+
 0.1.8.110021 - Alpha
 
 This update adds openable leaded windows and tidies up the timber framing. The village

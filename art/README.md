@@ -18,6 +18,10 @@ Per-material prompt additions:
 The historical modeltemplates/ directory retains the 2019 drafts and their authorship.
 The new runtime geometry uses local templates and the shared Java roof mesh.
 
+The two 32×32 clay tile sprites were drawn on a pixel grid. The main sprite staggers
+four overlapping courses and is shared by the roof and hanging tiles. The cap
+sprite shades across the ridge and repeats the joints along its length.
+
 ## Timber beam revision
 
 Six new beam-side textures were generated with the built-in image-generation tool for the

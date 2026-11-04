@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "ends=single,facing=north": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=start,facing=north": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=middle,facing=north": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=end,facing=north": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=single,facing=east": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=start,facing=east": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=middle,facing=east": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=end,facing=east": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=single,facing=south": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=start,facing=south": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=middle,facing=south": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=end,facing=south": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=single,facing=west": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=start,facing=west": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=middle,facing=west": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    },
+    "ends=end,facing=west": {
+      "model": "ironagearchitecture:clay_tile_cap_mesh"
+    }
+  }
+}

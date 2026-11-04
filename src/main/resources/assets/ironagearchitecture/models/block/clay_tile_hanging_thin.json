@@ -1,0 +1,46 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "tile": "ironagearchitecture:blocks/clay_tile",
+    "particle": "ironagearchitecture:blocks/clay_tile"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        8
+      ],
+      "faces": {
+        "down": {
+          "texture": "#tile",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#tile",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#tile",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#tile"
+        },
+        "west": {
+          "texture": "#tile",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#tile",
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}

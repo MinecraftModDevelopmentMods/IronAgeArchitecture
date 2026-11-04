@@ -45,7 +45,7 @@ import net.minecraft.util.Rotation;
 
 /** Disposable packaged-runtime verification mod. Never part of the player jar. */
 @Mod(modid="ironagearchitectureprobe",name="Architecture Verification",version="1",acceptableRemoteVersions="*",
-        dependencies="required-after:ironagearchitecture@[0.1.8.110021]")
+        dependencies="required-after:ironagearchitecture@[0.1.10.110021]")
 public final class ArchitectureProbe {
     @SidedProxy(clientSide="zone.moddev.mc.ironagearchitecture.probe.ClientProbe",serverSide="zone.moddev.mc.ironagearchitecture.probe.ProbeProxy")
     public static ProbeProxy proxy;
@@ -62,15 +62,19 @@ public final class ArchitectureProbe {
         if(Boolean.getBoolean("iaa.legacyDaub")) verifyLegacyDaub(world);
         int variants=0, recipes=0, states=0;
         boolean reload=Boolean.getBoolean("iaa.reload");
+        boolean clayClient = Boolean.getBoolean("iaa.clientProbe") && ArchitectureConfig.clayTiles && ArchitectureConfig.frames;
         variants=ArchitectureBlocks.visibleStacks().size();
         List<Block> savedBlocks=new ArrayList<>(ArchitectureBlocks.VISIBLE);
         savedBlocks.removeIf(block->block instanceof WindowBlock);
         for(FrameBlock block:ArchitectureBlocks.meshes()) if(!savedBlocks.contains(block)) savedBlocks.add(block);
         if(Boolean.getBoolean("iaa.legacyJetties")) {
             int index=0;
-            for(Block block:savedBlocks) for(int meta=0;meta<16;meta++) {
-                require(world.getBlockState(new BlockPos(100+index,70,100)).equals(block.getStateFromMeta(meta)),"0.1.2 saved state "+index);
-                index++;
+            for(Block block:savedBlocks) {
+                if (ClayTileProbe.isClay(block)) continue;
+                for(int meta=0;meta<16;meta++) {
+                    require(world.getBlockState(new BlockPos(100+index,70,100)).equals(block.getStateFromMeta(meta)),"0.1.2 saved state "+index);
+                    index++;
+                }
             }
             require(index==4448,"0.1.2 legacy matrix incomplete");
         }
@@ -90,7 +94,7 @@ public final class ArchitectureProbe {
                 states++;
             }
         }
-        require(variants==Integer.getInteger("iaa.expectedVariants",ArchitectureConfig.windows?510:460),"Visible variants "+variants);
+        require(variants==Integer.getInteger("iaa.expectedVariants",EraProbe.expectedVariants()),"Visible variants "+variants);
         for(IRecipe recipe:CraftingManager.getInstance().getRecipeList()) {
             ItemStack output=recipe.getRecipeOutput();
             if(output==null||!"ironagearchitecture".equals(output.getItem().getRegistryName().getResourceDomain())) continue;
@@ -118,7 +122,11 @@ public final class ArchitectureProbe {
             verifyWallHeads(world);
             HorizontalRailProbe.verify(world);
             if(ArchitectureConfig.windows) WindowProbe.verify(world,reload);
-            if(!reload) {new JettyPreview().build(world);if(ArchitectureConfig.windows) WindowPreview.build(world);TimberJoinProbe.preview(world);}
+            if (!reload && !clayClient) {
+                new JettyPreview().build(world);
+                if (ArchitectureConfig.windows) WindowPreview.build(world);
+                TimberJoinProbe.preview(world);
+            }
             for(int finish=0;finish<2;finish++) {
                 Block doubled=Block.getBlockFromName("ironagearchitecture:"+ArchitectureBlocks.FINISHES[finish]+"_double_slab");
                 List<ItemStack> drops=doubled.getDrops(world,new BlockPos(90,70,100),doubled.getDefaultState(),0);
@@ -126,10 +134,15 @@ public final class ArchitectureProbe {
                 require(total==2,"Double slab quantity");
             }
         }
+        ClayTileProbe.verify(world);
+        if (!reload && clayClient) RyeTilePreview.build(world);
+        if (Boolean.getBoolean("iaa.clayOnly")) {
+            require(variants == 7 && recipes == 10 && RecipeProbe.verifyReachability() == 7, "Standalone clay tiles");
+        }
         world.setWorldTime(1000);world.getGameRules().setOrCreateGameRule("doDaylightCycle","false");
         world.getGameRules().setOrCreateGameRule("doFireTick","false");world.getGameRules().setOrCreateGameRule("doMobSpawning","false");
         world.getGameRules().setOrCreateGameRule("spawnRadius","0");
-        world.setSpawnPoint(new BlockPos(7,64,-9));
+        world.setSpawnPoint(clayClient ? RyeTilePreview.SPAWN : new BlockPos(7,64,-9));
         server.saveAllWorlds(false);
         String result="{\"passed\":true,\"variants\":"+variants+",\"recipes\":"+recipes+",\"states\":"+states+",\"reload\":"+reload
                 +",\"legacy\":"+Boolean.getBoolean("iaa.legacy")+",\"legacyDaub\":"+Boolean.getBoolean("iaa.legacyDaub")
@@ -141,18 +154,21 @@ public final class ArchitectureProbe {
     }
     private void verifyConfigMatrix() throws Exception {
         boolean cob=ArchitectureConfig.cob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,windows=ArchitectureConfig.windows;
+        boolean clayTiles = ArchitectureConfig.clayTiles;
         zone.moddev.mc.ironagearchitecture.EraSelection eras=ArchitectureConfig.survivalEras;
         java.nio.file.Path directory=Paths.get("config-matrix");Files.createDirectories(directory);
         try {
-            for(int mask=0;mask<32;mask++) {
+            for(int mask=0;mask<64;mask++) {
                 java.nio.file.Path file=directory.resolve(mask+".cfg");
                 String text="blocks {\n B:cob="+((mask&1)!=0)+"\n B:timberFrames="+((mask&2)!=0)
-                        +"\n B:thatch="+((mask&4)!=0)+"\n B:slate="+((mask&8)!=0)+"\n B:leadedWindows="+((mask&16)!=0)+"\n}\n";
+                        +"\n B:thatch="+((mask&4)!=0)+"\n B:slate="+((mask&8)!=0)+"\n B:leadedWindows="+((mask&16)!=0)
+                        +"\n B:clayTiles="+((mask&32)!=0)+"\n}\n";
                 Files.write(file,text.getBytes(StandardCharsets.UTF_8));ArchitectureConfig.load(file.toFile());
                 require(ArchitectureConfig.cob==((mask&1)!=0)&&ArchitectureConfig.frames==((mask&3)==3)
-                        &&ArchitectureConfig.thatch==((mask&4)!=0)&&ArchitectureConfig.slate==((mask&8)!=0)&&ArchitectureConfig.windows==((mask&19)==19),"Config mask "+mask);
+                        &&ArchitectureConfig.thatch==((mask&4)!=0)&&ArchitectureConfig.slate==((mask&8)!=0)&&ArchitectureConfig.windows==((mask&19)==19)
+                        &&ArchitectureConfig.clayTiles==((mask&32)!=0),"Config mask "+mask);
             }
-        } finally {ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;ArchitectureConfig.survivalEras=eras;}
+        } finally {ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clayTiles;ArchitectureConfig.survivalEras=eras;}
     }
     private void verifyWallHeads(WorldServer world) {
         BlockPos pos=new BlockPos(95,90,95);
@@ -200,7 +216,7 @@ public final class ArchitectureProbe {
         world.setBlockToAir(pos);
         for(int x=-3;x<=3;x++) for(int z=-3;z<=3;z++) world.setBlockState(pos.add(x,-1,z),Blocks.STONE.getDefaultState(),2);
         for(RoofBlock roof:ArchitectureBlocks.ROOFS) {
-            if(roof.isRidge()) continue;
+            if(roof.isRidge() || roof instanceof TrimmedRoofBlock) continue;
             for(EnumFacing facing:EnumFacing.HORIZONTALS) {
                 world.setBlockState(pos,roof.getDefaultState().withProperty(BlockHorizontal.FACING,facing),2);
                 double[] start=RoofGeometry.rotate(.5,0,1.6,facing);
@@ -226,7 +242,8 @@ public final class ArchitectureProbe {
     private void verifyLegacyDaub(WorldServer world) {
         List<Block> blocks=new ArrayList<>();
         for(int finish=0;finish<2;finish++) {blocks.add(ArchitectureBlocks.COB.get(finish));blocks.add(ArchitectureBlocks.SLABS.get(finish));blocks.add(ArchitectureBlocks.STAIRS.get(finish));}
-        blocks.addAll(ArchitectureBlocks.WALLS);blocks.addAll(ArchitectureBlocks.ROOFS);
+        blocks.addAll(ArchitectureBlocks.WALLS);
+        for (RoofBlock roof : ArchitectureBlocks.ROOFS) if (!ClayTileProbe.isClay(roof)) blocks.add(roof);
         int index=0;
         for(Block block:blocks) for(int meta=0;meta<16;meta++) {
             require(world.getBlockState(new BlockPos(100+index,70,100)).equals(block.getStateFromMeta(meta)),"0.1.1 saved wall/roof state "+index);
@@ -366,7 +383,7 @@ public final class ArchitectureProbe {
     private void verifyRoofs(WorldServer world) {
         BlockPos pos=new BlockPos(90,70,90);
         for(RoofBlock roof:ArchitectureBlocks.ROOFS) {
-            if(roof.isRidge()) continue;
+            if(roof.isRidge() || roof instanceof TrimmedRoofBlock) continue;
             for(EnumFacing facing:EnumFacing.HORIZONTALS) {
                 for(EnumFacing turn:new EnumFacing[]{facing.rotateY(),facing.rotateYCCW()}) {
                     for(EnumFacing side:EnumFacing.HORIZONTALS) world.setBlockToAir(pos.offset(side));

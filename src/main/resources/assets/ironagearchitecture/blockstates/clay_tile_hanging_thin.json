@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ironagearchitecture:clay_tile_hanging_thin"
+    },
+    "facing=east": {
+      "model": "ironagearchitecture:clay_tile_hanging_thin",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ironagearchitecture:clay_tile_hanging_thin",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "ironagearchitecture:clay_tile_hanging_thin",
+      "y": 270
+    }
+  }
+}

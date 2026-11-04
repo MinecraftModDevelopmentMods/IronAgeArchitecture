@@ -16,7 +16,9 @@ close studding and diagonal braces. You choose the spacing and pattern, from a m
 to a richly framed townhouse. Matching timbers join around corners and through intersections.
 
 All six vanilla wood types are available. Cob comes in blocks, slabs and stairs, and smooth
-thatch and slate roofs have automatic corners and separate ridge caps.
+thatch, slate and clay tile roofs have automatic corners and separate ridge caps.
+Clay tiles also come as full and half-depth hanging panels for gables and upper walls.
+Finish clay roofs with timber fascia boards at the eaves and matching trim along the gable and ridge.
 
 Leaded windows bring some light into the houses. Choose diamond or rectangular leading,
 match the timber and daub to your walls, then stack sections to make taller casements.
@@ -35,7 +37,7 @@ floor edges, and matching corner pieces let the overhang continue around the sid
 
 ## Getting started
 
-The **0.1.8.110021 alpha** is for **Minecraft 1.10.2 with Forge**. Everything is crafted from vanilla
+Iron Age Architecture targets **Minecraft 1.10.2 with Forge**. Everything is crafted from vanilla
 ingredients, and the main content families can be enabled or disabled in the configuration.
 
 See the [CurseForge files](https://www.curseforge.com/minecraft/mc-mods/ironagearchitecture/files/all)

@@ -1,6 +1,6 @@
 param(
-    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled')][string]$Mode='core',
-    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\horizontal-rails-0.1.8',
+    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only')][string]$Mode='core',
+    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\rye-roof-trim-0.1.10',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$FurnitureJar='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\furniture\mods\iron-age-furniture-0.3.0.110021.jar',
     [string]$Java8='C:\Users\johnb\.gradle\jdks\temurin-8-amd64-windows.2\bin\java.exe'
@@ -51,16 +51,22 @@ if($Mode -eq 'windows-disabled') {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
     "blocks {`n B:leadedWindows=false`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }
-if($Mode -eq 'disabled') {
+if($Mode -eq 'clay-disabled') {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
-    @'
+    "blocks {`n B:clayTiles=false`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+}
+if($Mode -in @('disabled','clay-only')) {
+    New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
+    $clayTiles=($Mode -eq 'clay-only').ToString().ToLowerInvariant()
+    @"
 blocks {
     B:cob=false
     B:timberFrames=false
     B:thatch=false
     B:slate=false
+    B:clayTiles=$clayTiles
 }
-'@ | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+"@ | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }
 'eula=true' | Set-Content -LiteralPath (Join-Path $folder 'eula.txt') -Encoding ascii
 @'
@@ -87,6 +93,7 @@ if($Mode -eq 'legacy-daub') {$args+='-Diaa.legacyDaub=true'}
 if($Mode -eq 'legacy-jetties') {$args+='-Diaa.legacyJetties=true'}
 if($Mode -eq 'core') {$args+=@('-Diaa.eraMatrix=true','-Diaa.recipeMatrix=true')}
 if($Mode -eq 'disabled') {$args+='-Diaa.expectedVariants=0'}
+if($Mode -eq 'clay-only') {$args+=@('-Diaa.expectedVariants=7','-Diaa.clayOnly=true','-Diaa.recipeMatrix=true')}
 $args+=@('-jar',$forge,'nogui')
 Push-Location $folder
 try {

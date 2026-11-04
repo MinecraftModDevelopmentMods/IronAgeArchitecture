@@ -38,6 +38,10 @@ public final class PartialWallBlock extends FrameBlock {
             PartialWallBlock block=(PartialWallBlock)previous.getBlock();
             if(!block.profile.corner&&!profile.corner) facing=previous.getValue(FACING);
         }
+        if (!player.isSneaking() && !profile.corner && previous.getBlock() instanceof TileHangingBlock) {
+            EnumFacing tileFacing = WallRuns.straightHalfFacing(previous);
+            if (tileFacing != null) facing = tileFacing;
+        }
         WallProfile chosen=profile;
         double[] local=WallGeometry.rotate(x*16,0,z*16,inverse(facing));
         if(profile==WallProfile.SHORT_LEFT||profile==WallProfile.SHORT_RIGHT) chosen=local[0]<8?WallProfile.SHORT_LEFT:WallProfile.SHORT_RIGHT;

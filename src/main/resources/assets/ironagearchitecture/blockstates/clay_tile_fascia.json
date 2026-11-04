@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=north,right=false": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=north,right=true": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=east,right=false": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=east,right=true": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=south,right=false": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=south,right=true": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=west,right=false": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=west,right=true": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    }
+  }
+}

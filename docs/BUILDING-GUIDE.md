@@ -3,10 +3,10 @@
 Permanent building components for the Iron Age series, starting on Minecraft 1.10.2 Forge.
 Architecture runs independently of Iron Age Furniture.
 
-Version 0.1.8.110021 contains raw and limewashed cob blocks,
+Version 0.1.10.110021 contains raw and limewashed cob blocks,
 stairs and slabs; modular wattle-and-daub walls in all six vanilla woods; and smooth
-thatch/slate roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
-timber floors, support brackets and openable leaded windows. There are 510 visible
+thatch, slate and clay tile roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
+timber floors, support brackets, hanging clay tiles and openable leaded windows. There are 517 visible
 variants including the wood and finish choices. Architecture remains standalone.
 
 ## Wattle and daub
@@ -64,6 +64,16 @@ Roof slopes face the direction the player looks when placing them. Their high ed
 faces that direction. Adjacent matching slopes form hips and valleys using stair-like rules.
 Ridges run along the direction the player looks; place them one row above the high ends
 of the last slopes. Their half-block apex completes the 45-degree roof profile.
+
+For a timber fascia along a straight clay eave, craft a slope with a stick and
+place it facing uphill. At a gable, craft a slope with a dark oak plank to make
+a verge. Face uphill and click the half that will overhang the wall. Its thin
+underside covers a half-block projection. Craft a clay ridge cap with a dark oak
+plank for the matching ridge end and place it while looking inward along the ridge.
+
+Use full hanging tiles to fill the stepped gable beneath a clay roof. Thin hanging
+tiles share the half-block plane with straight thin timber panels and thin leaded windows.
+Place against one of these pieces to inherit its occupied half. Sneak to choose the half manually.
 
 ## Leaded windows
 
@@ -160,8 +170,11 @@ or six from L-shaped corners. Either inside/outside pattern can be recovered thi
 - Three quarter floors in an L: one L-shaped floor. Craft an L-shaped floor alone to recover three quarters.
 - One full timber floor plus one stick, shapeless: two full-reach brackets in that wood.
   One full-reach bracket alone makes two half-reach brackets; two halves side by side make one full bracket.
-- Three wheat above three sticks: six thatch roof slopes. Use stone instead of wheat for slate.
+- Three wheat above three sticks: six thatch roof slopes. Use stone for slate or bricks for clay tile.
 - Two matching slopes vertically: four ridge caps. Two ridge caps side by side: one slope.
+- Craft a clay tile slope alone to turn it into a full hanging panel, or craft the full panel
+  alone to get the slope back. Two full panels vertically make four thin panels.
+  Two thin panels side by side rejoin into one full panel.
 
 ### Limewashing
 
@@ -174,7 +187,7 @@ shaped corners follow this rule too.
 
 The creative tabs follow building eras. **Iron Age** currently holds the shared cob,
 plain daub and thatch pieces. **Late Medieval & Tudor** holds the full timber-framed
-village kit, including leaded windows, jetties, brackets and slate roofs, along with those shared materials.
+village kit, including leaded windows, jetties, brackets, slate and clay tiles, along with those shared materials.
 The Iron Age palette is a starting selection; a dedicated roundhouse kit is still to come.
 
 Choose which eras can be crafted in survival in `config/ironagearchitecture.cfg`:
@@ -200,9 +213,9 @@ switches still apply separately.
 All content families are enabled by default. Framed panels require the cob family.
 The `blocks.leadedWindows` switch controls both glazing and windows and requires timber
 frames and cob. Era recipe filtering is separate from this content switch.
+The `blocks.clayTiles` switch controls the clay slopes, ridge caps, trim and both hanging panels.
 Thatch and timber-bearing walls burn; plain daub, cob and slate do not. There is no world generation or collapse simulation.
 
 See [development instructions](DEVELOPMENT.md) for builds, Eclipse and disposable runtime checks.
 This is an early alpha. Automated checks and manual visual/gameplay review are recorded separately.
-The current test world is Horizontal Rails Preview; earlier preview saves are retained separately.
-See [the current candidate handoff](HORIZONTAL-RAILS-CANDIDATE.md) for the verification record.
+The Rye Roof Trim Preview shows how the fascia and gable trim fit on three houses stepping down a cobbled street.

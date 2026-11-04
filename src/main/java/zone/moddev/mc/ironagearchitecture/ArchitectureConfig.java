@@ -5,7 +5,7 @@ import net.minecraftforge.common.config.Configuration;
 
 /** Complete content-family switches. Framed panels require the cob family. */
 public final class ArchitectureConfig {
-    public static boolean cob, frames, thatch, slate,windows;
+    public static boolean cob, frames, thatch, slate, windows, clayTiles;
     public static EraSelection survivalEras=EraSelection.parse("all");
     private ArchitectureConfig() { }
     public static void load(File file) {
@@ -16,6 +16,7 @@ public final class ArchitectureConfig {
         windows = config.getBoolean("leadedWindows", "blocks", true, "Openable leaded windows; requires timberFrames and cob.") && frames;
         thatch = config.getBoolean("thatch", "blocks", true, "Thatch slopes and ridge caps.");
         slate = config.getBoolean("slate", "blocks", true, "Crafted slate slopes and ridge caps.");
+        clayTiles = config.getBoolean("clayTiles", "blocks", true, "Clay tile roofs, ridge caps and hanging tiles.");
         net.minecraftforge.common.config.Property eras=config.get("recipes","survivalEras",new String[]{"all"},
             "Allowed survival palettes: all, iron_age, late_medieval_tudor. Select one or more IDs. An empty list disables Architecture recipes. Shared materials stay craftable when any selected era uses them. Does not hide creative items or remove existing blocks. Restart required.");
         eras.setRequiresMcRestart(true);

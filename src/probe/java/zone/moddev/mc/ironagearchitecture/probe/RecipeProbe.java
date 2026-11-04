@@ -31,7 +31,7 @@ final class RecipeProbe {
         require(ItemStack.areItemStacksEqual(expected,actual),"Crafting contract expected "+expected+" got "+actual);
     }
     static void verify(World world) {
-        for(int wood=0;wood<6;wood++) for(int finish=0;finish<2;finish++) {
+        if(ArchitectureConfig.frames) for(int wood=0;wood<6;wood++) for(int finish=0;finish<2;finish++) {
             ItemStack plank=new ItemStack(Blocks.PLANKS,1,wood),infill=new ItemStack(ArchitectureBlocks.DAUB,1,finish);
             crafts(world,new ItemStack(ArchitectureBlocks.FRAMES.get(wood),4,finish*2),null,plank,null,plank,infill,plank,null,plank,null);
             ItemStack other=new ItemStack(Blocks.PLANKS,1,(wood+1)%6);
@@ -112,8 +112,9 @@ final class RecipeProbe {
         Block block=Block.getBlockFromItem(item);
         if(block instanceof JettyFloorBlock) return "floor:"+((JettyFloorBlock)block).wood;
         if(block instanceof FrameBlock) {FrameBlock wall=(FrameBlock)block;return wall.family==FrameFamily.INFILL?"daub:"+wall.finish(stack.getMetadata()):"frame:"+wall.wood+":"+wall.finish(stack.getMetadata());}
-        for(int finish=0;finish<2;finish++) if(ArchitectureBlocks.COB.get(finish)==block||ArchitectureBlocks.SLABS.get(finish)==block||ArchitectureBlocks.STAIRS.get(finish)==block) return "daub:"+finish;
-        if(block instanceof RoofBlock) return "roof:"+(block.getRegistryName().getResourcePath().startsWith("thatch")?"thatch":"slate");
+        if(block instanceof RoofBlock) return "roof:"+((RoofBlock)block).materialKey;
+        if(block instanceof TileHangingBlock) return "roof:clay_tile";
+        for(int finish=0;finish<ArchitectureBlocks.COB.size();finish++) if(ArchitectureBlocks.COB.get(finish)==block||ArchitectureBlocks.SLABS.get(finish)==block||ArchitectureBlocks.STAIRS.get(finish)==block) return "daub:"+finish;
         throw new IllegalStateException("Unknown recipe material "+stack);
     }
     private static int units(ItemStack stack) {
@@ -124,6 +125,7 @@ final class RecipeProbe {
         if(ArchitectureBlocks.SLABS.contains(block)) return 2;
         if(ArchitectureBlocks.STAIRS.contains(block)) return 3;
         if(block instanceof RoofBlock) return ((RoofBlock)block).isRidge()?2:4;
+        if(block instanceof TileHangingBlock) return ((TileHangingBlock)block).isThin()?2:4;
         return 4;
     }
 }

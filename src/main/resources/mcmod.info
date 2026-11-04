@@ -2,7 +2,7 @@
   {
     "modid": "ironagearchitecture",
     "name": "Iron Age Architecture",
-    "description": "Cob walls, timber frames, thatch and slate roofs for the Iron Age series.",
+    "description": "Cob walls, timber frames, leaded windows and traditional roofs for the Iron Age series.",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "https://github.com/MinecraftModDevelopmentMods/IronAgeArchitecture",

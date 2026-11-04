@@ -90,7 +90,8 @@ public final class JettyFloorBlock extends FrameBlock {
         }
         IBlockState below=world.getBlockState(pos.down());
         int support=0;
-        if(below.getBlock() instanceof FrameBlock&&!(below.getBlock() instanceof JettyFloorBlock)||below.getBlock() instanceof WindowBlock) {
+        if(below.getBlock() instanceof FrameBlock&&!(below.getBlock() instanceof JettyFloorBlock)||below.getBlock() instanceof WindowBlock
+                ||below.getBlock() instanceof TileHangingBlock&&((TileHangingBlock)below.getBlock()).isThin()) {
             for(int q=0;q<4;q++) {
                 double[] point=WallGeometry.rotate(q%2*8+4,0,q/2*8+4,facing);
                 boolean occupied=true;
@@ -103,6 +104,11 @@ public final class JettyFloorBlock extends FrameBlock {
                     EnumFacing inverse=turn==EnumFacing.EAST?EnumFacing.WEST:turn==EnumFacing.WEST?EnumFacing.EAST:turn;
                     double[] local=WallGeometry.rotate(point[0],0,point[2],inverse);
                     occupied=((PartialWallBlock)below.getBlock()).profile.contains(local[0],local[2]);
+                }
+                if (below.getBlock() instanceof TileHangingBlock) {
+                    net.minecraft.util.math.AxisAlignedBB bounds = below.getBoundingBox(world, pos.down());
+                    double x = point[0] / 16, z = point[2] / 16;
+                    occupied = x >= bounds.minX && x <= bounds.maxX && z >= bounds.minZ && z <= bounds.maxZ;
                 }
                 if(occupied) support|=1<<q;
             }
