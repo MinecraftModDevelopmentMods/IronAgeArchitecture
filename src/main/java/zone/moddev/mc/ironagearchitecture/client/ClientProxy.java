@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -18,6 +19,7 @@ import zone.moddev.mc.ironagearchitecture.ArchitectureBlocks;
 import zone.moddev.mc.ironagearchitecture.CommonProxy;
 import zone.moddev.mc.ironagearchitecture.block.DownpipeBlock;
 import zone.moddev.mc.ironagearchitecture.block.GutterItem;
+import zone.moddev.mc.ironagearchitecture.block.FireplaceBlock;
 import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
 import zone.moddev.mc.ironagearchitecture.block.RoofBlock;
 import zone.moddev.mc.ironagearchitecture.block.JettyBracketItem;
@@ -85,6 +87,17 @@ public final class ClientProxy extends CommonProxy {
                 }
             }
         }
+        for (FireplaceBlock block : ArchitectureBlocks.FIREPLACES) {
+            TextureAtlasSprite masonry = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(block.masonry.texture);
+            for (IBlockState state : block.getBlockState().getValidStates()) {
+                ModelResourceLocation key = new ModelResourceLocation(block.getRegistryName(), variant(state));
+                event.getModelRegistry().putObject(key,
+                    new FireplaceBakedModel(event.getModelRegistry().getObject(key), block, state, masonry));
+            }
+            ModelResourceLocation inventory = new ModelResourceLocation(block.getRegistryName(), "inventory");
+            event.getModelRegistry().putObject(inventory,
+                new FireplaceBakedModel(event.getModelRegistry().getObject(inventory), block, block.getDefaultState(), masonry));
+        }
         for (RoofBlock block : ArchitectureBlocks.ROOFS) {
             String texture = "ironagearchitecture:blocks/" + block.textureKey();
             for (IBlockState state : block.getBlockState().getValidStates()) {
@@ -106,6 +119,9 @@ public final class ClientProxy extends CommonProxy {
     @SubscribeEvent public void stitch(TextureStitchEvent.Pre event) {
         event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/glass_silver"));event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/iron_block"));
         event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/planks_big_oak"));
+        if (!ArchitectureBlocks.FIREPLACES.isEmpty()) for (String material : new String[]{
+                "brick", "stonebrick", "hardened_clay_stained_orange", "stone_slab_top", "magma", "fire_layer_0"})
+            event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/" + material));
         for(String wood:ArchitectureBlocks.WOODS) {
             event.getMap().registerSprite(new ResourceLocation("ironagearchitecture:blocks/beam_"+wood));
             event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/log_"+(wood.equals("dark_oak")?"big_oak":wood)+"_top"));

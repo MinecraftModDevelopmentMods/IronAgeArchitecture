@@ -1,3 +1,16 @@
+0.1.13.110021 - Alpha
+
+I've added brick and stone fireplaces to the Rye kit. You can build a small
+hearth or widen it with matching pieces and add your own surround.
+
+- Light the firebox with flint and steel. Sneak and right-click with both hands
+  empty to put it out.
+- Run flues side by side so fireplaces on different floors can share a stack.
+  Each pot smokes when the fire below it is lit.
+- Leave the flue open or finish it with a pot or vented cap. Use a clay roof
+  collar where the stack passes through a straight slope.
+
+
 0.1.12.110021 - Alpha
 
 I've tidied up the eaves on the Rye cottages. The grain now runs along the fascia

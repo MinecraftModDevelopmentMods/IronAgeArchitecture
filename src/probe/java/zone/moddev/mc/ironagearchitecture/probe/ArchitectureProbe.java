@@ -45,7 +45,7 @@ import net.minecraft.util.Rotation;
 
 /** Disposable packaged-runtime verification mod. Never part of the player jar. */
 @Mod(modid="ironagearchitectureprobe",name="Architecture Verification",version="1",acceptableRemoteVersions="*",
-        dependencies="required-after:ironagearchitecture@[0.1.12.110021]")
+        dependencies="required-after:ironagearchitecture@[0.1.13.110021]")
 public final class ArchitectureProbe {
     @SidedProxy(clientSide="zone.moddev.mc.ironagearchitecture.probe.ClientProbe",serverSide="zone.moddev.mc.ironagearchitecture.probe.ProbeProxy")
     public static ProbeProxy proxy;
@@ -77,7 +77,7 @@ public final class ArchitectureProbe {
         if(Boolean.getBoolean("iaa.legacyJetties")) {
             int index=0;
             for(Block block:savedBlocks) {
-                if (ClayTileProbe.isClay(block)) continue;
+                if (ClayTileProbe.isClay(block) || block instanceof FireplaceBlock) continue;
                 for(int meta=0;meta<16;meta++) {
                     require(world.getBlockState(new BlockPos(100+index,70,100)).equals(block.getStateFromMeta(meta)),"0.1.2 saved state "+index);
                     index++;
@@ -149,6 +149,7 @@ public final class ArchitectureProbe {
         }
         ClayTileProbe.verify(world);
         GutterProbe.verify(world);
+        FireplaceProbe.verify(world, reload);
         if (!reload && clayClient) RyeTilePreview.build(world);
         if (Boolean.getBoolean("iaa.clayOnly")) {
             require(variants == 16 && recipes == 20 && RecipeProbe.verifyReachability() == 16, "Standalone clay tiles");
@@ -172,21 +173,21 @@ public final class ArchitectureProbe {
     }
     private void verifyConfigMatrix() throws Exception {
         boolean cob=ArchitectureConfig.cob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,windows=ArchitectureConfig.windows;
-        boolean clayTiles = ArchitectureConfig.clayTiles;
+        boolean clayTiles = ArchitectureConfig.clayTiles, fireplaces = ArchitectureConfig.fireplaces;
         zone.moddev.mc.ironagearchitecture.EraSelection eras=ArchitectureConfig.survivalEras;
         java.nio.file.Path directory=Paths.get("config-matrix");Files.createDirectories(directory);
         try {
-            for(int mask=0;mask<64;mask++) {
+            for(int mask=0;mask<128;mask++) {
                 java.nio.file.Path file=directory.resolve(mask+".cfg");
                 String text="blocks {\n B:cob="+((mask&1)!=0)+"\n B:timberFrames="+((mask&2)!=0)
                         +"\n B:thatch="+((mask&4)!=0)+"\n B:slate="+((mask&8)!=0)+"\n B:leadedWindows="+((mask&16)!=0)
-                        +"\n B:clayTiles="+((mask&32)!=0)+"\n}\n";
+                        +"\n B:clayTiles="+((mask&32)!=0)+"\n B:fireplaces="+((mask&64)!=0)+"\n}\n";
                 Files.write(file,text.getBytes(StandardCharsets.UTF_8));ArchitectureConfig.load(file.toFile());
                 require(ArchitectureConfig.cob==((mask&1)!=0)&&ArchitectureConfig.frames==((mask&3)==3)
                         &&ArchitectureConfig.thatch==((mask&4)!=0)&&ArchitectureConfig.slate==((mask&8)!=0)&&ArchitectureConfig.windows==((mask&19)==19)
-                        &&ArchitectureConfig.clayTiles==((mask&32)!=0),"Config mask "+mask);
+                        &&ArchitectureConfig.clayTiles==((mask&32)!=0)&&ArchitectureConfig.fireplaces==((mask&64)!=0),"Config mask "+mask);
             }
-        } finally {ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clayTiles;ArchitectureConfig.survivalEras=eras;}
+        } finally {ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clayTiles;ArchitectureConfig.fireplaces=fireplaces;ArchitectureConfig.survivalEras=eras;}
     }
     private void verifyWallHeads(WorldServer world) {
         BlockPos pos=new BlockPos(95,90,95);

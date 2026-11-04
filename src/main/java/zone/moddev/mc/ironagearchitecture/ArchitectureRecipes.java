@@ -26,6 +26,7 @@ public final class ArchitectureRecipes {
             }
         }
         if(ArchitectureConfig.windows) registerWindows();
+        if (ArchitectureConfig.fireplaces) registerFireplaces();
         if (ArchitectureConfig.clayTiles) {
             registerGuttering();
             shaped(new ItemStack(ArchitectureBlocks.SOFFIT, 4), "D", "D", 'D', new ItemStack(Blocks.WOODEN_SLAB, 1, 5));
@@ -56,6 +57,25 @@ public final class ArchitectureRecipes {
             }
         }
     }
+    private static void registerFireplaces() {
+        for (FireplaceBlock.Masonry masonry : FireplaceBlock.Masonry.values()) {
+            Block material = masonry == FireplaceBlock.Masonry.BRICK ? Blocks.BRICK_BLOCK : Blocks.STONEBRICK;
+            FireplaceBlock hearth = ArchitectureBlocks.fireplace(masonry, FireplaceBlock.Kind.HEARTH);
+            FireplaceBlock flue = ArchitectureBlocks.fireplace(masonry, FireplaceBlock.Kind.FLUE);
+            shaped(new ItemStack(hearth, 4), "M ", " M", 'M', material);
+            shaped(new ItemStack(ArchitectureBlocks.fireplace(masonry, FireplaceBlock.Kind.JAMB), 4), "M", "M", 'M', material);
+            shaped(new ItemStack(ArchitectureBlocks.fireplace(masonry, FireplaceBlock.Kind.LINTEL), 4), "MM", 'M', material);
+            shaped(new ItemStack(flue, 4), "M M", "M M", "M M", 'M', material);
+            shapeless(new ItemStack(ArchitectureBlocks.fireplace(masonry, FireplaceBlock.Kind.FIREBOX)), hearth, Blocks.IRON_BARS);
+            shapeless(new ItemStack(ArchitectureBlocks.fireplace(masonry, FireplaceBlock.Kind.POT_CAP)), flue, Items.FLOWER_POT);
+            shapeless(new ItemStack(ArchitectureBlocks.fireplace(masonry, FireplaceBlock.Kind.SLAB_CAP)), flue, new ItemStack(Blocks.STONE_SLAB));
+            if (ArchitectureConfig.clayTiles) {
+                Block claySlope = Block.getBlockFromName(IronAgeArchitecture.MODID + ":clay_tile_roof");
+                shapeless(new ItemStack(ArchitectureBlocks.fireplace(masonry, FireplaceBlock.Kind.COLLAR)), flue, claySlope);
+            }
+        }
+    }
+
     private static void registerGuttering() {
         shaped(new ItemStack(ArchitectureBlocks.GUTTER, 6), "III", 'I', Items.IRON_INGOT);
         shapeless(new ItemStack(ArchitectureBlocks.GUTTER_OUTLET), ArchitectureBlocks.GUTTER, Items.IRON_INGOT);

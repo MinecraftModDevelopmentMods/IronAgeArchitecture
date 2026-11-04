@@ -17,6 +17,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import zone.moddev.mc.ironagearchitecture.block.DownpipeBlock;
 import zone.moddev.mc.ironagearchitecture.block.FasciaBlock;
+import zone.moddev.mc.ironagearchitecture.block.FireplaceBlock;
+import zone.moddev.mc.ironagearchitecture.block.FireplaceGeometry;
+import zone.moddev.mc.ironagearchitecture.block.FireplaceGeometry.Part;
 import zone.moddev.mc.ironagearchitecture.block.RoofBlock;
 import zone.moddev.mc.ironagearchitecture.block.RoofGeometry;
 import zone.moddev.mc.ironagearchitecture.block.RoofShape;
@@ -83,8 +86,70 @@ public final class RoofBakedModel implements IBakedModel {
         return model;
     }
 
+    static RoofBakedModel fireplace(IBakedModel base, FireplaceBlock block, IBlockState state,
+            TextureAtlasSprite masonry, int joins) {
+        RoofBakedModel model = new RoofBakedModel(base, masonry);
+        EnumFacing facing = state.getValue(FireplaceBlock.FACING);
+        boolean lit = block.kind == FireplaceBlock.Kind.FIREBOX && state.getValue(FireplaceBlock.LIT);
+        for (Part part : FireplaceGeometry.parts(block.kind, joins, lit)) {
+            TextureAtlasSprite texture = masonry;
+            float tint = 1;
+            switch (part.surface) {
+                case GRATE: texture = iron(); tint = .26F; break;
+                case POT: texture = atlas("minecraft:blocks/hardened_clay_stained_orange"); tint = .78F; break;
+                case STONE: texture = atlas("minecraft:blocks/stone_slab_top"); break;
+                case COALS: texture = atlas("minecraft:blocks/magma"); break;
+                default: break;
+            }
+            model.addFireplacePart(part, facing, texture, tint, false);
+        }
+        if (block.kind == FireplaceBlock.Kind.COLLAR) {
+            TextureAtlasSprite tile = atlas("ironagearchitecture:blocks/clay_tile");
+            for (Part strip : FireplaceGeometry.collarStrips(joins))
+                model.addFireplacePart(strip, facing, tile, 1, true);
+        }
+        if (lit) model.addFlames(facing);
+        return model;
+    }
+
+    private void addFireplacePart(Part part, EnumFacing facing, TextureAtlasSprite texture, float tint, boolean sloping) {
+        double[][] corners = {{part.x0,part.z0},{part.x1,part.z0},{part.x1,part.z1},{part.x0,part.z1}};
+        double[][] top = new double[4][], bottom = new double[4][];
+        for (int i = 0; i < corners.length; i++) {
+            double x = corners[i][0] / 16, z = corners[i][1] / 16;
+            double y = sloping ? RoofGeometry.height(RoofShape.STRAIGHT, false, x, z) : part.y1 / 16;
+            top[i] = new double[]{x,y,z};
+            bottom[i] = new double[]{x,part.y0/16,z};
+        }
+        add(new double[][]{top[0],top[3],top[2],top[1]}, facing, true, texture, null, tint,tint,tint);
+        add(bottom, facing, true, texture, null, tint,tint,tint);
+        for (int i = 0; i < 4; i++) {
+            int next = (i+1)%4;
+            add(new double[][]{bottom[i],top[i],top[next],bottom[next]}, facing, false, texture, null, tint,tint,tint);
+        }
+    }
+
+    private void addFlames(EnumFacing facing) {
+        TextureAtlasSprite fire = atlas("minecraft:blocks/fire_layer_0");
+        for (double z : new double[]{.32, .57}) {
+            double[][] a = {{.31,.32,z},{.31,.84,z+.10},{.69,.84,z+.10},{.69,.32,z}};
+            flamePlane(a, facing, fire);
+        }
+        flamePlane(new double[][]{{.38,.32,.28},{.62,.84,.28},{.62,.84,.72},{.38,.32,.72}}, facing, fire);
+    }
+
+    private void flamePlane(double[][] face, EnumFacing facing, TextureAtlasSprite fire) {
+        float[][] uv = {{0,16},{0,0},{16,0},{16,16}};
+        add(face, facing, false, fire, null, 1,1,1, uv);
+        add(new double[][]{face[3],face[2],face[1],face[0]}, facing, false, fire, null, 1,1,1, uv);
+    }
+
+    private static TextureAtlasSprite atlas(String key) {
+        return net.minecraft.client.Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(key);
+    }
+
     private static TextureAtlasSprite iron() {
-        return net.minecraft.client.Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("minecraft:blocks/iron_block");
+        return atlas("minecraft:blocks/iron_block");
     }
 
     private DrainMesh.Face ironFaces(EnumFacing facing) {
@@ -174,6 +239,11 @@ public final class RoofBakedModel implements IBakedModel {
 
     private void add(double[][] points, EnumFacing facing, boolean top, TextureAtlasSprite texture,
             @Nullable TrimmedRoofBlock.Kind board, float red, float green, float blue) {
+        add(points, facing, top, texture, board, red, green, blue, null);
+    }
+
+    private void add(double[][] points, EnumFacing facing, boolean top, TextureAtlasSprite texture,
+            @Nullable TrimmedRoofBlock.Kind board, float red, float green, float blue, @Nullable float[][] uv) {
         if (java.util.Arrays.equals(points[0],points[1]))
             points = new double[][]{points[0],points[2],points[3],points[3]};
         double[][] rotated = new double[4][];
@@ -188,7 +258,7 @@ public final class RoofBakedModel implements IBakedModel {
         UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
         builder.setTexture(texture);
         builder.setQuadOrientation(EnumFacing.getFacingFromVector((float)nx,(float)ny,(float)nz));
-        builder.setApplyDiffuseLighting(true);
+        builder.setApplyDiffuseLighting(uv == null);
         for (int vertex = 0; vertex < 4; vertex++) {
             double[] p = rotated[vertex], source = points[vertex];
             boolean alongX = Math.abs(points[0][0]-points[2][0]) > 1e-8;
@@ -201,6 +271,10 @@ public final class RoofBakedModel implements IBakedModel {
                 float acrossGrain = textureV;
                 textureV = textureU;
                 textureU = acrossGrain;
+            }
+            if (uv != null) {
+                textureU = uv[vertex][0];
+                textureV = uv[vertex][1];
             }
             for (int element = 0; element < format.getElementCount(); element++) {
                 switch (format.getElement(element).getUsage()) {

@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=north,lit=false": {
+      "model": "ironagearchitecture:fireplace_brick_mesh"
+    },
+    "facing=north,lit=true": {
+      "model": "ironagearchitecture:fireplace_brick_mesh"
+    },
+    "facing=east,lit=false": {
+      "model": "ironagearchitecture:fireplace_brick_mesh"
+    },
+    "facing=east,lit=true": {
+      "model": "ironagearchitecture:fireplace_brick_mesh"
+    },
+    "facing=south,lit=false": {
+      "model": "ironagearchitecture:fireplace_brick_mesh"
+    },
+    "facing=south,lit=true": {
+      "model": "ironagearchitecture:fireplace_brick_mesh"
+    },
+    "facing=west,lit=false": {
+      "model": "ironagearchitecture:fireplace_brick_mesh"
+    },
+    "facing=west,lit=true": {
+      "model": "ironagearchitecture:fireplace_brick_mesh"
+    }
+  }
+}

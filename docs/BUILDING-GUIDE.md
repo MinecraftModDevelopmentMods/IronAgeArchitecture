@@ -3,11 +3,11 @@
 Permanent building components for the Iron Age series, starting on Minecraft 1.10.2 Forge.
 Architecture runs independently of Iron Age Furniture.
 
-Version 0.1.12.110021 contains raw and limewashed cob blocks,
+Version 0.1.13.110021 contains raw and limewashed cob blocks,
 stairs and slabs; modular wattle-and-daub walls in all six vanilla woods; and smooth
 thatch, slate and clay tile roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
-timber floors, support brackets, hanging clay tiles and openable leaded windows. There are 526 visible
-variants including the wood and finish choices. Architecture remains standalone.
+timber floors, support brackets, hanging clay tiles, openable leaded windows, and brick and
+stone fireplaces. There are 542 visible variants including the wood and finish choices.
 
 ## Wattle and daub
 
@@ -127,6 +127,27 @@ power next changes, just like a wooden door. A powered window blocked from openi
 tries again when the obstruction is removed. Windows open instantly through 90 degrees.
 Breaking a section, including through its open pane, returns its intact window item.
 
+## Fireplaces and chimneys
+
+Start with a firebox at floor level. Set matching hearth pieces beside it to widen the
+hearth, with every piece facing the room. Jambs and lintels are separate, so you can build
+a compact fireplace or frame a wide inglenook with your own masonry around it.
+
+Right-click the firebox with flint and steel to light it. Sneak and right-click with
+both hands empty to put it out. The fire gives off light and sometimes crackles. It
+burns without fuel and stays contained in the firebox.
+
+Build a straight run of flue blocks directly above each firebox. Offset the upstairs
+firebox by one block so its flue can run alongside the lower one. Matching brick or stone
+flues join visually, while each column carries smoke from its own firebox. Leave an open
+flue at the top or finish it with a pot or slab cap. Pots need air above them and slab
+caps need a clear side vent. Keep the run continuous and the outlet within 32 blocks of
+the firebox.
+
+On a straight clay slope, use a roof collar in place of the slope where the flue crosses
+the roof. Place it facing up the slope just like a roof tile. The collar follows the same
+pitch and continues the flue.
+
 ## Crafting
 
 Start with a few base materials, then shape them into the pieces you need. Match the wood,
@@ -203,6 +224,21 @@ or six from L-shaped corners. Either inside/outside pattern can be recovered thi
   alone to get the slope back. Two full panels vertically make four thin panels.
   Two thin panels side by side rejoin into one full panel.
 
+### Fireplaces
+
+Use brick blocks or plain stone bricks throughout each recipe.
+
+| Piece | Recipe |
+| --- | --- |
+| Four hearths | Two masonry blocks on a diagonal |
+| Firebox | One hearth and one iron bars block |
+| Four jambs | Three masonry blocks vertically |
+| Four lintels | Two masonry blocks side by side |
+| Four flues | Two columns of three masonry blocks with the middle column empty |
+| Pot cap | One flue and a flower pot |
+| Slab cap | One flue and a stone slab |
+| Roof collar | One flue and a clay roof slope |
+
 ### Limewashing
 
 Every raw cob, daub or timber-and-daub piece can be limewashed after shaping. Use one piece
@@ -241,6 +277,8 @@ All content families are enabled by default. Framed panels require the cob famil
 The `blocks.leadedWindows` switch controls both glazing and windows and requires timber
 frames and cob. Era recipe filtering is separate from this content switch.
 The `blocks.clayTiles` switch controls the clay slopes, ridge caps, trim, hanging panels and iron guttering.
+The `blocks.fireplaces` switch controls the fireplace kit in Late Medieval & Tudor.
+Clay tiles also need to be enabled to use roof collars.
 Thatch and timber-bearing walls burn; plain daub, cob and slate do not. There is no world generation or collapse simulation.
 
 See [development instructions](DEVELOPMENT.md) for builds, Eclipse and disposable runtime checks.

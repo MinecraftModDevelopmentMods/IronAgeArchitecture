@@ -1,6 +1,6 @@
 param(
     [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only')][string]$Mode='core',
-    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\rye-eaves-0.1.12',
+    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\rye-fireplaces-0.1.13',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$FurnitureJar='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\furniture\mods\iron-age-furniture-0.3.0.110021.jar',
     [string]$Java8='C:\Users\johnb\.gradle\jdks\temurin-8-amd64-windows.2\bin\java.exe'
@@ -72,6 +72,7 @@ blocks {
     B:thatch=false
     B:slate=false
     B:clayTiles=$clayTiles
+    B:fireplaces=false
 }
 "@ | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }

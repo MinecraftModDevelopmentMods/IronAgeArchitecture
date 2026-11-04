@@ -189,9 +189,14 @@ other building families switched off. Guttering checks cover fitting and recover
 ends, both offsets and the rain path. The legacy-fascia mode opens a copy of the roof trim
 preview and verifies the original bare fascias. Use a fresh runtime root for each candidate.
 
+Fireplace checks cover saved state and canonical drops, firebox light and interaction, independent
+flues across a chunk border, blocked and disconnected runs, the three outlets and roof collar pitch.
+The core reload checks that the fires still draw from the correct floor.
+
 The optional client probe requires iaa.probe=true, iaa.clientProbe=true and iaa.keepRunning=true.
-It creates its own Rye Eaves Preview, checks mesh and material variants and both
-creative tabs, captures dry and rain views of the cottage row, then shuts down.
+It creates its own Rye Fireplace Preview, checks mesh and material variants and both
+creative tabs, captures the interiors and the stack with one fire and then both lit,
+then shuts down. With fireplaces disabled it captures the eaves and guttering instead.
 Every visible item must also provide a translated crafting hint without tooltip errors.
 The client script's PreviewName argument selects a separate save without replacing an earlier preview.
 After verification copy the preview save into the ordinary run/saves directory and launch without the probe.
