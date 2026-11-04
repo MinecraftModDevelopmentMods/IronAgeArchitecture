@@ -25,17 +25,21 @@ import net.minecraft.world.World;
 public class RoofBlock extends BlockHorizontal {
     public static final PropertyEnum<RoofShape> SHAPE = PropertyEnum.create("shape", RoofShape.class);
     private final boolean ridge;
-    public RoofBlock(boolean ridge, boolean thatch) {
-        super(thatch ? Material.GRASS : Material.ROCK);
+    public final String materialKey;
+    public RoofBlock(boolean ridge, String materialKey) {
+        super("thatch".equals(materialKey) ? Material.GRASS : Material.ROCK);
+        this.materialKey = materialKey;
+        boolean thatch = "thatch".equals(materialKey);
         this.ridge = ridge;
         setHardness(thatch ? .8F : 2F); setResistance(thatch ? 1F : 6F);
         setSoundType(thatch ? SoundType.PLANT : SoundType.STONE);
         setHarvestLevel(thatch ? "axe" : "pickaxe", 0);
         IBlockState state = blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH);
-        setDefaultState(ridge ? state : state.withProperty(SHAPE, RoofShape.STRAIGHT));
+        setDefaultState(state.getPropertyKeys().contains(SHAPE) ? state.withProperty(SHAPE, RoofShape.STRAIGHT) : state);
         setLightOpacity(0);
     }
     public boolean isRidge() { return ridge; }
+    public String textureKey() { return ridge && "clay_tile".equals(materialKey) ? "clay_tile_cap" : materialKey; }
     @Override protected BlockStateContainer createBlockState() { return new BlockStateContainer(this, FACING, SHAPE); }
     @Override public IBlockState getStateFromMeta(int meta) { return getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta & 3)); }
     @Override public int getMetaFromState(IBlockState state) { return state.getValue(FACING).getHorizontalIndex(); }

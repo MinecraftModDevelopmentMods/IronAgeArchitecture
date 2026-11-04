@@ -26,11 +26,30 @@ public final class ArchitectureRecipes {
             }
         }
         if(ArchitectureConfig.windows) registerWindows();
-        for(RoofBlock roof:ArchitectureBlocks.ROOFS) if(!roof.isRidge()) {
-            boolean thatch=roof.getRegistryName().getResourcePath().startsWith("thatch");
-            shaped(new ItemStack(roof,6),"MMM","SSS",'M',thatch?Items.WHEAT:Blocks.STONE,'S',Items.STICK);
-            Block ridge=Block.getBlockFromName(IronAgeArchitecture.MODID+":"+(thatch?"thatch_ridge":"slate_ridge"));
+        for(RoofBlock roof:ArchitectureBlocks.ROOFS) if(!roof.isRidge() && !(roof instanceof TrimmedRoofBlock)) {
+            Object material;
+            switch (roof.materialKey) {
+                case "thatch": material = Items.WHEAT; break;
+                case "clay_tile": material = Items.BRICK; break;
+                case "slate": material = Blocks.STONE; break;
+                default: throw new IllegalStateException("Unknown roof material " + roof.materialKey);
+            }
+            shaped(new ItemStack(roof,6),"MMM","SSS",'M',material,'S',Items.STICK);
+            Block ridge=Block.getBlockFromName(IronAgeArchitecture.MODID+":"+roof.materialKey+"_ridge");
             cut(new ItemStack(roof),new ItemStack(ridge));join(new ItemStack(ridge),new ItemStack(roof));
+            if ("clay_tile".equals(roof.materialKey)) {
+                ItemStack slope = new ItemStack(roof);
+                ItemStack full = new ItemStack(ArchitectureBlocks.CLAY_HANGING);
+                ItemStack thin = new ItemStack(ArchitectureBlocks.CLAY_HANGING_THIN);
+                shapeless(full, slope);
+                shapeless(slope, full);
+                cut(full, thin);
+                join(thin, full);
+                ItemStack board = new ItemStack(Blocks.PLANKS, 1, 5);
+                shapeless(new ItemStack(ArchitectureBlocks.CLAY_FASCIA), slope, Items.STICK);
+                shapeless(new ItemStack(ArchitectureBlocks.CLAY_VERGE), slope, board);
+                shapeless(new ItemStack(ArchitectureBlocks.CLAY_RIDGE_END), new ItemStack(ridge), board);
+            }
         }
     }
     private static void registerCob() {

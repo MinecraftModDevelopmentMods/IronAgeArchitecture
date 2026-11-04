@@ -38,6 +38,11 @@ public final class WallRuns {
     public static List<Run> of(IBlockState state,BlockPos pos) {
         List<Run> list=new ArrayList<>();
         if(state.getBlock() instanceof WindowBlock) {WindowBlock window=(WindowBlock)state.getBlock();add(list,pos,state.getValue(WindowBlock.FACING),0,16,window.back?8:0,window.thin?(window.back?16:8):16);return list;}
+        if (state.getBlock() instanceof TileHangingBlock) {
+            TileHangingBlock panel = (TileHangingBlock) state.getBlock();
+            if (panel.isThin()) add(list, pos, state.getValue(TileHangingBlock.FACING), 0, 16, 0, 8);
+            return list;
+        }
         if(!(state.getBlock() instanceof FrameBlock)||state.getBlock() instanceof JettyFloorBlock) return list;
         EnumFacing facing=state.getValue(FrameBlock.FACING);
         if(state.getBlock() instanceof PartialWallBlock) {
@@ -64,5 +69,20 @@ public final class WallRuns {
     public static boolean touches(IBlockState a,BlockPos pa,IBlockState b,BlockPos pb,EnumFacing direction) {
         for(Run x:of(a,pa)) for(Run y:of(b,pb)) if(x.touches(y,direction)) return true;
         return false;
+    }
+
+    /** Normal pointing towards the occupied half, independent of a casement's outward facing. */
+    static EnumFacing straightHalfFacing(IBlockState state) {
+        if (state.getBlock() instanceof TileHangingBlock && ((TileHangingBlock) state.getBlock()).isThin()) {
+            return state.getValue(TileHangingBlock.FACING);
+        }
+        if (state.getBlock() instanceof PartialWallBlock && ((PartialWallBlock) state.getBlock()).profile == WallProfile.THIN) {
+            return state.getValue(FrameBlock.FACING);
+        }
+        if (state.getBlock() instanceof WindowBlock && ((WindowBlock) state.getBlock()).thin) {
+            EnumFacing facing = state.getValue(WindowBlock.FACING);
+            return ((WindowBlock) state.getBlock()).back ? facing.getOpposite() : facing;
+        }
+        return null;
     }
 }

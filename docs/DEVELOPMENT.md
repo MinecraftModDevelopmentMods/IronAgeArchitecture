@@ -52,7 +52,8 @@ rail search joins structural intersections; vertical/diagonal neighbours supply 
 The client listener invalidates the dependent render range after updates without polling/ticking.
 Walls use full-cell lighting classification with opaque light blocking and non-opaque face culling, so
 recessed plaster samples the lit adjacent cell rather than its own dark interior in Forge 1.10.
-Roof blocks save facing only. Inner/outer corners and ridge caps derive from same-material neighbours.
+Roof blocks save facing. Clay verges also save which half overhangs the gable.
+Inner/outer corners and ridge caps derive from same-material neighbours.
 Slopes rise one block per block; ridge caps rise half a block and belong one row above the adjacent slopes.
 The roof mesh is smooth; collision is a conservative approximation within 1/16 of the surface.
 No architectural block needs a tile entity or scheduled ticking.
@@ -131,7 +132,7 @@ bracket face winding; the native check covers both reaches and every saved direc
 
 EraCatalog supplies both creative membership and survival recipe eligibility. Basic cob,
 plain daub and thatch are shared by Iron Age and Late Medieval & Tudor; timber framing,
-jetties, brackets and slate belong to the latter. Add future palettes to Era and assign membership
+jetties, brackets, slate and clay tiles belong to the latter. Add future palettes to Era and assign membership
 in the catalog. Shared items expose every relevant creative tab through their Item implementations.
 
 ArchitectureConfig parses recipes.survivalEras at startup. All recipe registration passes through
@@ -163,7 +164,7 @@ resource generator and item tooltips.
 
 Run scripts/invoke-runtime-probe.ps1 after prepareProbe. Modes cover core, reload, furniture,
 disabled, windows-disabled, legacy, legacy-daub, legacy-jetties, iron-age, late-medieval,
-mixed-eras, no-eras and invalid-era.
+mixed-eras, no-eras, invalid-era, clay-disabled and clay-only.
 Only Forge/server libraries and the explicitly named Furniture JAR are read from retained runtimes;
 no existing worlds or configs are copied or changed. Each mode has an isolated runtime except reload,
 which verifies the saved core world. Servers bind to loopback. Keep failed logs when correcting failures.
@@ -181,11 +182,14 @@ Known starter recipes also reject mixed wood. Receipts bind both matrices to the
 Window checks cover 2,304 metadata states, 576 directional columns, 144 saved columns,
 placement/alignment, independent columns, blocked bridges, hand/power transitions, swept
 entity clearance, owner/helper rays, player passage, harvesting, explosions and link repair.
-Use a fresh runtime root for each candidate; current default is manual-testing/horizontal-rails-0.1.8.
+Clay tile checks cover cap joining, four wall orientations, half-depth collision and
+placement alongside windows. Roof trim checks cover both verge hands in every facing,
+clearance behind the fascia and the ridge end join. The clay-only mode checks that crafting works with the
+other building families switched off. Use a fresh runtime root for each candidate.
 
 The optional client probe requires iaa.probe=true, iaa.clientProbe=true and iaa.keepRunning=true.
-It creates its own Horizontal Rails Preview, checks all mesh/material variants and both
-actual creative-tab contents, captures twenty native screenshots, then shuts down.
+It creates its own Rye Roof Trim Preview, checks mesh and material variants and both
+creative tabs, captures three views of the clay tile street and then shuts down.
 Every visible item must also provide a translated crafting hint without tooltip errors.
 The client script's PreviewName argument selects a separate save without replacing an earlier preview.
 After verification copy the preview save into the ordinary run/saves directory and launch without the probe.

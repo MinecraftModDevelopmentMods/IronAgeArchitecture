@@ -15,16 +15,20 @@ public final class RidgeBlock extends RoofBlock {
         @Override public String getName() { return name().toLowerCase(Locale.ROOT); }
     }
     public static final PropertyEnum<End> ENDS = PropertyEnum.create("ends",End.class);
-    public RidgeBlock(boolean thatch) { super(true,thatch); setDefaultState(getDefaultState().withProperty(ENDS,End.SINGLE)); }
+    public RidgeBlock(String materialKey) { super(true,materialKey); setDefaultState(getDefaultState().withProperty(ENDS,End.SINGLE)); }
     @Override protected BlockStateContainer createBlockState() { return new BlockStateContainer(this,FACING,ENDS); }
     private boolean connects(IBlockAccess world, BlockPos pos, EnumFacing facing) {
         IBlockState other = world.getBlockState(pos);
-        return other.getBlock() == this && other.getValue(FACING).getAxis() == facing.getAxis();
+        if (!(other.getBlock() instanceof RoofBlock)) return false;
+        RoofBlock roof = (RoofBlock) other.getBlock();
+        EnumFacing direction = other.getValue(FACING);
+        return roof.isRidge() && materialKey.equals(roof.materialKey)
+            && (roof instanceof TrimmedRoofBlock ? direction == facing : direction.getAxis() == facing.getAxis());
     }
     @Override public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
         EnumFacing facing = state.getValue(FACING);
         boolean north = connects(world,pos.offset(facing),facing);
-        boolean south = connects(world,pos.offset(facing.getOpposite()),facing);
+        boolean south = connects(world,pos.offset(facing.getOpposite()),facing.getOpposite());
         return state.withProperty(ENDS,north ? (south ? End.MIDDLE : End.END) : (south ? End.START : End.SINGLE));
     }
     @Override public RoofShape geometryShape(IBlockState state) { return RoofShape.STRAIGHT; }

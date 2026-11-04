@@ -15,9 +15,10 @@ import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
 final class EraProbe {
     private static void require(boolean condition,String message) {if(!condition) throw new IllegalStateException(message);}
     static int expectedRecipes() {
-        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.windows?2010:1863):
+        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.windows?2010:1863)+(ArchitectureConfig.clayTiles?10:0):
             ArchitectureConfig.survivalEras.allowed.contains(Era.IRON_AGE)?36:0;
     }
+    static int expectedVariants() { return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 7 : 0); }
     private static boolean ours(IRecipe recipe) {
         ItemStack output=recipe.getRecipeOutput();
         return output!=null&&"ironagearchitecture".equals(output.getItem().getRegistryName().getResourceDomain());
@@ -40,6 +41,7 @@ final class EraProbe {
         List<IRecipe> original=new ArrayList<>(recipes);
         EraSelection selected=ArchitectureConfig.survivalEras;
         boolean cob=ArchitectureConfig.cob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,windows=ArchitectureConfig.windows;
+        boolean clayTiles = ArchitectureConfig.clayTiles;
         String[][] cases={{"all"},{"iron_age"},{"late_medieval_tudor"},{"iron_age","late_medieval_tudor"},{},{"typo"},{"iron_age","typo"},{" IRON_AGE ","iron_age"}};
         try {
             recipes.removeIf(EraProbe::ours);ArchitectureConfig.survivalEras=EraSelection.parse("all");ArchitectureRecipes.register();
@@ -48,7 +50,7 @@ final class EraProbe {
             Files.createDirectories(Paths.get("era-matrix"));
             for(int c=0;c<cases.length;c++) {
                 Path file=Paths.get("era-matrix",c+".cfg");
-                String text="blocks {\n B:leadedWindows="+windows+"\n}\nrecipes {\n S:survivalEras <\n"+String.join("\n",cases[c])+"\n >\n}\n";
+                String text="blocks {\n B:leadedWindows="+windows+"\n B:clayTiles="+clayTiles+"\n}\nrecipes {\n S:survivalEras <\n"+String.join("\n",cases[c])+"\n >\n}\n";
                 Files.write(file,text.getBytes(StandardCharsets.UTF_8));ArchitectureConfig.load(file.toFile());
                 recipes.removeIf(EraProbe::ours);ArchitectureRecipes.register();
                 int count=0;for(IRecipe recipe:recipes) if(ours(recipe)) {require(EraCatalog.canCraft(recipe.getRecipeOutput()),"Prohibited registered output");count++;}
@@ -63,15 +65,16 @@ final class EraProbe {
                     if(EraCatalog.eras(stack.getItem()).contains(Era.IRON_AGE)) iron++;
                     if(EraCatalog.eras(stack.getItem()).contains(Era.LATE_MEDIEVAL_TUDOR)) late++;
                 }
-                require(iron==14&&late==(windows?510:460),"Creative palette changed with recipe filter");
-                int expected=ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(windows?510:460):
+                require(iron==14&&late==expectedVariants(),"Creative palette changed with recipe filter");
+                int expected=ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?expectedVariants():
                     ArchitectureConfig.survivalEras.allowed.contains(Era.IRON_AGE)?14:0;
                 require(RecipeProbe.verifyReachability()==expected,"Era selection leaves unreachable content case "+c);
             }
-            System.out.println("IAA_ERA_MATRIX_PASS cases="+cases.length+" sharedVariants=14 lateVariants="+(windows?510:460));
+            System.out.println("IAA_ERA_MATRIX_PASS cases="+cases.length+" sharedVariants=14 lateVariants="+expectedVariants());
         } finally {
             recipes.clear();recipes.addAll(original);ArchitectureConfig.survivalEras=selected;
             ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;
+            ArchitectureConfig.clayTiles = clayTiles;
         }
     }
 }

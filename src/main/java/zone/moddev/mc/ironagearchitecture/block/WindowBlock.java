@@ -60,8 +60,11 @@ public final class WindowBlock extends BlockHorizontal {
     }
     @Override public boolean onBlockActivated(World world,BlockPos pos,IBlockState state,EntityPlayer player,EnumHand hand,@Nullable ItemStack held,EnumFacing side,float x,float y,float z) {
         ItemStack main=player.getHeldItemMainhand(),off=player.getHeldItemOffhand();
-        if(player.isSneaking()||main!=null&&main.getItem() instanceof WindowItem||off!=null&&off.getItem() instanceof WindowItem) return false;
+        if(player.isSneaking()||allowsPlacement(main)||allowsPlacement(off)) return false;
         if(!world.isRemote) WindowController.toggle(world,pos,player);return true;
+    }
+    private static boolean allowsPlacement(@Nullable ItemStack held) {
+        return held != null && (held.getItem() instanceof WindowItem || held.getItem() instanceof TileHangingItem);
     }
     @Override public void neighborChanged(IBlockState state,World world,BlockPos pos,Block changed){if(!world.isRemote) WindowController.neighbor(world,pos);}
     @Override public void onBlockAdded(World world,BlockPos pos,IBlockState state){if(!world.isRemote) WindowController.neighbor(world,pos);}

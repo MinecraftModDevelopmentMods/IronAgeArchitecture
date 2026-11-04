@@ -18,8 +18,8 @@ public final class WindowItem extends EraItemBlock {
         IBlockState previous=world.getBlockState(pos.offset(side.getOpposite()));Boolean right=null;Boolean back=null;
         if(!player.isSneaking()) {
             if(previous.getBlock() instanceof WindowBlock&&((WindowBlock)previous.getBlock()).thin==base.thin) {facing=previous.getValue(WindowBlock.FACING);right=((WindowBlock)previous.getBlock()).right;back=((WindowBlock)previous.getBlock()).back;}
-            else if(base.thin&&previous.getBlock() instanceof PartialWallBlock&&((PartialWallBlock)previous.getBlock()).profile==WallProfile.THIN) {
-                EnumFacing plane=previous.getValue(FrameBlock.FACING);BlockPos clicked=pos.offset(side.getOpposite());
+            else if(base.thin&&WallRuns.straightHalfFacing(previous)!=null) {
+                EnumFacing plane=WallRuns.straightHalfFacing(previous);BlockPos clicked=pos.offset(side.getOpposite());
                 double[] centre=WallGeometry.rotate(8,0,4,plane);
                 facing=plane.getAxis()==EnumFacing.Axis.Z?(player.posZ<clicked.getZ()+centre[2]/16?EnumFacing.NORTH:EnumFacing.SOUTH):(player.posX<clicked.getX()+centre[0]/16?EnumFacing.WEST:EnumFacing.EAST);
                 EnumFacing inverse=facing==EnumFacing.EAST?EnumFacing.WEST:facing==EnumFacing.WEST?EnumFacing.EAST:facing;

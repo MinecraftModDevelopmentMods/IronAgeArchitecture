@@ -50,6 +50,8 @@ public final class ArchitectureBlocks {
     }
     public static FrameBlock DAUB;
     public static final List<RoofBlock> ROOFS = new ArrayList<>();
+    public static TileHangingBlock CLAY_HANGING, CLAY_HANGING_THIN;
+    public static TrimmedRoofBlock CLAY_FASCIA, CLAY_VERGE, CLAY_RIDGE_END;
     private ArchitectureBlocks() { }
     public static <T extends Block> T block(T block, String name) {
         block.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID, name));
@@ -89,6 +91,16 @@ public final class ArchitectureBlocks {
         }
         if (ArchitectureConfig.thatch) roofFamily("thatch", true);
         if (ArchitectureConfig.slate) roofFamily("slate", false);
+        if (ArchitectureConfig.clayTiles) {
+            roofFamily("clay_tile", false);
+            CLAY_HANGING = block(new TileHangingBlock(false), "clay_tile_hanging");
+            CLAY_HANGING_THIN = block(new TileHangingBlock(true), "clay_tile_hanging_thin");
+            item(CLAY_HANGING, new TileHangingItem(CLAY_HANGING));
+            item(CLAY_HANGING_THIN, new TileHangingItem(CLAY_HANGING_THIN));
+            CLAY_FASCIA = roofTrim("clay_tile_fascia", TrimmedRoofBlock.Kind.FASCIA);
+            CLAY_VERGE = roofTrim("clay_tile_verge", TrimmedRoofBlock.Kind.VERGE);
+            CLAY_RIDGE_END = roofTrim("clay_tile_ridge_end", TrimmedRoofBlock.Kind.RIDGE_END);
+        }
         EraCatalog.assignPrimaryTabs();
     }
     private static void registerWindows() {
@@ -167,11 +179,17 @@ public final class ArchitectureBlocks {
     }
     private static void roofFamily(String name, boolean flammable) {
         for (boolean ridge : new boolean[]{false, true}) {
-            RoofBlock roof = block(ridge ? new RidgeBlock(flammable) : new RoofBlock(false, flammable), name + (ridge ? "_ridge" : "_roof"));
+            RoofBlock roof = block(ridge ? new RidgeBlock(name) : new RoofBlock(false, name), name + (ridge ? "_ridge" : "_roof"));
             item(roof, new EraItemBlock(roof));
             ROOFS.add(roof);
             if (flammable) Blocks.FIRE.setFireInfo(roof, 60, 20);
         }
+    }
+    private static TrimmedRoofBlock roofTrim(String name, TrimmedRoofBlock.Kind kind) {
+        TrimmedRoofBlock trim = block(new TrimmedRoofBlock(kind), name);
+        item(trim, new EraItemBlock(trim));
+        ROOFS.add(trim);
+        return trim;
     }
     private static final class CobBlock extends Block {
         CobBlock() { super(Material.GROUND); setHardness(1.2F); setResistance(4F); setSoundType(SoundType.GROUND); setHarvestLevel("shovel", 0); }

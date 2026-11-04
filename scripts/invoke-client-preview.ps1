@@ -1,12 +1,15 @@
 param(
-    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\horizontal-rails-0.1.8\native-client',
-    [string]$PreviewName='Horizontal Rails Preview',
+    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\rye-roof-trim-0.1.10\native-client',
+    [string]$PreviewName='Rye Roof Trim Preview',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$GradleHome='D:\GradleCaches\minecraft-mods-shared',
     [string]$AssetsDirectory='',
     [string]$Java8='C:\Users\johnb\.gradle\jdks\temurin-8-amd64-windows.2\bin\java.exe'
 )
 $ErrorActionPreference='Stop'
+if (Test-Path -LiteralPath (Join-Path $Runtime "saves/$PreviewName")) {
+    throw 'Use a fresh runtime or preview name to keep the earlier save.'
+}
 $repo=Split-Path $PSScriptRoot -Parent
 $version=((Select-String -LiteralPath (Join-Path $repo 'gradle.properties') -Pattern '^mod_version=').Line -split '=',2)[1]
 $runtimeJar='iron-age-architecture-'+$version+'.jar'
@@ -48,6 +51,7 @@ foreach($library in $metadata.libraries) {
 }
 @'
 pauseOnLostFocus:false
+showInventoryAchievementHint:false
 renderDistance:8
 guiScale:2
 fancyGraphics:true

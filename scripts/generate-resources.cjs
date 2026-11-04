@@ -34,6 +34,11 @@ for (const [key, text] of Object.entries({
   'bracket.reach':'One full bracket makes two halves; two halves rejoin.',
   'roof.ridge':'Cut two slopes vertically for four ridge caps.',
   'roof.slope':'Two ridge caps side by side make one roof slope.',
+  'clay.fascia':'Place facing uphill for a timber edge along the low side.',
+  'clay.verge':'Face uphill and click the left or right half that projects past the gable.',
+  'clay.ridge_end':'Look along the ridge from outside to finish its exposed end.',
+  'clay.swap':'Craft alone to swap a clay slope and a full hanging tile panel.',
+  'clay.place':'Match the neighbouring wall half, or sneak to choose it yourself.',
   'cob':'Craft alone to make plain wattle and daub.',
   'slab':'Two slabs side by side recover one cob.',
   'wall.short':'Two short walls side by side make one thin wall.',
@@ -118,15 +123,37 @@ for(const wood of woods) {
     item(name,name);lang[`item.${ns}.${name}.name`]=`${names[woods.indexOf(wood)]} ${reach==='half'?'Half':'Full'}-reach Jetty Bracket`;
   }
 }
-for (const material of ['thatch','slate']) {
+for (const [material,label] of [['thatch','Thatch'],['slate','Slate'],['clay_tile','Clay Tile']]) {
   model(`${material}_mesh`,{parent:'minecraft:block/block',textures:{particle:`${ns}:blocks/${material}`},elements:[]});
   for (const ridge of [false,true]) {
     const name = `${material}_${ridge?'ridge':'roof'}`, variants = {};
+    const mesh = material === 'clay_tile' && ridge ? 'clay_tile_cap_mesh' : `${material}_mesh`;
+    if (mesh === 'clay_tile_cap_mesh') model(mesh,{parent:'minecraft:block/block',textures:{particle:`${ns}:blocks/clay_tile_cap`},elements:[]});
     for (const facing of Object.keys(facings)) for (const shape of ridge?['single','start','middle','end']:shapes)
-      variants[ridge?`ends=${shape},facing=${facing}`:`facing=${facing},shape=${shape}`] = {model:`${ns}:${material}_mesh`};
-    state(name,variants); item(name,`${material}_mesh`);
-    lang[`tile.${ns}.${name}.name`] = `${material==='thatch'?'Thatch':'Slate'} ${ridge?'Ridge Cap':'Roof'}`;
+      variants[ridge?`ends=${shape},facing=${facing}`:`facing=${facing},shape=${shape}`] = {model:`${ns}:${mesh}`};
+    state(name,variants); item(name,mesh);
+    lang[`tile.${ns}.${name}.name`] = `${label} ${ridge?'Ridge Cap':'Roof'}`;
   }
+}
+for (const [part,label] of [['fascia','Fascia'],['verge','Verge'],['ridge_end','Ridge End']]) {
+  const name = `clay_tile_${part}`, variants = {};
+  const mesh = part === 'ridge_end' ? 'clay_tile_cap_mesh' : 'clay_tile_mesh';
+  for (const facing of Object.keys(facings)) for (const right of [false,true])
+    variants[`facing=${facing},right=${right}`] = {model:`${ns}:${mesh}`};
+  state(name,variants); item(name,mesh);
+  lang[`tile.${ns}.${name}.name`] = `Clay Tile ${label}`;
+}
+model('clay_tile_hanging',{parent:'minecraft:block/cube_all',textures:{all:`${ns}:blocks/clay_tile`}});
+const tileFaces = Object.fromEntries(['down','up','north','south','west','east'].map(face =>
+  [face, face === 'south' ? {texture:'#tile'} : {texture:'#tile',cullface:face}]));
+model('clay_tile_hanging_thin',{parent:'minecraft:block/block',
+  textures:{tile:`${ns}:blocks/clay_tile`,particle:`${ns}:blocks/clay_tile`},
+  elements:[{from:[0,0,0],to:[16,16,8],faces:tileFaces}]});
+for (const [name,label] of [['clay_tile_hanging','Hanging Clay Tiles'],['clay_tile_hanging_thin','Hanging Clay Tiles (Thin)']]) {
+  state(name,Object.fromEntries(Object.entries(facings).map(([facing,y]) =>
+    [`facing=${facing}`,{model:`${ns}:${name}`,...(name.endsWith('_thin')&&y?{y}:{})}])));
+  item(name,name);
+  lang[`tile.${ns}.${name}.name`] = label;
 }
 model('window_mesh',{parent:'minecraft:block/block',textures:{particle:'minecraft:blocks/glass_silver'}});
 for(const [w,wood] of woods.entries()) for(const finish of [0,1]) for(const thin of [false,true]) for(const diamond of [true,false]) for(const right of [false,true]) for(const back of [false,true]) {
@@ -145,7 +172,7 @@ lang[`hint.${ns}.pane.use`]='Add to a matching post panel; craft alone to swap l
 lang[`message.${ns}.window.blocked`]='There is not enough clear space to open this window.';
 lang[`message.${ns}.window.join`]='Close the adjoining windows before joining these sections.';
 for (const locale of ['en_US','en_GB']) expected.set(`${assets}/lang/${locale}.lang`,Object.entries(lang).map(([k,v])=>`${k}=${v}`).join('\n')+'\n');
-expected.set('src/main/resources/mcmod.info',JSON.stringify([{modid:ns,name:'Iron Age Architecture',description:'Cob walls, timber frames, thatch and slate roofs for the Iron Age series.',version:'${version}',mcversion:'${mcversion}',url:'https://github.com/MinecraftModDevelopmentMods/IronAgeArchitecture',authorList:['SkyBlade1978','FoxNekitsune'],credits:'Original 2019 scaffold and model drafts retained in repository history.',dependencies:[]}],null,2)+'\n');
+expected.set('src/main/resources/mcmod.info',JSON.stringify([{modid:ns,name:'Iron Age Architecture',description:'Cob walls, timber frames, leaded windows and traditional roofs for the Iron Age series.',version:'${version}',mcversion:'${mcversion}',url:'https://github.com/MinecraftModDevelopmentMods/IronAgeArchitecture',authorList:['SkyBlade1978','FoxNekitsune'],credits:'Original 2019 scaffold and model drafts retained in repository history.',dependencies:[]}],null,2)+'\n');
 expected.set('src/main/resources/pack.mcmeta',JSON.stringify({pack:{pack_format:2,description:'Iron Age Architecture resources'}},null,2)+'\n');
 let failures=[];
 // Remove only the exact generated frame meshes superseded by the shared wall model.
@@ -158,10 +185,10 @@ for(const name of obsolete) {
     else fs.unlinkSync(file);
   }
 }
-for(const wood of woods) {
-  const file=path.join(root,assets,'textures/blocks',`beam_${wood}.png`);
-  if(!fs.existsSync(file)) failures.push('missing beam texture '+wood);
-  else {const png=fs.readFileSync(file);if(png.readUInt32BE(16)!==32||png.readUInt32BE(20)!==32) failures.push('beam texture must be 32x32: '+wood);}
+for(const name of [...woods.map(wood=>`beam_${wood}`),'clay_tile','clay_tile_cap']) {
+  const file=path.join(root,assets,'textures/blocks',`${name}.png`);
+  if(!fs.existsSync(file)) failures.push('missing material texture '+name);
+  else {const png=fs.readFileSync(file);if(png.readUInt32BE(16)!==32||png.readUInt32BE(20)!==32) failures.push('material texture must be 32x32: '+name);}
 }
 for (const [file,content] of expected) {
   const dest=path.join(root,file);

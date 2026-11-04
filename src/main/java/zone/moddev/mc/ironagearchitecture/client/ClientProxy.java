@@ -61,7 +61,7 @@ public final class ClientProxy extends CommonProxy {
             }
         }
         for (RoofBlock block : ArchitectureBlocks.ROOFS) {
-            String texture = "ironagearchitecture:blocks/" + (block.getRegistryName().getResourcePath().startsWith("thatch") ? "thatch" : "slate");
+            String texture = "ironagearchitecture:blocks/" + block.textureKey();
             for (IBlockState state : block.getBlockState().getValidStates()) {
                 ModelResourceLocation key = new ModelResourceLocation(block.getRegistryName(),variant(state));
                 IBakedModel base = event.getModelRegistry().getObject(key);

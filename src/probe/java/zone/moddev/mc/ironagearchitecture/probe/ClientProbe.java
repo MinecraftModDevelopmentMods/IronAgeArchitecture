@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import zone.moddev.mc.ironagearchitecture.ArchitectureBlocks;
+import zone.moddev.mc.ironagearchitecture.ArchitectureConfig;
 import zone.moddev.mc.ironagearchitecture.block.RoofBlock;
 import zone.moddev.mc.ironagearchitecture.client.RoofBakedModel;
 import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
@@ -40,17 +41,21 @@ public final class ClientProbe extends ProbeProxy {
         if(phase==0&&mc.currentScreen instanceof GuiMainMenu&&ticks>60) {
             mc.gameSettings.pauseOnLostFocus=false;
             phase=1;ticks=0;
-            String preview=System.getProperty("iaa.previewName","Horizontal Rails Preview");
+            String preview=System.getProperty("iaa.previewName",RyeTilePreview.NAME);
             mc.launchIntegratedServer(preview,preview,new WorldSettings(137,GameType.CREATIVE,false,false,WorldType.FLAT));
         } else if(phase==1&&mc.player!=null) {
             phase=2;ticks=0;
             mc.displayGuiScreen(null);mc.gameSettings.hideGUI=true;mc.gameSettings.renderDistanceChunks=8;
+            mc.gameSettings.showInventoryAchievementHint=false;
+            mc.setIngameNotInFocus();
             mc.player.capabilities.allowFlying=true;mc.player.capabilities.isFlying=true;
             lookAt(mc,48,102,-85,48,73,4);
         } else if(phase==2&&ticks>260) {
             for(RoofBlock roof:ArchitectureBlocks.ROOFS) for(IBlockState state:roof.getBlockState().getValidStates()) {
                 IBakedModel model=mc.getBlockRendererDispatcher().getModelForState(state);
                 if(!(model instanceof RoofBakedModel)||model.getQuads(state,null,0).isEmpty()) throw new IllegalStateException("Roof model missing "+state);
+                if (!model.getParticleTexture().getIconName().equals("ironagearchitecture:blocks/" + roof.textureKey()))
+                    throw new IllegalStateException("Wrong roof sprite " + state);
             }
             for(FrameBlock wall:ArchitectureBlocks.meshes()) {
                 for(IBlockState state:wall.getBlockState().getValidStates()) {
@@ -69,6 +74,17 @@ public final class ClientProbe extends ProbeProxy {
                 IBakedModel model=mc.getBlockRendererDispatcher().getModelForState(state);
                 if(!(model instanceof WindowBakedModel)||model.getQuads(state,null,0).isEmpty()) throw new IllegalStateException("Missing window model "+state);
                 for(net.minecraft.client.renderer.block.model.BakedQuad quad:model.getQuads(state,null,0)) if(quad.getSprite().getIconName().contains("missingno")) throw new IllegalStateException("Missing window texture "+state);
+            }
+            if (ArchitectureConfig.clayTiles) {
+                for (net.minecraft.block.Block panel : new net.minecraft.block.Block[]{ArchitectureBlocks.CLAY_HANGING, ArchitectureBlocks.CLAY_HANGING_THIN}) {
+                    for (IBlockState state : panel.getBlockState().getValidStates()) {
+                        IBakedModel model = mc.getBlockRendererDispatcher().getModelForState(state);
+                        if (!model.getParticleTexture().getIconName().equals("ironagearchitecture:blocks/clay_tile"))
+                            throw new IllegalStateException("Wrong hanging tile sprite " + state);
+                    }
+                }
+                phase=60;ticks=0;
+                return;
             }
             capture(mc,"jettied-street-overview.png");
             lookAt(mc,-5,74,-7,3,69.5,2);phase=3;ticks=0;
@@ -96,17 +112,17 @@ public final class ClientProbe extends ProbeProxy {
             double[][] cameras={{3,66,-3,3,66.7,.15},{4.5,71,-3,3.5,70.8,-.3},{3,70,3,3,70.7,-.25},{15,68,18,15,65,23},{19,66,26,15.5,65,27.5},{-2,70,-3,1.3,70.9,-.35},{1.8,70,3,1,70.9,-.3}};
             capture(mc,names[phase-50]);
             if(phase<57){double[] c=cameras[phase-50];lookAt(mc,c[0],c[1],c[2],c[3],c[4],c[5]);phase++;ticks=0;return;}
-            for(Era era:Era.values()) {
-                java.util.List<ItemStack> items=new java.util.ArrayList<>();EraTabs.tab(era).displayAllRelevantItems(items);
-                int expected=era==Era.IRON_AGE?14:510;
-                if(items.size()!=expected) throw new IllegalStateException("Creative tab "+era+" expected "+expected+" got "+items.size());
-                for(ItemStack item:items) if(!zone.moddev.mc.ironagearchitecture.EraCatalog.eras(item.getItem()).contains(era)) throw new IllegalStateException("Wrong era item "+item);
-                for(ItemStack item:items) {
-                    java.util.List<String> tooltip=new java.util.ArrayList<>();item.getItem().addInformation(item,mc.player,tooltip,false);
-                    if(tooltip.isEmpty()) throw new IllegalStateException("Missing crafting hint "+item);
-                    for(String line:tooltip) if(line.startsWith("hint.ironagearchitecture.")) throw new IllegalStateException("Untranslated crafting hint "+line);
-                }
-            }
+            checkPalettes(mc);
+            mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
+        } else if (phase>=60&&phase<=62) {
+            double[][] cameras={{-62,25,-16,-46,17,1},{-32,9.1,-7,-46,16,0},{-44,14.4,-7,-45.5,18.7,-.3}};
+            double[] camera=cameras[phase-60];
+            lookAt(mc,camera[0],camera[1],camera[2],camera[3],camera[4],camera[5]);
+            if (ticks<=130) return;
+            String[] names={"rye-roof-trim-overview.png","rye-roof-trim-street.png","rye-roof-trim-gable.png"};
+            capture(mc,names[phase-60]);
+            if (phase<62) {phase++;ticks=0;return;}
+            checkPalettes(mc);
             mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
         } else if(phase==8) {
             if(!ensurePalette(mc,Era.IRON_AGE)) {ticks=0;return;}
@@ -115,10 +131,23 @@ public final class ClientProbe extends ProbeProxy {
             if(!ensurePalette(mc,Era.LATE_MEDIEVAL_TUDOR)) {ticks=0;return;}
             if(ticks>80) {
                 capture(mc,"late-medieval-tudor-palette.png");mc.displayGuiScreen(null);
-                System.out.println("IAA_CLIENT_PROBE_PASS creativeIronAge=14 creativeLateMedievalTudor=510");phase=10;
+                System.out.println("IAA_CLIENT_PROBE_PASS creativeIronAge=14 creativeLateMedievalTudor="+EraProbe.expectedVariants());phase=10;
                 mc.shutdown();
             }
         }
+    }
+    private void checkPalettes(Minecraft mc) {
+            for(Era era:Era.values()) {
+                java.util.List<ItemStack> items=new java.util.ArrayList<>();EraTabs.tab(era).displayAllRelevantItems(items);
+                int expected=era==Era.IRON_AGE?14:EraProbe.expectedVariants();
+                if(items.size()!=expected) throw new IllegalStateException("Creative tab "+era+" expected "+expected+" got "+items.size());
+                for(ItemStack item:items) if(!zone.moddev.mc.ironagearchitecture.EraCatalog.eras(item.getItem()).contains(era)) throw new IllegalStateException("Wrong era item "+item);
+                for(ItemStack item:items) {
+                    java.util.List<String> tooltip=new java.util.ArrayList<>();item.getItem().addInformation(item,mc.player,tooltip,false);
+                    if(tooltip.isEmpty()) throw new IllegalStateException("Missing crafting hint "+item);
+                    for(String line:tooltip) if(line.startsWith("hint.ironagearchitecture.")) throw new IllegalStateException("Untranslated crafting hint "+line);
+                }
+            }
     }
     private void verifyBracketShell(JettyFloorBlock floor,IBlockState state,IBakedModel model) {
         if(floor.bracket==null) return;

@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,shape=straight": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=north,shape=inner_left": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=north,shape=inner_right": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=north,shape=outer_left": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=north,shape=outer_right": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=east,shape=straight": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=east,shape=inner_left": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=east,shape=inner_right": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=east,shape=outer_left": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=east,shape=outer_right": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=south,shape=straight": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=south,shape=inner_left": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=south,shape=inner_right": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=south,shape=outer_left": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=south,shape=outer_right": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=west,shape=straight": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=west,shape=inner_left": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=west,shape=inner_right": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=west,shape=outer_left": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "facing=west,shape=outer_right": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    }
+  }
+}

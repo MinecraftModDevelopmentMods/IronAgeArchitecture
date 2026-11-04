@@ -14,7 +14,13 @@ public class EraItemBlock extends ItemBlock {
     @Override public CreativeTabs[] getCreativeTabs() {return EraTabs.forItem(this);}
     protected static void hint(List<String> tooltip,String key) {tooltip.add(net.minecraft.util.text.translation.I18n.translateToLocal("hint.ironagearchitecture."+key));}
     @Override public void addInformation(ItemStack stack,EntityPlayer player,List<String> tooltip,boolean advanced) {
+        if (block instanceof TrimmedRoofBlock) {
+            hint(tooltip, "clay." + ((TrimmedRoofBlock) block).kind.name().toLowerCase(java.util.Locale.ROOT));
+            return;
+        }
         if(block instanceof RoofBlock) hint(tooltip,((RoofBlock)block).isRidge()?"roof.slope":"roof.ridge");
+        if (block instanceof RoofBlock && "clay_tile".equals(((RoofBlock) block).materialKey)
+                && !((RoofBlock) block).isRidge()) hint(tooltip, "clay.swap");
         if(ArchitectureBlocks.COB.contains(block)) hint(tooltip,"cob");
         if(ArchitectureBlocks.STAIRS.contains(block)) hint(tooltip,"stair");
         if(ArchitectureBlocks.COB.indexOf(block)==0||ArchitectureBlocks.STAIRS.indexOf(block)==0) hint(tooltip,"wash");

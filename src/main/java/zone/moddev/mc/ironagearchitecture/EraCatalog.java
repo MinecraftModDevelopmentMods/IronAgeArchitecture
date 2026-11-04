@@ -15,7 +15,7 @@ public final class EraCatalog {
         Block block=((ItemBlock)item).getBlock();
         boolean shared=ArchitectureBlocks.COB.contains(block)||ArchitectureBlocks.SLABS.contains(block)||ArchitectureBlocks.STAIRS.contains(block)
             ||block instanceof FrameBlock&&((FrameBlock)block).family==FrameFamily.INFILL
-            ||block instanceof RoofBlock&&block.getRegistryName().getResourcePath().startsWith("thatch");
+            ||block instanceof RoofBlock&&"thatch".equals(((RoofBlock) block).materialKey);
         return shared?EnumSet.allOf(Era.class):EnumSet.of(Era.LATE_MEDIEVAL_TUDOR);
     }
     public static boolean canCraft(ItemStack output) {return output!=null&&ArchitectureConfig.survivalEras.permits(eras(output.getItem()));}
