@@ -1,27 +1,147 @@
 {
   "variants": {
-    "facing=north,right=false": {
+    "ends=0,facing=north,fitting=0": {
       "model": "ironagearchitecture:clay_tile_mesh"
     },
-    "facing=north,right=true": {
+    "ends=0,facing=north,fitting=1": {
       "model": "ironagearchitecture:clay_tile_mesh"
     },
-    "facing=east,right=false": {
+    "ends=0,facing=north,fitting=2": {
       "model": "ironagearchitecture:clay_tile_mesh"
     },
-    "facing=east,right=true": {
+    "ends=1,facing=north,fitting=0": {
       "model": "ironagearchitecture:clay_tile_mesh"
     },
-    "facing=south,right=false": {
+    "ends=1,facing=north,fitting=1": {
       "model": "ironagearchitecture:clay_tile_mesh"
     },
-    "facing=south,right=true": {
+    "ends=1,facing=north,fitting=2": {
       "model": "ironagearchitecture:clay_tile_mesh"
     },
-    "facing=west,right=false": {
+    "ends=2,facing=north,fitting=0": {
       "model": "ironagearchitecture:clay_tile_mesh"
     },
-    "facing=west,right=true": {
+    "ends=2,facing=north,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=north,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=north,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=north,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=north,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=0,facing=east,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=0,facing=east,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=0,facing=east,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=1,facing=east,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=1,facing=east,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=1,facing=east,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=east,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=east,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=east,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=east,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=east,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=east,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=0,facing=south,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=0,facing=south,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=0,facing=south,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=1,facing=south,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=1,facing=south,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=1,facing=south,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=south,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=south,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=south,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=south,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=south,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=south,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=0,facing=west,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=0,facing=west,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=0,facing=west,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=1,facing=west,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=1,facing=west,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=1,facing=west,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=west,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=west,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=2,facing=west,fitting=2": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=west,fitting=0": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=west,fitting=1": {
+      "model": "ironagearchitecture:clay_tile_mesh"
+    },
+    "ends=3,facing=west,fitting=2": {
       "model": "ironagearchitecture:clay_tile_mesh"
     }
   }

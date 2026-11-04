@@ -1,3 +1,13 @@
+0.1.11.110021 - Alpha
+
+I've added iron guttering and downpipes to the Rye kit.
+
+- Fit half-round gutters and outlets to the clay fascia. The pieces join along the eaves.
+- Use the offsets to tuck a downpipe back under a half-block or full-block overhang.
+- Finish the pipe with a short angled shoe so it ends just above the paving and
+  sends the drips away from the wall.
+- In the rain, exposed outlets and the open ends of connected downpipes drip.
+
 0.1.10.110021 - Alpha
 
 I've added the clay tiles and timber roof trim I've been trying out on the Rye cottages.

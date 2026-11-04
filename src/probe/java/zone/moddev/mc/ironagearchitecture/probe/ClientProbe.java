@@ -83,6 +83,7 @@ public final class ClientProbe extends ProbeProxy {
                             throw new IllegalStateException("Wrong hanging tile sprite " + state);
                     }
                 }
+                checkDrainModels(mc);
                 phase=60;ticks=0;
                 return;
             }
@@ -114,14 +115,23 @@ public final class ClientProbe extends ProbeProxy {
             if(phase<57){double[] c=cameras[phase-50];lookAt(mc,c[0],c[1],c[2],c[3],c[4],c[5]);phase++;ticks=0;return;}
             checkPalettes(mc);
             mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
-        } else if (phase>=60&&phase<=62) {
-            double[][] cameras={{-62,25,-16,-46,17,1},{-32,9.1,-7,-46,16,0},{-44,14.4,-7,-45.5,18.7,-.3}};
+        } else if (phase>=60&&phase<=65) {
+            double[][] cameras={{-62,25,-16,-46,17,1},{-32,9.1,-7,-46,16,0},
+                {-51.8,15.5,-7,-55.2,18.3,-.5},{-31.8,10.4,-6,-34.5,13.5,-.3},
+                {-32.7,8.9,-2.8,-34.5,10.55,.5},{-32.7,8.9,-2.8,-34.5,10.55,.5}};
             double[] camera=cameras[phase-60];
             lookAt(mc,camera[0],camera[1],camera[2],camera[3],camera[4],camera[5]);
             if (ticks<=130) return;
-            String[] names={"rye-roof-trim-overview.png","rye-roof-trim-street.png","rye-roof-trim-gable.png"};
+            String[] names={"rye-guttering-overview.png","rye-guttering-street.png",
+                "rye-guttering-half-jetty.png","rye-guttering-full-jetty.png","rye-downpipe-shoe-closeup.png","rye-downpipe-shoe-rain.png"};
+            if (phase == 65 && !rainReady(mc)) {
+                if (ticks > 300) throw new IllegalStateException("Preview rain did not reach the pipe foot");
+                return;
+            }
             capture(mc,names[phase-60]);
-            if (phase<62) {phase++;ticks=0;return;}
+            if (phase == 64) setPreviewRain(mc, true);
+            if (phase < 65) {phase++;ticks=0;return;}
+            setPreviewRain(mc, false);
             checkPalettes(mc);
             mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
         } else if(phase==8) {
@@ -136,6 +146,35 @@ public final class ClientProbe extends ProbeProxy {
             }
         }
     }
+    private static void checkDrainModels(Minecraft mc) {
+        for (ItemStack stack : ArchitectureBlocks.visibleStacks()) {
+            String key = stack.getItem().getRegistryName().getResourcePath();
+            if (!key.startsWith("iron_gutter") && !key.startsWith("iron_downpipe")) continue;
+            IBakedModel model = mc.getRenderItem().getItemModelMesher().getItemModel(stack);
+            if (!(model instanceof RoofBakedModel) || model.getQuads(null, null, 0).isEmpty()
+                    || !"minecraft:blocks/iron_block".equals(model.getParticleTexture().getIconName()))
+                throw new IllegalStateException("Missing drain item model " + stack);
+        }
+    }
+
+    private static void setPreviewRain(Minecraft mc, boolean rain) {
+        mc.getIntegratedServer().addScheduledTask(() -> {
+            net.minecraft.world.storage.WorldInfo info = mc.getIntegratedServer().worldServerForDimension(0).getWorldInfo();
+            info.setCleanWeatherTime(rain ? 0 : 12000);
+            info.setRainTime(12000);
+            info.setRaining(rain);
+        });
+    }
+
+    private static boolean rainReady(Minecraft mc) {
+        net.minecraft.util.math.BlockPos foot = RyeTilePreview.RAIN_FOOT;
+        if (zone.moddev.mc.ironagearchitecture.block.DrainRun.canDrip(mc.world.getBlockState(foot), mc.world, foot)) {
+            System.out.println("IAA_GUTTER_RAIN_PREVIEW_PASS");
+            return true;
+        }
+        return false;
+    }
+
     private void checkPalettes(Minecraft mc) {
             for(Era era:Era.values()) {
                 java.util.List<ItemStack> items=new java.util.ArrayList<>();EraTabs.tab(era).displayAllRelevantItems(items);

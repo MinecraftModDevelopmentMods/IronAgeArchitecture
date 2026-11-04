@@ -9,7 +9,7 @@ import zone.moddev.mc.ironagearchitecture.block.TrimmedRoofBlock.Kind;
 /** Shared section dimensions for the tile surface, its thin overhang and the timber edging. */
 public final class RoofTrimGeometry {
     private static final double DEPTH = 3.0 / 16;
-    private static final double EAVE = 1 - DEPTH;
+    public static final double EAVE = 1 - DEPTH;
 
     private RoofTrimGeometry() { }
 

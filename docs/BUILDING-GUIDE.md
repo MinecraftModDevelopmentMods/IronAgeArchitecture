@@ -3,10 +3,10 @@
 Permanent building components for the Iron Age series, starting on Minecraft 1.10.2 Forge.
 Architecture runs independently of Iron Age Furniture.
 
-Version 0.1.10.110021 contains raw and limewashed cob blocks,
+Version 0.1.11.110021 contains raw and limewashed cob blocks,
 stairs and slabs; modular wattle-and-daub walls in all six vanilla woods; and smooth
 thatch, slate and clay tile roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
-timber floors, support brackets, hanging clay tiles and openable leaded windows. There are 517 visible
+timber floors, support brackets, hanging clay tiles and openable leaded windows. There are 525 visible
 variants including the wood and finish choices. Architecture remains standalone.
 
 ## Wattle and daub
@@ -74,6 +74,28 @@ plank for the matching ridge end and place it while looking inward along the rid
 Use full hanging tiles to fill the stepped gable beneath a clay roof. Thin hanging
 tiles share the half-block plane with straight thin timber panels and thin leaded windows.
 Place against one of these pieces to inherit its occupied half. Sneak to choose the half manually.
+
+## Guttering
+
+Use a gutter or outlet on the outside face of a bare clay fascia. Level sections join
+and cap their exposed ends. Sneak and use an empty hand on the metal to recover the fitting.
+
+Start a pipe against the underside of the outlet and build down from the pipe end. The
+eave offset brings the pipe towards the wall. For a half-block step, use the half-block
+offset beneath an outside pipe in a clear bay beside the thin wall. For a full-block jetty,
+run the pipe close to the upper wall, place the outer elbow below it and fit the inner elbow
+on the wall side of that elbow. Continue down from the inner elbow. To select the position
+of a straight pipe by hand, sneak, face the wall and click where you want it to sit.
+
+Three iron ingots across a row make six gutters. Add an ingot to a gutter for an outlet.
+Three iron ingots in a column make six pipes. Craft a pipe with a stick for an eave offset.
+Craft an offset alone to cycle through the eave, half-block, outer and inner shapes.
+
+Craft a straight downpipe alone to make a shoe. Fit it under the last pipe, in the
+block above the paving. The short bend turns out from the wall, with enough room
+under its mouth for rain to drip onto the cobbles.
+
+An exposed outlet drips during rain. A connected pipe takes those drips to its open foot.
 
 ## Leaded windows
 
@@ -213,9 +235,9 @@ switches still apply separately.
 All content families are enabled by default. Framed panels require the cob family.
 The `blocks.leadedWindows` switch controls both glazing and windows and requires timber
 frames and cob. Era recipe filtering is separate from this content switch.
-The `blocks.clayTiles` switch controls the clay slopes, ridge caps, trim and both hanging panels.
+The `blocks.clayTiles` switch controls the clay slopes, ridge caps, trim, hanging panels and iron guttering.
 Thatch and timber-bearing walls burn; plain daub, cob and slate do not. There is no world generation or collapse simulation.
 
 See [development instructions](DEVELOPMENT.md) for builds, Eclipse and disposable runtime checks.
 This is an early alpha. Automated checks and manual visual/gameplay review are recorded separately.
-The Rye Roof Trim Preview shows how the fascia and gable trim fit on three houses stepping down a cobbled street.
+The Rye Downpipe Shoe Preview shows both pipe offsets and the shoe on a cobbled street.

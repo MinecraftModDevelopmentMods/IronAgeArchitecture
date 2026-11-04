@@ -19,6 +19,7 @@ All six vanilla wood types are available. Cob comes in blocks, slabs and stairs,
 thatch, slate and clay tile roofs have automatic corners and separate ridge caps.
 Clay tiles also come as full and half-depth hanging panels for gables and upper walls.
 Finish clay roofs with timber fascia boards at the eaves and matching trim along the gable and ridge.
+Fit iron guttering to the fascia and run a downpipe under the overhang. Connected outlets and pipes drip in the rain.
 
 Leaded windows bring some light into the houses. Choose diamond or rectangular leading,
 match the timber and daub to your walls, then stack sections to make taller casements.

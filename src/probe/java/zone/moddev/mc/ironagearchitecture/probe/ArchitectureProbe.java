@@ -45,7 +45,7 @@ import net.minecraft.util.Rotation;
 
 /** Disposable packaged-runtime verification mod. Never part of the player jar. */
 @Mod(modid="ironagearchitectureprobe",name="Architecture Verification",version="1",acceptableRemoteVersions="*",
-        dependencies="required-after:ironagearchitecture@[0.1.10.110021]")
+        dependencies="required-after:ironagearchitecture@[0.1.11.110021]")
 public final class ArchitectureProbe {
     @SidedProxy(clientSide="zone.moddev.mc.ironagearchitecture.probe.ClientProbe",serverSide="zone.moddev.mc.ironagearchitecture.probe.ProbeProxy")
     public static ProbeProxy proxy;
@@ -54,8 +54,14 @@ public final class ArchitectureProbe {
     @Mod.EventHandler public void started(FMLServerStartedEvent event) throws Exception {
         if(!Boolean.getBoolean("iaa.probe")) return;
         MinecraftServer server=FMLCommonHandler.instance().getMinecraftServerInstance();
-        verifyConfigMatrix();
         WorldServer world=server.worldServerForDimension(0);
+        if (Boolean.getBoolean("iaa.legacyFascia")) {
+            int bareFascias = GutterProbe.verifyOldPreview(world);
+            finish(server, "{\"passed\":true,\"bareFascias\":" + bareFascias
+                + ",\"runtimeSha256\":\"" + System.getProperty("iaa.runtimeSha256", "development") + "\"}\n");
+            return;
+        }
+        verifyConfigMatrix();
         if(Boolean.getBoolean("iaa.eraMatrix")) EraProbe.verify(world);
         if(Boolean.getBoolean("iaa.recipeMatrix")) RecipeProbe.verify(world);
         if(Boolean.getBoolean("iaa.legacy")) verifyLegacy(world);
@@ -79,7 +85,6 @@ public final class ArchitectureProbe {
             require(index==4448,"0.1.2 legacy matrix incomplete");
         }
         for(Block block:savedBlocks) {
-            int count=block instanceof FrameBlock?((FrameBlock)block).variants():1;
             for(int meta=0;meta<16;meta++) {
                 IBlockState state=block.getStateFromMeta(meta);
                 require(block.getStateFromMeta(block.getMetaFromState(state)).equals(state),"Metadata "+block+" "+meta);
@@ -89,8 +94,10 @@ public final class ArchitectureProbe {
                 List<ItemStack> drops=block.getDrops(world,pos,state,0);
                 Item expected=block instanceof PartialWallBlock?Item.getItemFromBlock(((PartialWallBlock)block).canonical()):
                     block instanceof JettyFloorBlock?Item.getItemFromBlock(((JettyFloorBlock)block).canonical()):Item.getItemFromBlock(block);
-                require(drops.size()==(block instanceof JettyFloorBlock&&((JettyFloorBlock)block).bracket!=null?2:1)&&drops.get(0).getItem()==expected,"Drop item "+block);
-                require(drops.get(0).getMetadata()==(block instanceof FrameBlock?block.damageDropped(state):0),"Drop identity "+block);
+                boolean attachment = block instanceof JettyFloorBlock && ((JettyFloorBlock)block).bracket != null
+                    || block instanceof FasciaBlock && state.getValue(FasciaBlock.FITTING) != 0;
+                require(drops.size()==(attachment?2:1)&&drops.get(0).getItem()==expected,"Drop item "+block);
+                require(drops.get(0).getMetadata()==(block instanceof FrameBlock || block instanceof DownpipeBlock ? block.damageDropped(state) : 0),"Drop identity "+block);
                 states++;
             }
         }
@@ -135,9 +142,10 @@ public final class ArchitectureProbe {
             }
         }
         ClayTileProbe.verify(world);
+        GutterProbe.verify(world);
         if (!reload && clayClient) RyeTilePreview.build(world);
         if (Boolean.getBoolean("iaa.clayOnly")) {
-            require(variants == 7 && recipes == 10 && RecipeProbe.verifyReachability() == 7, "Standalone clay tiles");
+            require(variants == 15 && recipes == 19 && RecipeProbe.verifyReachability() == 15, "Standalone clay tiles");
         }
         world.setWorldTime(1000);world.getGameRules().setOrCreateGameRule("doDaylightCycle","false");
         world.getGameRules().setOrCreateGameRule("doFireTick","false");world.getGameRules().setOrCreateGameRule("doMobSpawning","false");
@@ -148,6 +156,10 @@ public final class ArchitectureProbe {
                 +",\"legacy\":"+Boolean.getBoolean("iaa.legacy")+",\"legacyDaub\":"+Boolean.getBoolean("iaa.legacyDaub")
                 +",\"legacyJetties\":"+Boolean.getBoolean("iaa.legacyJetties")+",\"eras\":"+new com.google.gson.Gson().toJson(zone.moddev.mc.ironagearchitecture.ArchitectureConfig.survivalEras.allowed)
                 +",\"eraMatrix\":"+Boolean.getBoolean("iaa.eraMatrix")+",\"recipeMatrix\":"+Boolean.getBoolean("iaa.recipeMatrix")+",\"runtimeSha256\":\""+System.getProperty("iaa.runtimeSha256","development")+"\"}\n";
+        finish(server, result);
+    }
+
+    private static void finish(MinecraftServer server, String result) throws java.io.IOException {
         Files.write(Paths.get(System.getProperty("iaa.receipt","architecture-probe.json")),result.getBytes(StandardCharsets.UTF_8));
         System.out.println("IAA_PROBE_PASS "+result.trim());
         if(!Boolean.getBoolean("iaa.keepRunning")) server.initiateShutdown();

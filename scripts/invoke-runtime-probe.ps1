@@ -1,6 +1,6 @@
 param(
-    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only')][string]$Mode='core',
-    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\rye-roof-trim-0.1.10',
+    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only')][string]$Mode='core',
+    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\rye-downpipe-shoe-0.1.11',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$FurnitureJar='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\furniture\mods\iron-age-furniture-0.3.0.110021.jar',
     [string]$Java8='C:\Users\johnb\.gradle\jdks\temurin-8-amd64-windows.2\bin\java.exe'
@@ -41,6 +41,13 @@ if($Mode -eq 'legacy-jetties') {
     $staging=Join-Path $folder 'jetty-preview-source'
     [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\IronAgeArchitecture\candidates\0.1.2.110021-jettied-storeys\Jettied Street Preview.zip',$staging)
     Copy-Item -LiteralPath (Join-Path $staging 'Jettied Street Preview') -Destination (Join-Path $folder 'world') -Recurse
+}
+if($Mode -eq 'legacy-fascia') {
+    if(Test-Path -LiteralPath (Join-Path $folder 'world')) {throw 'Legacy fascia probe requires a fresh disposable destination'}
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $staging=Join-Path $folder 'fascia-preview-source'
+    [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\IronAgeArchitecture\manual-testing\rye-roof-trim-0.1.10\Rye Roof Trim Preview.zip',$staging)
+    Copy-Item -LiteralPath (Join-Path $staging 'Rye Roof Trim Preview') -Destination (Join-Path $folder 'world') -Recurse
 }
 $eraModes=@{'iron-age'=@('iron_age');'late-medieval'=@('late_medieval_tudor');'mixed-eras'=@('iron_age','late_medieval_tudor');'no-eras'=@();'invalid-era'=@('misspelled_era')}
 if($eraModes.ContainsKey($Mode)) {
@@ -91,9 +98,10 @@ if($Mode -eq 'reload') {$args+='-Diaa.reload=true'}
 if($Mode -eq 'legacy') {$args+='-Diaa.legacy=true'}
 if($Mode -eq 'legacy-daub') {$args+='-Diaa.legacyDaub=true'}
 if($Mode -eq 'legacy-jetties') {$args+='-Diaa.legacyJetties=true'}
+if($Mode -eq 'legacy-fascia') {$args+='-Diaa.legacyFascia=true'}
 if($Mode -eq 'core') {$args+=@('-Diaa.eraMatrix=true','-Diaa.recipeMatrix=true')}
 if($Mode -eq 'disabled') {$args+='-Diaa.expectedVariants=0'}
-if($Mode -eq 'clay-only') {$args+=@('-Diaa.expectedVariants=7','-Diaa.clayOnly=true','-Diaa.recipeMatrix=true')}
+if($Mode -eq 'clay-only') {$args+=@('-Diaa.expectedVariants=15','-Diaa.clayOnly=true','-Diaa.recipeMatrix=true')}
 $args+=@('-jar',$forge,'nogui')
 Push-Location $folder
 try {

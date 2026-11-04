@@ -21,7 +21,7 @@ final class ClayTileProbe {
     private static final String PREFIX = "ironagearchitecture:clay_tile_";
 
     static boolean isClay(Block block) {
-        return block instanceof TileHangingBlock || block instanceof RoofBlock && "clay_tile".equals(((RoofBlock) block).materialKey);
+        return block instanceof DownpipeBlock || block instanceof TileHangingBlock || block instanceof RoofBlock && "clay_tile".equals(((RoofBlock) block).materialKey);
     }
 
     static void verify(WorldServer world) {

@@ -164,7 +164,7 @@ resource generator and item tooltips.
 
 Run scripts/invoke-runtime-probe.ps1 after prepareProbe. Modes cover core, reload, furniture,
 disabled, windows-disabled, legacy, legacy-daub, legacy-jetties, iron-age, late-medieval,
-mixed-eras, no-eras, invalid-era, clay-disabled and clay-only.
+mixed-eras, no-eras, invalid-era, clay-disabled, clay-only and legacy-fascia.
 Only Forge/server libraries and the explicitly named Furniture JAR are read from retained runtimes;
 no existing worlds or configs are copied or changed. Each mode has an isolated runtime except reload,
 which verifies the saved core world. Servers bind to loopback. Keep failed logs when correcting failures.
@@ -185,11 +185,13 @@ entity clearance, owner/helper rays, player passage, harvesting, explosions and 
 Clay tile checks cover cap joining, four wall orientations, half-depth collision and
 placement alongside windows. Roof trim checks cover both verge hands in every facing,
 clearance behind the fascia and the ridge end join. The clay-only mode checks that crafting works with the
-other building families switched off. Use a fresh runtime root for each candidate.
+other building families switched off. Guttering checks cover fitting and recovery, joined
+ends, both offsets and the rain path. The legacy-fascia mode opens a copy of the roof trim
+preview and verifies the original bare fascias. Use a fresh runtime root for each candidate.
 
 The optional client probe requires iaa.probe=true, iaa.clientProbe=true and iaa.keepRunning=true.
-It creates its own Rye Roof Trim Preview, checks mesh and material variants and both
-creative tabs, captures three views of the clay tile street and then shuts down.
+It creates its own Rye Downpipe Shoe Preview, checks mesh and material variants and both
+creative tabs, captures dry and rain views of the cottage row, then shuts down.
 Every visible item must also provide a translated crafting hint without tooltip errors.
 The client script's PreviewName argument selects a separate save without replacing an earlier preview.
 After verification copy the preview save into the ordinary run/saves directory and launch without the probe.

@@ -13,7 +13,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 /** Straight clay edge pieces. The ridge end faces outwards and the verge has two hands. */
-public final class TrimmedRoofBlock extends RoofBlock {
+public class TrimmedRoofBlock extends RoofBlock {
     public enum Kind { FASCIA, VERGE, RIDGE_END }
 
     public static final PropertyBool RIGHT = PropertyBool.create("right");
@@ -22,7 +22,7 @@ public final class TrimmedRoofBlock extends RoofBlock {
     public TrimmedRoofBlock(Kind kind) {
         super(kind == Kind.RIDGE_END, "clay_tile");
         this.kind = kind;
-        setDefaultState(getDefaultState().withProperty(RIGHT, false));
+        if (getDefaultState().getPropertyKeys().contains(RIGHT)) setDefaultState(getDefaultState().withProperty(RIGHT, false));
     }
 
     @Override protected BlockStateContainer createBlockState() {
