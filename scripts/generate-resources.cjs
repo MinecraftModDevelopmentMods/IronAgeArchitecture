@@ -154,6 +154,31 @@ model('dark_oak_soffit',{parent:'minecraft:block/block',textures:{wood:'minecraf
     ['down','up','north','south','west','east'].map(face=>[face,{texture:'#wood'}]))}]});
 item('dark_oak_soffit','dark_oak_soffit');
 lang[`item.${ns}.dark_oak_soffit.name`] = 'Dark Oak Soffit';
+const fireplaceParts = {
+  hearth:'Hearth', firebox:'Firebox', jamb:'Fireplace Jamb', lintel:'Fireplace Lintel',
+  flue:'Chimney Flue', collar:'Clay Roof Collar', pot_cap:'Chimney Pot', slab_cap:'Vented Chimney Cap'
+};
+for (const [material,label,texture] of [['brick','Brick','brick'],['stone','Stone','stonebrick']]) {
+  const mesh = `fireplace_${material}_mesh`;
+  model(mesh,{parent:'minecraft:block/block',textures:{particle:`minecraft:blocks/${texture}`},elements:[]});
+  for (const [kind,part] of Object.entries(fireplaceParts)) {
+    const name = `fireplace_${material}_${kind}`, variants = {};
+    for (const facing of Object.keys(facings)) for (const lit of [false,true])
+      variants[`facing=${facing},lit=${lit}`] = {model:`${ns}:${mesh}`};
+    state(name,variants); item(name,mesh);
+    lang[`tile.${ns}.${name}.name`] = `${label} ${part}`;
+  }
+}
+for (const [kind,hint] of Object.entries({
+  hearth:'Place beside a matching hearth or firebox for a wider fireplace.',
+  firebox:'Light with flint and steel. Sneak and right-click with empty hands to put it out.',
+  jamb:'Place beside the opening to frame the fireplace.',
+  lintel:'Span the opening with matching lintels.',
+  flue:'Stack directly above a firebox. Each column has its own smoke path.',
+  collar:'Place facing uphill on a straight clay slope. Stack the flue through it.',
+  pot_cap:'Place on top of a flue and leave the mouth clear.',
+  slab_cap:'Place on top of a flue and leave a side vent clear.'
+})) lang[`hint.${ns}.fireplace.${kind}`] = hint;
 model('drain_mesh',{parent:'minecraft:block/block',textures:{particle:'minecraft:blocks/iron_block'}});
 for (const [name,label] of [['iron_gutter','Iron Gutter'],['iron_gutter_outlet','Iron Gutter Outlet']]) {
   item(name,'drain_mesh');

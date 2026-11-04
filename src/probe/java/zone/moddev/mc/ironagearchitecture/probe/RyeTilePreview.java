@@ -36,6 +36,7 @@ final class RyeTilePreview {
         house(world, -41, 10, 7, 7, 6, "oak", false, true);
         halfJettyDrain(world);
         fullJettyDrain(world);
+        if (ArchitectureConfig.fireplaces) RyeFireplacePreview.build(world);
 
         // A short garden wall and hedge frame the exposed downhill end of the row.
         for (int z = 1; z <= 7; z++) {
@@ -204,8 +205,8 @@ final class RyeTilePreview {
             set(world, start + x, top + roofRise(across, span), z, roof);
         }
 
-        if (tileFront) chimney(world, start + width / 2 + 1, top, top + span / 2 + 3, depth - 3);
-        if (brickBase) chimney(world, start + 2, top, top + span / 2 + 2, depth / 2 + 1);
+        if (!ArchitectureConfig.fireplaces && tileFront) chimney(world, start + width / 2 + 1, top, top + span / 2 + 3, depth - 3);
+        if (!ArchitectureConfig.fireplaces && brickBase) chimney(world, start + 2, top, top + span / 2 + 2, depth / 2 + 1);
     }
 
     private static boolean windowBay(int x, int y, int width, int height, boolean tileFront) {

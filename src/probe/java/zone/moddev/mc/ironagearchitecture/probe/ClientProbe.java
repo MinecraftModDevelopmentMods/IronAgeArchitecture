@@ -1,6 +1,7 @@
 package zone.moddev.mc.ironagearchitecture.probe;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
@@ -8,8 +9,13 @@ import net.minecraft.creativetab.CreativeTabs;
 import zone.moddev.mc.ironagearchitecture.Era;
 import zone.moddev.mc.ironagearchitecture.EraTabs;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ScreenShotHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.WorldServer;
+import zone.moddev.mc.ironagearchitecture.block.FireplaceBlock;
+import zone.moddev.mc.ironagearchitecture.block.FireplaceDraft;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
@@ -41,7 +47,10 @@ public final class ClientProbe extends ProbeProxy {
         if(phase==0&&mc.currentScreen instanceof GuiMainMenu&&ticks>60) {
             mc.gameSettings.pauseOnLostFocus=false;
             phase=1;ticks=0;
-            String preview=System.getProperty("iaa.previewName",RyeTilePreview.NAME);
+            String preview = System.getProperty("iaa.previewName",
+                ArchitectureConfig.fireplaces ? "Rye Fireplace Preview" : RyeTilePreview.NAME);
+            if (new java.io.File(mc.mcDataDir, "saves/" + preview).exists())
+                throw new IllegalStateException("Use a fresh world for the native preview");
             mc.launchIntegratedServer(preview,preview,new WorldSettings(137,GameType.CREATIVE,false,false,WorldType.FLAT));
         } else if(phase==1&&mc.player!=null) {
             phase=2;ticks=0;
@@ -49,7 +58,9 @@ public final class ClientProbe extends ProbeProxy {
             mc.gameSettings.showInventoryAchievementHint=false;
             mc.setIngameNotInFocus();
             mc.player.capabilities.allowFlying=true;mc.player.capabilities.isFlying=true;
-            lookAt(mc,48,102,-85,48,73,4);
+            if (ArchitectureConfig.clayTiles && ArchitectureConfig.frames)
+                lookAt(mc, -32, 9.5, -12.4, -39.5, 17.5, 3.6);
+            else lookAt(mc,48,102,-85,48,73,4);
         } else if(phase==2&&ticks>260) {
             for(RoofBlock roof:ArchitectureBlocks.ROOFS) for(IBlockState state:roof.getBlockState().getValidStates()) {
                 IBakedModel model=mc.getBlockRendererDispatcher().getModelForState(state);
@@ -75,6 +86,7 @@ public final class ClientProbe extends ProbeProxy {
                 if(!(model instanceof WindowBakedModel)||model.getQuads(state,null,0).isEmpty()) throw new IllegalStateException("Missing window model "+state);
                 for(net.minecraft.client.renderer.block.model.BakedQuad quad:model.getQuads(state,null,0)) if(quad.getSprite().getIconName().contains("missingno")) throw new IllegalStateException("Missing window texture "+state);
             }
+            checkFireplaceModels(mc);
             if (ArchitectureConfig.clayTiles) {
                 for (net.minecraft.block.Block panel : new net.minecraft.block.Block[]{ArchitectureBlocks.CLAY_HANGING, ArchitectureBlocks.CLAY_HANGING_THIN}) {
                     for (IBlockState state : panel.getBlockState().getValidStates()) {
@@ -92,7 +104,11 @@ public final class ClientProbe extends ProbeProxy {
                 IBakedModel soffit = mc.getRenderItem().getItemModelMesher().getItemModel(new ItemStack(ArchitectureBlocks.SOFFIT));
                 if (soffit.getParticleTexture().getIconName().contains("missingno"))
                     throw new IllegalStateException("Missing soffit item model");
-                phase=60;ticks=0;
+                phase=ArchitectureConfig.fireplaces ? 70 : 60;ticks=0;
+                if (phase == 70) {
+                    setPreviewGameType(mc, GameType.SPECTATOR);
+                    setPreviewDoor(mc, true);
+                }
                 return;
             }
             capture(mc,"jettied-street-overview.png");
@@ -142,6 +158,8 @@ public final class ClientProbe extends ProbeProxy {
             setPreviewRain(mc, false);
             checkPalettes(mc);
             mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
+        } else if (phase >= 70 && phase <= 75) {
+            captureFireplacePreview(mc);
         } else if(phase==8) {
             if(!ensurePalette(mc,Era.IRON_AGE)) {ticks=0;return;}
             if(ticks>80) {capture(mc,"iron-age-palette.png");mc.displayGuiScreen(new PaletteGui(mc,Era.LATE_MEDIEVAL_TUDOR,false));phase=9;ticks=0;}
@@ -154,6 +172,92 @@ public final class ClientProbe extends ProbeProxy {
             }
         }
     }
+    private void captureFireplacePreview(Minecraft mc) {
+        double[][] cameras = {
+            {-37.5, 10.03, 1.4, -37.5, 11.1, 4.0},
+            {-37.1, 14.03, 1.68, -38.5, 15.05, 4.0},
+            {-44.25, 12.02, 2.3, -44.5, 13.05, 6.0},
+            {-32, 9.5, -12.4, -39.5, 17.5, 3.6},
+            {-32, 9.5, -12.4, -39.5, 17.5, 3.6},
+            {-30, 20, 9, -38.5, 20.8, 4.4}
+        };
+        String[] names = {"stone-inglenook.png", "upstairs-hearth.png", "brick-hearth.png",
+            "rye-one-pot-smoking.png", "rye-both-pots-smoking.png", "rye-stack-and-collar.png"};
+        mc.gameSettings.fovSetting = phase == 70 ? 86 : 70;
+        double[] camera = cameras[phase - 70];
+        lookAt(mc, camera[0], camera[1], camera[2], camera[3], camera[4], camera[5]);
+
+        if (phase >= 73 && (ticks == 114 || ticks == 121 || ticks == 128)) {
+            showOutlet(mc, RyeFireplacePreview.LOWER_POT, true);
+            showOutlet(mc, RyeFireplacePreview.UPPER_POT, phase >= 74);
+        }
+        if (ticks <= 130) return;
+        capture(mc, names[phase - 70]);
+        if (phase == 70) setPreviewDoor(mc, false);
+        if (phase == 70 || phase == 72 || phase == 73) setPreviewUpperFire(mc, phase != 72);
+        if (phase < 75) {
+            phase++;
+            ticks = 0;
+            return;
+        }
+        setPreviewGameType(mc, GameType.CREATIVE);
+        System.out.println("IAA_FIREPLACE_PREVIEW_PASS onePot=true twoPots=true");
+        checkPalettes(mc);
+        mc.displayGuiScreen(new PaletteGui(mc, Era.IRON_AGE, true));
+        phase = 8;
+        ticks = 0;
+    }
+
+    private void setPreviewGameType(Minecraft mc, GameType gameType) {
+        mc.getIntegratedServer().addScheduledTask(() -> {
+            WorldServer world = mc.getIntegratedServer().worldServerForDimension(0);
+            for (EntityPlayer player : world.playerEntities) {
+                player.setGameType(gameType);
+                if (gameType == GameType.CREATIVE) {
+                    BlockPos spawn = RyeTilePreview.SPAWN;
+                    player.setPositionAndUpdate(spawn.getX() + .5, spawn.getY(), spawn.getZ() + .5);
+                }
+            }
+        });
+    }
+
+    private void setPreviewDoor(Minecraft mc, boolean open) {
+        mc.getIntegratedServer().addScheduledTask(() -> {
+            WorldServer world = mc.getIntegratedServer().worldServerForDimension(0);
+            BlockPos door = new BlockPos(-38, 10, 1);
+            world.setBlockState(door, world.getBlockState(door).withProperty(BlockDoor.OPEN, open), 3);
+        });
+    }
+
+    private void setPreviewUpperFire(Minecraft mc, boolean lit) {
+        mc.getIntegratedServer().addScheduledTask(() -> {
+            WorldServer world = mc.getIntegratedServer().worldServerForDimension(0);
+            BlockPos upper = RyeFireplacePreview.UPPER_FIRE;
+            world.setBlockState(upper, world.getBlockState(upper).withProperty(FireplaceBlock.LIT, lit), 3);
+        });
+    }
+
+    private void showOutlet(Minecraft mc, BlockPos pos, boolean expected) {
+        IBlockState state = mc.world.getBlockState(pos);
+        boolean active = FireplaceDraft.smokeOutlet(mc.world, pos, state) != null;
+        if (active != expected) throw new IllegalStateException("Unexpected fireplace preview draft at " + pos);
+        if (active) state.getBlock().randomDisplayTick(state, mc.world, pos, new java.util.Random(137L + ticks));
+    }
+
+    private static void checkFireplaceModels(Minecraft mc) {
+        for (FireplaceBlock fireplace : ArchitectureBlocks.FIREPLACES) {
+            for (IBlockState state : fireplace.getBlockState().getValidStates()) {
+                IBakedModel model = mc.getBlockRendererDispatcher().getModelForState(state);
+                java.util.List<net.minecraft.client.renderer.block.model.BakedQuad> quads = model.getQuads(state, null, 0);
+                if (quads.isEmpty() || quads.stream().anyMatch(quad -> quad.getSprite().getIconName().contains("missingno")))
+                    throw new IllegalStateException("Missing fireplace mesh or texture " + state);
+            }
+            IBakedModel item = mc.getRenderItem().getItemModelMesher().getItemModel(new ItemStack(fireplace));
+            if (item.getQuads(null, null, 0).isEmpty() || !fireplace.masonry.texture.equals(item.getParticleTexture().getIconName()))
+                throw new IllegalStateException("Missing fireplace inventory model " + fireplace);
+        }
+    }
+
     private static void checkDrainModels(Minecraft mc) {
         for (ItemStack stack : ArchitectureBlocks.visibleStacks()) {
             String key = stack.getItem().getRegistryName().getResourcePath();

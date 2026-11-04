@@ -62,6 +62,7 @@ public final class ArchitectureBlocks {
         List<FrameBlock> result=new ArrayList<>(WALLS);result.addAll(PARTIALS);result.addAll(FLOORS);return result;
     }
     public static FrameBlock DAUB;
+    public static final List<FireplaceBlock> FIREPLACES = new ArrayList<>();
     public static final List<RoofBlock> ROOFS = new ArrayList<>();
     public static TileHangingBlock CLAY_HANGING, CLAY_HANGING_THIN;
     public static FasciaBlock CLAY_FASCIA, CLAY_FASCIA_LINED;
@@ -132,8 +133,27 @@ public final class ArchitectureBlocks {
             SOFFIT.setUnlocalizedName(IronAgeArchitecture.MODID + ".dark_oak_soffit");
             GameRegistry.register(SOFFIT);
         }
+        if (ArchitectureConfig.fireplaces) registerFireplaces();
         EraCatalog.assignPrimaryTabs();
     }
+    private static void registerFireplaces() {
+        for (FireplaceBlock.Masonry masonry : FireplaceBlock.Masonry.values()) {
+            for (FireplaceBlock.Kind kind : FireplaceBlock.Kind.values()) {
+                if (kind == FireplaceBlock.Kind.COLLAR && !ArchitectureConfig.clayTiles) continue;
+                String name = "fireplace_" + masonry.key + "_" + kind.name().toLowerCase(java.util.Locale.ROOT);
+                FireplaceBlock part = block(new FireplaceBlock(masonry, kind), name);
+                item(part, new FireplaceItem(part));
+                FIREPLACES.add(part);
+            }
+        }
+    }
+
+    public static FireplaceBlock fireplace(FireplaceBlock.Masonry masonry, FireplaceBlock.Kind kind) {
+        for (FireplaceBlock block : FIREPLACES)
+            if (block.masonry == masonry && block.kind == kind) return block;
+        throw new IllegalArgumentException("Unregistered fireplace part " + masonry + " " + kind);
+    }
+
     private static GutterItem gutter(String name, boolean outlet) {
         GutterItem item = new GutterItem(outlet);
         item.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID, name));

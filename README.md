@@ -27,6 +27,13 @@ match the timber and daub to your walls, then stack sections to make taller case
 They swing outwards with a right-click or redstone, and each column opens separately.
 Full and half-depth surrounds fit both ordinary walls and projecting upper floors.
 
+## Fireplaces and chimneys
+
+Build a small brick hearth or a wider stone inglenook with separate jambs and lintels.
+Light the firebox with flint and steel. Run straight flues side by side to carry smoke
+from fireplaces on different floors through one stack, with a separate outlet for each fire.
+Clay tile collars carry the roof slope up to the sides of the stack.
+
 ## Overhanging upper floors
 
 Projecting upper storeys, known as jetties, are a central part of the kit. Half-depth walls,
@@ -52,7 +59,7 @@ can be joined back together. Item tooltips give a reminder while you build.
 
 You can limewash pieces before or after shaping, singly or in batches of eight. The
 [crafting guide](docs/BUILDING-GUIDE.md#crafting) covers the wall patterns, floors,
-brackets and roofs.
+brackets, roofs and fireplaces.
 
 ## Building through the ages
 

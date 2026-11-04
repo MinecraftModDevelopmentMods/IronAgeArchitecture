@@ -15,10 +15,15 @@ import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
 final class EraProbe {
     private static void require(boolean condition,String message) {if(!condition) throw new IllegalStateException(message);}
     static int expectedRecipes() {
-        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.windows?2010:1863)+(ArchitectureConfig.clayTiles?20:0):
+        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.windows?2010:1863)+(ArchitectureConfig.clayTiles?20:0)+fireplaceParts():
             ArchitectureConfig.survivalEras.allowed.contains(Era.IRON_AGE)?36:0;
     }
-    static int expectedVariants() { return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 16 : 0); }
+    static int expectedVariants() {
+        return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 16 : 0) + fireplaceParts();
+    }
+    private static int fireplaceParts() {
+        return ArchitectureConfig.fireplaces ? (ArchitectureConfig.clayTiles ? 16 : 14) : 0;
+    }
     private static boolean ours(IRecipe recipe) {
         ItemStack output=recipe.getRecipeOutput();
         return output!=null&&"ironagearchitecture".equals(output.getItem().getRegistryName().getResourceDomain());
@@ -41,7 +46,7 @@ final class EraProbe {
         List<IRecipe> original=new ArrayList<>(recipes);
         EraSelection selected=ArchitectureConfig.survivalEras;
         boolean cob=ArchitectureConfig.cob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,windows=ArchitectureConfig.windows;
-        boolean clayTiles = ArchitectureConfig.clayTiles;
+        boolean clayTiles = ArchitectureConfig.clayTiles, fireplaces = ArchitectureConfig.fireplaces;
         String[][] cases={{"all"},{"iron_age"},{"late_medieval_tudor"},{"iron_age","late_medieval_tudor"},{},{"typo"},{"iron_age","typo"},{" IRON_AGE ","iron_age"}};
         try {
             recipes.removeIf(EraProbe::ours);ArchitectureConfig.survivalEras=EraSelection.parse("all");ArchitectureRecipes.register();
@@ -50,7 +55,7 @@ final class EraProbe {
             Files.createDirectories(Paths.get("era-matrix"));
             for(int c=0;c<cases.length;c++) {
                 Path file=Paths.get("era-matrix",c+".cfg");
-                String text="blocks {\n B:leadedWindows="+windows+"\n B:clayTiles="+clayTiles+"\n}\nrecipes {\n S:survivalEras <\n"+String.join("\n",cases[c])+"\n >\n}\n";
+                String text="blocks {\n B:leadedWindows="+windows+"\n B:clayTiles="+clayTiles+"\n B:fireplaces="+fireplaces+"\n}\nrecipes {\n S:survivalEras <\n"+String.join("\n",cases[c])+"\n >\n}\n";
                 Files.write(file,text.getBytes(StandardCharsets.UTF_8));ArchitectureConfig.load(file.toFile());
                 recipes.removeIf(EraProbe::ours);ArchitectureRecipes.register();
                 int count=0;for(IRecipe recipe:recipes) if(ours(recipe)) {require(EraCatalog.canCraft(recipe.getRecipeOutput()),"Prohibited registered output");count++;}
@@ -75,6 +80,7 @@ final class EraProbe {
             recipes.clear();recipes.addAll(original);ArchitectureConfig.survivalEras=selected;
             ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;
             ArchitectureConfig.clayTiles = clayTiles;
+            ArchitectureConfig.fireplaces = fireplaces;
         }
     }
 }
