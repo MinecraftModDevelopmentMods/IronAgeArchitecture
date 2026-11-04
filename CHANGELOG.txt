@@ -1,3 +1,13 @@
+0.1.12.110021 - Alpha
+
+I've tidied up the eaves on the Rye cottages. The grain now runs along the fascia
+board, and you can see its timber edge from below.
+
+- Fit a dark oak soffit underneath a clay fascia to line the eaves. Stack two dark
+  oak slabs vertically to make four soffits.
+- You can add or remove the soffit with the gutter in place. Lined and exposed
+  sections can share the same run of guttering.
+
 0.1.11.110021 - Alpha
 
 I've added iron guttering and downpipes to the Rye kit.

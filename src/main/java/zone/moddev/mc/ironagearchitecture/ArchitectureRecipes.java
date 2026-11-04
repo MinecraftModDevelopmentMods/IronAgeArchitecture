@@ -26,7 +26,10 @@ public final class ArchitectureRecipes {
             }
         }
         if(ArchitectureConfig.windows) registerWindows();
-        if (ArchitectureConfig.clayTiles) registerGuttering();
+        if (ArchitectureConfig.clayTiles) {
+            registerGuttering();
+            shaped(new ItemStack(ArchitectureBlocks.SOFFIT, 4), "D", "D", 'D', new ItemStack(Blocks.WOODEN_SLAB, 1, 5));
+        }
         for(RoofBlock roof:ArchitectureBlocks.ROOFS) if(!roof.isRidge() && !(roof instanceof TrimmedRoofBlock)) {
             Object material;
             switch (roof.materialKey) {

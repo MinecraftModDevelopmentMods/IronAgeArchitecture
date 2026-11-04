@@ -42,7 +42,7 @@ final class GutterProbe {
 
     static void verify(WorldServer world) {
         if (ArchitectureBlocks.GUTTER == null) {
-            for (String id : new String[]{"iron_gutter", "iron_gutter_outlet", "iron_downpipe", "iron_downpipe_offset", "iron_downpipe_shoe"})
+            for (String id : new String[]{"iron_gutter", "iron_gutter_outlet", "iron_downpipe", "iron_downpipe_offset", "iron_downpipe_shoe", "dark_oak_soffit"})
                 require(Item.getByNameOrId("ironagearchitecture:" + id) == null, "Disabled drain item " + id);
             return;
         }
@@ -54,7 +54,7 @@ final class GutterProbe {
             player.setSneaking(false);
             player.setHeldItem(EnumHand.MAIN_HAND, null);
         }
-        System.out.println("IAA_GUTTER_PASS facings=4 chunkJoin=true bothOffsets=true rainGuards=true shoeAbovePaving=true");
+        System.out.println("IAA_GUTTER_PASS facings=4 chunkJoin=true bothOffsets=true rainGuards=true shoeAbovePaving=true soffitWithGutter=true");
     }
 
     private static void verifyFacing(WorldServer world, FakePlayer player, BlockPos pos, EnumFacing facing) {
@@ -76,6 +76,8 @@ final class GutterProbe {
             "Exposed outlet did not drip");
         require(use(world, player, pos, outlet, outside) == EnumActionResult.FAIL && outlet.stackSize == 1,
             "Fitting attached twice");
+
+        verifySoffit(world, player, pos, fitted, facing);
 
         BlockPos left = pos.offset(facing.rotateYCCW()), right = pos.offset(facing.rotateY());
         world.setBlockState(left, bare.withProperty(FasciaBlock.FITTING, 1), 2);
@@ -145,6 +147,45 @@ final class GutterProbe {
             (float)hit.xCoord, (float)hit.yCoord, (float)hit.zCoord) && world.getBlockState(pos).equals(bare),
             "Empty hand could not recover the fitting");
         world.setBlockToAir(pos);
+    }
+
+    private static void verifySoffit(WorldServer world, FakePlayer player, BlockPos pos, IBlockState fitted, EnumFacing facing) {
+        FasciaBlock fascia = ArchitectureBlocks.CLAY_FASCIA;
+        FasciaBlock lined = ArchitectureBlocks.CLAY_FASCIA_LINED;
+        ItemStack panel = new ItemStack(ArchitectureBlocks.SOFFIT, 2);
+        Vec3d hit = DrainGeometry.point(0, 7, facing);
+        require(use(world, player, pos, panel, facing.getOpposite()) == EnumActionResult.PASS,
+            "Soffit fitted from the front");
+        require(panel.getItem().onItemUse(panel, player, world, pos, EnumHand.MAIN_HAND, EnumFacing.DOWN,
+            (float)hit.xCoord, 0, (float)hit.zCoord) == EnumActionResult.SUCCESS && panel.stackSize == 1,
+            "Soffit could not be fitted to a guttered fascia");
+        IBlockState state = world.getBlockState(pos);
+        require(state.equals(FasciaBlock.withLining(fitted, true))
+                && lined.getMetaFromState(state) == fascia.getMetaFromState(fitted)
+                && lined.collision(state).equals(fascia.collision(fitted))
+                && pos.equals(DrainRun.exposedInletForDrip(state, world, pos)),
+            "Soffit changed the fascia's geometry, facing or outlet");
+        require(panel.getItem().onItemUse(panel, player, world, pos, EnumHand.MAIN_HAND, EnumFacing.DOWN,
+            (float)hit.xCoord, 0, (float)hit.zCoord) == EnumActionResult.FAIL && panel.stackSize == 1,
+            "Soffit was fitted twice");
+
+        BlockPos neighbour = pos.offset(facing.rotateY());
+        world.setBlockState(neighbour, fascia.getDefaultState().withProperty(FasciaBlock.FACING, facing)
+            .withProperty(FasciaBlock.FITTING, 1), 2);
+        require(lined.getActualState(state, world, pos).getValue(FasciaBlock.ENDS) == 1
+                && fascia.getActualState(world.getBlockState(neighbour), world, neighbour).getValue(FasciaBlock.ENDS) == 2,
+            "Gutter did not join across lined and unlined fascias");
+        world.setBlockToAir(neighbour);
+        require(lined.getDrops(world, pos, state, 0).stream().anyMatch(s -> s.getItem() == ArchitectureBlocks.SOFFIT),
+            "Breaking a lined fascia lost its soffit");
+
+        player.setSneaking(true);
+        player.setHeldItem(EnumHand.MAIN_HAND, null);
+        player.setHeldItem(EnumHand.OFF_HAND, null);
+        require(lined.onBlockActivated(world, pos, state, player, EnumHand.MAIN_HAND, null, EnumFacing.DOWN,
+                (float)hit.xCoord, 0, (float)hit.zCoord) && world.getBlockState(pos).equals(fitted),
+            "Removing the soffit changed the gutter");
+        player.setSneaking(false);
     }
 
     private static void verifyShoe(WorldServer world, FakePlayer player, BlockPos inlet, BlockPos pipePos, EnumFacing facing) {

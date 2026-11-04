@@ -45,7 +45,7 @@ import net.minecraft.util.Rotation;
 
 /** Disposable packaged-runtime verification mod. Never part of the player jar. */
 @Mod(modid="ironagearchitectureprobe",name="Architecture Verification",version="1",acceptableRemoteVersions="*",
-        dependencies="required-after:ironagearchitecture@[0.1.11.110021]")
+        dependencies="required-after:ironagearchitecture@[0.1.12.110021]")
 public final class ArchitectureProbe {
     @SidedProxy(clientSide="zone.moddev.mc.ironagearchitecture.probe.ClientProbe",serverSide="zone.moddev.mc.ironagearchitecture.probe.ProbeProxy")
     public static ProbeProxy proxy;
@@ -72,6 +72,7 @@ public final class ArchitectureProbe {
         variants=ArchitectureBlocks.visibleStacks().size();
         List<Block> savedBlocks=new ArrayList<>(ArchitectureBlocks.VISIBLE);
         savedBlocks.removeIf(block->block instanceof WindowBlock);
+        if (ArchitectureBlocks.CLAY_FASCIA_LINED != null) savedBlocks.add(ArchitectureBlocks.CLAY_FASCIA_LINED);
         for(FrameBlock block:ArchitectureBlocks.meshes()) if(!savedBlocks.contains(block)) savedBlocks.add(block);
         if(Boolean.getBoolean("iaa.legacyJetties")) {
             int index=0;
@@ -93,10 +94,15 @@ public final class ArchitectureProbe {
                 else world.setBlockState(pos,state,2);
                 List<ItemStack> drops=block.getDrops(world,pos,state,0);
                 Item expected=block instanceof PartialWallBlock?Item.getItemFromBlock(((PartialWallBlock)block).canonical()):
-                    block instanceof JettyFloorBlock?Item.getItemFromBlock(((JettyFloorBlock)block).canonical()):Item.getItemFromBlock(block);
-                boolean attachment = block instanceof JettyFloorBlock && ((JettyFloorBlock)block).bracket != null
-                    || block instanceof FasciaBlock && state.getValue(FasciaBlock.FITTING) != 0;
-                require(drops.size()==(attachment?2:1)&&drops.get(0).getItem()==expected,"Drop item "+block);
+                    block instanceof JettyFloorBlock?Item.getItemFromBlock(((JettyFloorBlock)block).canonical()):
+                    block instanceof FasciaBlock?Item.getItemFromBlock(ArchitectureBlocks.CLAY_FASCIA):Item.getItemFromBlock(block);
+                int dropCount = 1;
+                if (block instanceof JettyFloorBlock && ((JettyFloorBlock)block).bracket != null) dropCount++;
+                if (block instanceof FasciaBlock) {
+                    if (state.getValue(FasciaBlock.FITTING) != 0) dropCount++;
+                    if (((FasciaBlock)block).lined) dropCount++;
+                }
+                require(drops.size()==dropCount&&drops.get(0).getItem()==expected,"Drop item "+block);
                 require(drops.get(0).getMetadata()==(block instanceof FrameBlock || block instanceof DownpipeBlock ? block.damageDropped(state) : 0),"Drop identity "+block);
                 states++;
             }
@@ -145,7 +151,7 @@ public final class ArchitectureProbe {
         GutterProbe.verify(world);
         if (!reload && clayClient) RyeTilePreview.build(world);
         if (Boolean.getBoolean("iaa.clayOnly")) {
-            require(variants == 15 && recipes == 19 && RecipeProbe.verifyReachability() == 15, "Standalone clay tiles");
+            require(variants == 16 && recipes == 20 && RecipeProbe.verifyReachability() == 16, "Standalone clay tiles");
         }
         world.setWorldTime(1000);world.getGameRules().setOrCreateGameRule("doDaylightCycle","false");
         world.getGameRules().setOrCreateGameRule("doFireTick","false");world.getGameRules().setOrCreateGameRule("doMobSpawning","false");

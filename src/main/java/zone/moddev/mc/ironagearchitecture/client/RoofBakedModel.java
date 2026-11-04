@@ -36,7 +36,8 @@ public final class RoofBakedModel implements IBakedModel {
             TrimmedRoofBlock.Kind kind = ((TrimmedRoofBlock) block).kind;
             TextureAtlasSprite wood = net.minecraft.client.Minecraft.getMinecraft().getTextureMapBlocks()
                 .getAtlasSprite("ironagearchitecture:blocks/beam_dark_oak");
-            addTrim(kind, kind == TrimmedRoofBlock.Kind.VERGE && state.getValue(TrimmedRoofBlock.RIGHT), facing, wood);
+            boolean lined = block instanceof FasciaBlock && ((FasciaBlock)block).lined;
+            addTrim(kind, kind == TrimmedRoofBlock.Kind.VERGE && state.getValue(TrimmedRoofBlock.RIGHT), facing, wood, lined);
             if (block instanceof FasciaBlock && state.getValue(FasciaBlock.FITTING) != 0)
                 DrainMesh.gutter(state.getValue(FasciaBlock.FITTING) == 2, state.getValue(FasciaBlock.ENDS), ironFaces(facing));
             return;
@@ -97,7 +98,7 @@ public final class RoofBakedModel implements IBakedModel {
         };
     }
 
-    private void addTrim(TrimmedRoofBlock.Kind kind, boolean right, EnumFacing facing, TextureAtlasSprite wood) {
+    private void addTrim(TrimmedRoofBlock.Kind kind, boolean right, EnumFacing facing, TextureAtlasSprite wood, boolean lined) {
         RoofTrimGeometry.Section[] sections = RoofTrimGeometry.sections(kind, right);
         for (RoofTrimGeometry.Section section : sections) {
             double[][] corners = {{section.x0,section.z0},{section.x1,section.z0},
@@ -110,7 +111,8 @@ public final class RoofBakedModel implements IBakedModel {
                 bottom[i] = new double[]{x,RoofTrimGeometry.underside(section,height),z};
             }
             add(new double[][]{top[0],top[3],top[2],top[1]}, facing, true);
-            add(bottom, facing, true, section.thin ? wood : sprite, null);
+            if (kind == TrimmedRoofBlock.Kind.FASCIA) addEaveUnderside(facing, wood, lined);
+            else add(bottom, facing, true, section.thin ? wood : sprite, null);
             for (int side = 0; side < 4; side++) {
                 int next = (side + 1) % 4;
                 RoofTrimGeometry.Section neighbour = adjoining(sections, section, side);
@@ -136,6 +138,18 @@ public final class RoofBakedModel implements IBakedModel {
                 add(new double[][]{lowA,highA,highB,lowB}, facing, false, board ? wood : sprite, board ? kind : null);
             }
         }
+    }
+
+    private void addEaveUnderside(EnumFacing facing, TextureAtlasSprite wood, boolean lined) {
+        double edge = RoofTrimGeometry.EAVE;
+        double backOfBoard = edge - 3.0 / 16;
+        TextureAtlasSprite underside = lined ? net.minecraft.client.Minecraft.getMinecraft().getTextureMapBlocks()
+            .getAtlasSprite("minecraft:blocks/planks_big_oak") : sprite;
+        // Replace the original bottom with two strips on the same plane. The lip and lining
+        // stay within the roof cell, leaving the outlet and the pipe below it clear.
+        add(new double[][]{{0,0,0},{1,0,0},{1,0,backOfBoard},{0,0,backOfBoard}}, facing, true, underside, null);
+        add(new double[][]{{0,0,backOfBoard},{1,0,backOfBoard},{1,0,edge},{0,0,edge}},
+            facing, true, wood, TrimmedRoofBlock.Kind.FASCIA);
     }
 
     private static RoofTrimGeometry.Section adjoining(RoofTrimGeometry.Section[] sections, RoofTrimGeometry.Section section, int side) {
@@ -182,6 +196,12 @@ public final class RoofBakedModel implements IBakedModel {
             double v = top ? source[2] : 1-source[1];
             if (board != null) v = RoofTrimGeometry.height(board, source[0], source[2]) - source[1];
             float textureV = (float)(Math.max(0,Math.min(1,v)) * 16);
+            if (board == TrimmedRoofBlock.Kind.FASCIA) {
+                // The beam sprite's grain runs vertically. Turn it along the length of the fascia.
+                float acrossGrain = textureV;
+                textureV = textureU;
+                textureU = acrossGrain;
+            }
             for (int element = 0; element < format.getElementCount(); element++) {
                 switch (format.getElement(element).getUsage()) {
                     case POSITION: builder.put(element,(float)p[0],(float)p[1],(float)p[2],1); break;

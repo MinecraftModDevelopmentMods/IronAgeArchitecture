@@ -9,12 +9,14 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -25,8 +27,11 @@ public final class FasciaBlock extends TrimmedRoofBlock {
     public static final PropertyInteger FITTING = PropertyInteger.create("fitting", 0, 2);
     public static final PropertyInteger ENDS = PropertyInteger.create("ends", 0, 3);
 
-    public FasciaBlock() {
+    public final boolean lined;
+
+    public FasciaBlock(boolean lined) {
         super(Kind.FASCIA);
+        this.lined = lined;
         setDefaultState(getDefaultState().withProperty(FITTING, 0).withProperty(ENDS, 3));
     }
 
@@ -56,7 +61,7 @@ public final class FasciaBlock extends TrimmedRoofBlock {
     private boolean connects(IBlockAccess world, BlockPos pos, EnumFacing facing) {
         if (world instanceof World && !((World)world).isBlockLoaded(pos)) return false;
         IBlockState other = world.getBlockState(pos);
-        return other.getBlock() == this && other.getValue(FACING) == facing && other.getValue(FITTING) != 0;
+        return other.getBlock() instanceof FasciaBlock && other.getValue(FACING) == facing && other.getValue(FITTING) != 0;
     }
 
     @Override public List<AxisAlignedBB> collision(IBlockState state) {
@@ -68,22 +73,44 @@ public final class FasciaBlock extends TrimmedRoofBlock {
 
     @Override public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
             EnumHand hand, @Nullable ItemStack held, EnumFacing side, float x, float y, float z) {
+        if (!player.isSneaking() || hand != EnumHand.MAIN_HAND || held != null || player.getHeldItemOffhand() != null)
+            return false;
+
         int fitting = state.getValue(FITTING);
-        EnumFacing facing = state.getValue(FACING);
-        if (!player.isSneaking() || hand != EnumHand.MAIN_HAND || held != null || player.getHeldItemOffhand() != null || fitting == 0)
-            return false;
-        EnumFacing inverse = facing.getAxis() == EnumFacing.Axis.X ? facing.getOpposite() : facing;
-        if (RoofGeometry.rotate(x, y, z, inverse)[2] < RoofTrimGeometry.EAVE + 1e-4 || y > 3.0 / 16)
-            return false;
-        if (!world.isBlockModifiable(player, pos) || !player.canPlayerEdit(pos, side, fittingStack(fitting))) return false;
-        if (!world.isRemote && world.setBlockState(pos, state.withProperty(FITTING, 0), 3)) {
-            if (!player.capabilities.isCreativeMode) {
-                ItemStack recovered = fittingStack(fitting);
-                if (!player.inventory.addItemStackToInventory(recovered)) spawnAsEntity(world, pos, recovered);
-            }
-            playFit(world, player, pos);
+        boolean removeSoffit = lined && side == EnumFacing.DOWN && onUnderside(state, x, y, z);
+        boolean removeGutter = fitting != 0 && localDepth(state, x, y, z) >= RoofTrimGeometry.EAVE + 1e-4 && y <= 3.0 / 16;
+        if (!removeSoffit && !removeGutter) return false;
+
+        ItemStack recovered = removeSoffit ? new ItemStack(ArchitectureBlocks.SOFFIT) : fittingStack(fitting);
+        if (!world.isBlockModifiable(player, pos) || !player.canPlayerEdit(pos, side, recovered)) return false;
+        if (!world.isRemote) {
+            IBlockState replacement = removeSoffit ? withLining(state, false) : state.withProperty(FITTING, 0);
+            if (!world.setBlockState(pos, replacement, 3)) return false;
+            if (!player.capabilities.isCreativeMode && !player.inventory.addItemStackToInventory(recovered))
+                spawnAsEntity(world, pos, recovered);
+            if (removeSoffit) playLining(world, player, pos);
+            else playFit(world, player, pos);
         }
         return true;
+    }
+
+    public static IBlockState withLining(IBlockState state, boolean lined) {
+        FasciaBlock target = lined ? ArchitectureBlocks.CLAY_FASCIA_LINED : ArchitectureBlocks.CLAY_FASCIA;
+        return target.getDefaultState().withProperty(FACING, state.getValue(FACING)).withProperty(FITTING, state.getValue(FITTING));
+    }
+
+    static boolean onUnderside(IBlockState state, float x, float y, float z) {
+        return y <= 1e-4 && localDepth(state, x, y, z) <= RoofTrimGeometry.EAVE + 1e-4;
+    }
+
+    private static double localDepth(IBlockState state, float x, float y, float z) {
+        EnumFacing facing = state.getValue(FACING);
+        EnumFacing inverse = facing.getAxis() == EnumFacing.Axis.X ? facing.getOpposite() : facing;
+        return RoofGeometry.rotate(x, y, z, inverse)[2];
+    }
+
+    static void playLining(World world, EntityPlayer player, BlockPos pos) {
+        world.playSound(player, pos, SoundType.WOOD.getPlaceSound(), SoundCategory.BLOCKS, .6F, .9F);
     }
 
     public static void playFit(World world, EntityPlayer player, BlockPos pos) {
@@ -94,10 +121,19 @@ public final class FasciaBlock extends TrimmedRoofBlock {
         return new ItemStack(fitting == 2 ? ArchitectureBlocks.GUTTER_OUTLET : ArchitectureBlocks.GUTTER);
     }
 
+    @Override public Item getItemDropped(IBlockState state, Random random, int fortune) {
+        return Item.getItemFromBlock(ArchitectureBlocks.CLAY_FASCIA);
+    }
+
+    @Override public ItemStack getPickBlock(IBlockState state, RayTraceResult hit, World world, BlockPos pos, EntityPlayer player) {
+        return new ItemStack(ArchitectureBlocks.CLAY_FASCIA);
+    }
+
     @Override public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
         List<ItemStack> drops = super.getDrops(world, pos, state, fortune);
         int fitting = state.getValue(FITTING);
         if (fitting != 0) drops.add(fittingStack(fitting));
+        if (lined) drops.add(new ItemStack(ArchitectureBlocks.SOFFIT));
         return drops;
     }
 

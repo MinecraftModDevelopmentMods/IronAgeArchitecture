@@ -1,6 +1,6 @@
 param(
-    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\rye-downpipe-shoe-0.1.11\native-client-final',
-    [string]$PreviewName='Rye Downpipe Shoe Preview',
+    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\rye-eaves-0.1.12\native-client-verified',
+    [string]$PreviewName='Rye Eaves Preview',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$GradleHome='D:\GradleCaches\minecraft-mods-shared',
     [string]$AssetsDirectory='',

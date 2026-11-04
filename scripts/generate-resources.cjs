@@ -146,8 +146,14 @@ for (const [part,label] of [['fascia','Fascia'],['verge','Verge'],['ridge_end','
       variants[`facing=${facing},right=${right}`] = {model:`${ns}:${mesh}`};
   }
   state(name,variants); item(name,mesh);
+  if (part === 'fascia') state(name + '_lined',variants);
   lang[`tile.${ns}.${name}.name`] = `Clay Tile ${label}`;
 }
+model('dark_oak_soffit',{parent:'minecraft:block/block',textures:{wood:'minecraft:blocks/planks_big_oak',particle:'minecraft:blocks/planks_big_oak'},
+  elements:[{from:[0,7,1],to:[16,8.25,15],faces:Object.fromEntries(
+    ['down','up','north','south','west','east'].map(face=>[face,{texture:'#wood'}]))}]});
+item('dark_oak_soffit','dark_oak_soffit');
+lang[`item.${ns}.dark_oak_soffit.name`] = 'Dark Oak Soffit';
 model('drain_mesh',{parent:'minecraft:block/block',textures:{particle:'minecraft:blocks/iron_block'}});
 for (const [name,label] of [['iron_gutter','Iron Gutter'],['iron_gutter_outlet','Iron Gutter Outlet']]) {
   item(name,'drain_mesh');
@@ -191,6 +197,8 @@ for(const [w,wood] of woods.entries()) for(const finish of [0,1]) for(const thin
 state('open_window_leaf',Object.fromEntries(Object.keys(facings).map(facing=>[`facing=${facing}`,{model:`${ns}:window_mesh`}])));
 for(let meta=0;meta<2;meta++) {item(`leaded_pane_${meta}`,'window_mesh');lang[`item.${ns}.leaded_pane.${meta}.name`]=`${meta?'Rectangular':'Diamond'} Leaded Pane`;}
 for (const [key,label] of Object.entries({
+  'soffit.fit':'Fit under a clay fascia. Sneak and use an empty hand underneath to recover it.',
+  'soffit.craft':'Stack two dark oak slabs in the crafting grid to make four soffits.',
   'gutter.fit':'Fit to the outside face of a bare clay fascia. Sneak and use an empty hand to recover it.',
   'gutter.outlet':'Place a downpipe beneath the outlet to carry rain down.',
   'gutter.craft':'Three iron ingots in a row make six gutters. Add an ingot to make an outlet.',
