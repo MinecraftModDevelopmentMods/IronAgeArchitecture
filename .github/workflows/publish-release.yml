@@ -1,0 +1,146 @@
+name: Publish Iron Age Architecture alpha
+
+run-name: "${{ inputs.confirm_live_publication && 'Publish' || 'Check' }} ${{ inputs.release_version }} to CurseForge"
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: Version from gradle.properties, including .110021.
+        required: true
+        type: string
+      release_sha:
+        description: Full SHA of the merged master-1.10 commit.
+        required: true
+        type: string
+      build_run_id:
+        description: Successful Build run from that commit's push to master-1.10.
+        required: true
+        type: string
+      player_sha256:
+        description: SHA-256 of the tested player JAR.
+        required: true
+        type: string
+      confirm_live_publication:
+        description: Upload the checked JAR to CurseForge as an alpha.
+        default: false
+        type: boolean
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: architecture-alpha-${{ inputs.release_version }}
+  cancel-in-progress: false
+
+jobs:
+  alpha:
+    name: Check and publish the alpha
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_VERSION: ${{ inputs.release_version }}
+      RELEASE_SHA: ${{ inputs.release_sha }}
+      BUILD_RUN_ID: ${{ inputs.build_run_id }}
+      PLAYER_SHA256: ${{ inputs.player_sha256 }}
+      PUBLISH: ${{ inputs.confirm_live_publication }}
+
+    steps:
+      - name: Check the release and its build
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REPOSITORY" == 'MinecraftModDevelopmentMods/IronAgeArchitecture' ]]
+          [[ "$GITHUB_REF" == 'refs/heads/master-1.10' ]]
+          [[ "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.110021$ ]]
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ && "$RELEASE_SHA" == "$GITHUB_SHA" ]]
+          [[ "$PLAYER_SHA256" =~ ^[0-9a-f]{64}$ && "$BUILD_RUN_ID" =~ ^[0-9]+$ ]]
+          current_sha="$(gh api "repos/$GITHUB_REPOSITORY/branches/master-1.10" --jq '.commit.sha')"
+          [[ "$current_sha" == "$RELEASE_SHA" ]]
+
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN_ID" |
+            jq -e --arg sha "$RELEASE_SHA" --arg repo "$GITHUB_REPOSITORY" '
+              .path == ".github/workflows/ci.yml" and .event == "push" and
+              .head_branch == "master-1.10" and .head_sha == $sha and
+              .head_repository.full_name == $repo and .conclusion == "success"
+            ' > /dev/null
+
+          if [[ "$PUBLISH" == true ]]; then
+            if [[ "$GITHUB_RUN_ATTEMPT" != 1 ]]; then
+              echo 'Check the previous upload in CurseForge before starting another run.' >&2
+              exit 1
+            fi
+            # A previous upload may still be in moderation even if its workflow failed.
+            earlier_runs="$(gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/actions/workflows/publish-release.yml/runs?event=workflow_dispatch&per_page=100" |
+              jq -r --arg title "Publish $RELEASE_VERSION to CurseForge" --arg current "$GITHUB_RUN_ID" '
+                .workflow_runs[] | select(.display_title == $title and (.id | tostring) != $current) | .id
+              ')"
+            for run in $earlier_runs; do
+              jobs="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run/jobs?filter=all")"
+              if jq -e 'any(.jobs[].steps[]?;
+                .name == "Upload alpha to CurseForge" and
+                (.status == "in_progress" or (.status == "completed" and .conclusion != "skipped"))
+              )' <<< "$jobs" > /dev/null; then
+                echo "Run $run already attempted this upload. Check the file in CurseForge." >&2
+                exit 1
+              fi
+            done
+          fi
+
+      - name: Check out the merged source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.release_sha }}
+          persist-credentials: false
+
+      - name: Download the checked build
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: iron-age-architecture-1.10.2
+          path: ${{ runner.temp }}/architecture-build
+          run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Check the player JAR and prepare its notes
+        run: bash scripts/prepare-alpha.sh "$RUNNER_TEMP/architecture-build" "$RUNNER_TEMP/architecture-alpha"
+
+      - name: Check upload credentials
+        if: inputs.confirm_live_publication
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: |
+          if [[ -z "$CURSEFORGE_TOKEN" ]]; then
+            echo 'The CURSEFORGE_TOKEN Actions secret is missing.' >&2
+            exit 1
+          fi
+
+      - name: Upload alpha to CurseForge
+        id: upload
+        if: inputs.confirm_live_publication
+        uses: Kira-NT/mc-publish@52307b03863581dec6b652b83e597aec02ebb075 # v3.3.1
+        with:
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          curseforge-id: '1779832'
+          name: Iron Age Architecture ${{ inputs.release_version }} for Minecraft 1.10.2 (Forge)
+          version: ${{ inputs.release_version }}
+          version-type: alpha
+          changelog-file: ${{ runner.temp }}/architecture-alpha/CHANGELOG.md
+          loaders: forge
+          game-versions: '1.10.2'
+          game-version-filter: none
+          environment: client | server
+          java: Java 8
+          fail-mode: fail
+          retry-attempts: 1
+          files: ${{ runner.temp }}/architecture-alpha/iron-age-architecture-${{ inputs.release_version }}.jar
+
+      - name: Record the upload
+        if: inputs.confirm_live_publication
+        env:
+          FILES: ${{ steps.upload.outputs.curseforge-files }}
+        run: |
+          set -euo pipefail
+          file_id="$(jq -er 'if length == 1 then .[0].id | tostring | select(test("^[0-9]+$")) else empty end' <<< "$FILES")"
+          echo "CurseForge accepted [file $file_id](https://www.curseforge.com/minecraft/mc-mods/ironagearchitecture/files/$file_id)." >> "$GITHUB_STEP_SUMMARY"

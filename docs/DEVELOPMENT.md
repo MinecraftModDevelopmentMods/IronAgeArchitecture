@@ -22,6 +22,24 @@ The explicit resource generator owns blockstates, models, English language files
 PNG source art and generation prompts are in art/. Runtime textures are 32x32 nearest-neighbour reductions.
 Vanilla wood textures remain owned by Minecraft and are referenced by resource location.
 
+## Publishing an alpha
+
+Push the changes to the fork, then open a PR against MMD's `master-1.10`. After it
+merges, wait for the Build and CodeQL checks on that commit. Check the player JAR
+from the merged branch's Build run against the SHA-256 of the tested candidate.
+
+Run **Publish Iron Age Architecture alpha** on MMD's `master-1.10`. Supply the
+version from `gradle.properties`, the full merge SHA, the successful Build run ID
+and the tested player JAR's SHA-256. The matching section of `CHANGELOG.txt` must
+start with `<version> - Alpha`; it becomes the file's CurseForge changelog.
+
+Leave **Upload the checked JAR** unticked to verify the inputs and package. Tick
+it when the alpha is ready to go out. The workflow needs the `CURSEFORGE_TOKEN`
+Actions secret and uploads only the player JAR to CurseForge project 1779832.
+Check the file list and previous runs before publishing. If an upload was attempted,
+check its file status in CurseForge before trying again; a workflow failure can
+happen after CurseForge has accepted the file.
+
 ## Geometry and saved state
 
 Each timber wood has five wall-family block IDs: post/cross, sill/head rail, single/close stud,

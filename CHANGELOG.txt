@@ -1,71 +1,27 @@
-0.1.8.110021 - Horizontal rails (unreleased)
+0.1.8.110021 - Alpha
 
-- Joined rails through posts to matching corners and other timbers, closing the gaps
-  between window framing and the corner posts.
-- Stopped corner pieces adding horizontal returns on an unconnected side.
-- Trimmed the backs of corner rails to the inside post so their cut ends do not show
-  through the adjoining wall.
-- Added close-up exterior and interior views to the new Horizontal Rails Preview.
+This update adds openable leaded windows and tidies up the timber framing. The village
+kit is easier to craft, and you can now choose which building eras to use in survival.
 
-
-0.1.7.110021 - Timber joins (unreleased)
-
-- Fixed short rail ends sticking out beyond the posts or studs they should meet.
-- Made automatic rails finish on diagonal braces at the right height, including thin
-  walls and short pieces. Continuous rail runs keep their full width.
-- Filled the small missing corners where diagonal beams cross between blocks, so
-  the timber keeps its width through the joint. The joins follow the neighbouring wood.
-- Corrected the diagonal bracing on half-step upper floors in the preview street.
-  The new Timber Joins Preview keeps the earlier saves available for comparison.
-
-
-0.1.6.110021 - Leaded windows (unreleased)
-
-- Added openable leaded windows to the Late Medieval & Tudor palette, with diamond
-  or rectangular leading, all six woods, and raw or limewashed surrounds.
-- Added full and half-depth frames that fit the existing walls and jettied upper floors.
-  Stack matching sections for taller casements, or place columns side by side.
-- Casements swing outwards. Right-click the frame or open pane to operate a column;
-  redstone works too. Neighbouring columns can be opened separately.
-- Windows check the whole column before opening, so an obstruction leaves it closed.
-- Craft leaded panes from glass panes and iron, then add one to a matching post panel.
-  Shape the panels before glazing. Leading swaps one-for-one, and raw surrounds can
-  be limewashed singly or in batches.
+- Added diamond and rectangular leaded windows in all six woods, with raw or limewashed
+  surrounds. Full and half-depth frames fit ordinary walls and projecting upper floors.
+- Stack matching sections for a taller window. Each column swings outwards on its own
+  with a right-click or redstone. Leave room outside for the pane to swing.
+- Rails now meet the posts and corners around windows, and diagonal braces keep their
+  width where they cross between blocks. Fixed stray rail ends and flickering timber.
+- Added a beam above lower walls to close the gap beneath the floorboards. The space
+  under the overhang stays open. The diagonal brackets now have solid sides and ends.
+- Split the kit into Iron Age and Late Medieval & Tudor creative tabs. Pick the eras
+  you want to craft in the config. Cob, plain daub and thatch are shared by both.
+- Start with plain wattle and daub and shape matching post panels into the patterns
+  you need. Full, thin and short walls use the same recipes. Offcuts can be rejoined,
+  paired patterns swap one-for-one, and tooltips give you a reminder while you build.
+- Expanded limewashing to cover cob stairs and the other raw pieces, one at a time or
+  in batches of eight. Cob stairs now give eight from six cob, and roof ridges can be
+  turned back into slopes.
 
 
-0.1.5.110021 - Crafting (unreleased)
-
-- Made plain wattle and daub the starting material for timber wall panels.
-- Gave full, thin and short walls the same pattern recipes. Arrange three post panels
-  in a row, column, diagonal or L to make rails, studs, braces or corner/end panels.
-- Made paired designs swap one-for-one without extra sticks. Patterned wall panels
-  can be reshaped back into post panels.
-- Added the missing ways to rejoin thin walls and recover shaped corner pieces.
-- Added single and batch limewashing for every raw cob and daub shape, including stairs.
-- Added crafting hints to the building pieces and rewrote the crafting guide around the new chains.
-- Made brackets from matching timber floors and made roof ridges reversible.
-- Increased the cob stair recipe to eight stairs and added recovery recipes so shaping
-  does not waste material.
-
-
-0.1.4.110021 - Jetty brackets (unreleased)
-
-- Fixed the diagonal supports beneath jetties looking hollow and flickering where
-  they meet the beams.
-
-
-0.1.3.110021 - Walls and era palettes (unreleased)
-
-- Tidied up overlapping timber faces to stop flickering at posts, rails and corners.
-- Closed the gap above lower walls beneath jettied floors with a matching timber beam.
-  The open space beneath the projecting part of the floor stays clear.
-- Grouped the building kit into Iron Age and Late Medieval & Tudor creative tabs.
-  Cob, plain daub and thatch appear in both palettes.
-- Added a survival recipe setting for choosing one or more eras. Shared materials
-  stay craftable when an enabled era uses them. Everything is enabled by default.
-
-
-0.1.2.110021 - First alpha (unreleased)
+0.1.2.110021 - First alpha
 
 This is the first building kit for Iron Age Architecture, starting on Minecraft 1.10.2.
 
