@@ -190,7 +190,7 @@ ends, both offsets and the rain path. The legacy-fascia mode opens a copy of the
 preview and verifies the original bare fascias. Use a fresh runtime root for each candidate.
 
 The optional client probe requires iaa.probe=true, iaa.clientProbe=true and iaa.keepRunning=true.
-It creates its own Rye Downpipe Shoe Preview, checks mesh and material variants and both
+It creates its own Rye Eaves Preview, checks mesh and material variants and both
 creative tabs, captures dry and rain views of the cottage row, then shuts down.
 Every visible item must also provide a translated crafting hint without tooltip errors.
 The client script's PreviewName argument selects a separate save without replacing an earlier preview.

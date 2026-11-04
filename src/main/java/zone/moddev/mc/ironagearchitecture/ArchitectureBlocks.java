@@ -39,6 +39,7 @@ public final class ArchitectureBlocks {
     public static WindowLeafBlock WINDOW_LEAF;
     public static LeadedPaneItem LEADED_PANE;
     public static GutterItem GUTTER, GUTTER_OUTLET;
+    public static SoffitItem SOFFIT;
     public static DownpipeBlock DOWNPIPE, DOWNPIPE_OFFSET, DOWNPIPE_SHOE;
 
     public static int variants(Block block) {
@@ -53,6 +54,7 @@ public final class ArchitectureBlocks {
         if (GUTTER != null) {
             result.add(new ItemStack(GUTTER));
             result.add(new ItemStack(GUTTER_OUTLET));
+            result.add(new ItemStack(SOFFIT));
         }
         return result;
     }
@@ -62,7 +64,7 @@ public final class ArchitectureBlocks {
     public static FrameBlock DAUB;
     public static final List<RoofBlock> ROOFS = new ArrayList<>();
     public static TileHangingBlock CLAY_HANGING, CLAY_HANGING_THIN;
-    public static FasciaBlock CLAY_FASCIA;
+    public static FasciaBlock CLAY_FASCIA, CLAY_FASCIA_LINED;
     public static TrimmedRoofBlock CLAY_VERGE, CLAY_RIDGE_END;
     private ArchitectureBlocks() { }
     public static <T extends Block> T block(T block, String name) {
@@ -109,7 +111,7 @@ public final class ArchitectureBlocks {
             CLAY_HANGING_THIN = block(new TileHangingBlock(true), "clay_tile_hanging_thin");
             item(CLAY_HANGING, new TileHangingItem(CLAY_HANGING));
             item(CLAY_HANGING_THIN, new TileHangingItem(CLAY_HANGING_THIN));
-            CLAY_FASCIA = block(new FasciaBlock(), "clay_tile_fascia");
+            CLAY_FASCIA = block(new FasciaBlock(false), "clay_tile_fascia");
             item(CLAY_FASCIA, new EraItemBlock(CLAY_FASCIA));
             ROOFS.add(CLAY_FASCIA);
             CLAY_VERGE = roofTrim("clay_tile_verge", TrimmedRoofBlock.Kind.VERGE);
@@ -122,6 +124,13 @@ public final class ArchitectureBlocks {
             item(DOWNPIPE_OFFSET, new DownpipeItem(DOWNPIPE_OFFSET));
             DOWNPIPE_SHOE = block(new DownpipeBlock(DownpipeBlock.Kind.SHOE), "iron_downpipe_shoe");
             item(DOWNPIPE_SHOE, new DownpipeItem(DOWNPIPE_SHOE));
+            // The lined fascia keeps the same orientation and gutter metadata as the bare one.
+            CLAY_FASCIA_LINED = block(new FasciaBlock(true), "clay_tile_fascia_lined");
+            ROOFS.add(CLAY_FASCIA_LINED);
+            SOFFIT = new SoffitItem();
+            SOFFIT.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID, "dark_oak_soffit"));
+            SOFFIT.setUnlocalizedName(IronAgeArchitecture.MODID + ".dark_oak_soffit");
+            GameRegistry.register(SOFFIT);
         }
         EraCatalog.assignPrimaryTabs();
     }

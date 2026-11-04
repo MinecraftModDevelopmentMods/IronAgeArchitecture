@@ -3,10 +3,10 @@
 Permanent building components for the Iron Age series, starting on Minecraft 1.10.2 Forge.
 Architecture runs independently of Iron Age Furniture.
 
-Version 0.1.11.110021 contains raw and limewashed cob blocks,
+Version 0.1.12.110021 contains raw and limewashed cob blocks,
 stairs and slabs; modular wattle-and-daub walls in all six vanilla woods; and smooth
 thatch, slate and clay tile roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
-timber floors, support brackets, hanging clay tiles and openable leaded windows. There are 525 visible
+timber floors, support brackets, hanging clay tiles and openable leaded windows. There are 526 visible
 variants including the wood and finish choices. Architecture remains standalone.
 
 ## Wattle and daub
@@ -74,6 +74,11 @@ plank for the matching ridge end and place it while looking inward along the rid
 Use full hanging tiles to fill the stepped gable beneath a clay roof. Thin hanging
 tiles share the half-block plane with straight thin timber panels and thin leaded windows.
 Place against one of these pieces to inherit its occupied half. Sneak to choose the half manually.
+
+Two dark oak slabs stacked vertically make four soffits. Right-click the underside of
+a clay fascia with a soffit to line that section of the eaves. Sneak and right-click
+underneath with empty hands to take the lining back off. You can fit a soffit before
+or after the gutter. The fascia still takes the same gutter or outlet either way.
 
 ## Guttering
 
@@ -240,4 +245,4 @@ Thatch and timber-bearing walls burn; plain daub, cob and slate do not. There is
 
 See [development instructions](DEVELOPMENT.md) for builds, Eclipse and disposable runtime checks.
 This is an early alpha. Automated checks and manual visual/gameplay review are recorded separately.
-The Rye Downpipe Shoe Preview shows both pipe offsets and the shoe on a cobbled street.
+The Rye Eaves Preview shows lined and exposed eaves on neighbouring cottages.

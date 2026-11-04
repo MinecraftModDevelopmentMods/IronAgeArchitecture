@@ -15,10 +15,10 @@ import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
 final class EraProbe {
     private static void require(boolean condition,String message) {if(!condition) throw new IllegalStateException(message);}
     static int expectedRecipes() {
-        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.windows?2010:1863)+(ArchitectureConfig.clayTiles?19:0):
+        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.windows?2010:1863)+(ArchitectureConfig.clayTiles?20:0):
             ArchitectureConfig.survivalEras.allowed.contains(Era.IRON_AGE)?36:0;
     }
-    static int expectedVariants() { return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 15 : 0); }
+    static int expectedVariants() { return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 16 : 0); }
     private static boolean ours(IRecipe recipe) {
         ItemStack output=recipe.getRecipeOutput();
         return output!=null&&"ironagearchitecture".equals(output.getItem().getRegistryName().getResourceDomain());

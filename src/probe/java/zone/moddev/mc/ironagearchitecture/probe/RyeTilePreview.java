@@ -13,7 +13,7 @@ import zone.moddev.mc.ironagearchitecture.block.*;
 
 /** Three attached cottages with eaves and projecting gables over a stepped street. */
 final class RyeTilePreview {
-    static final String NAME = "Rye Downpipe Shoe Preview";
+    static final String NAME = "Rye Eaves Preview";
     static final BlockPos RAIN_FOOT = new BlockPos(-35, 10, 0);
     static final BlockPos SPAWN = new BlockPos(-34, 9, -5);
 
@@ -89,6 +89,10 @@ final class RyeTilePreview {
             set(world, x, y, 0, Blocks.AIR.getDefaultState());
         }
         gutter(world, -41, -34, 15, outlet);
+        for (int x = -41; x <= -34; x++) {
+            BlockPos eave = new BlockPos(x, 15, -1);
+            world.setBlockState(eave, FasciaBlock.withLining(world.getBlockState(eave), true), 2);
+        }
         pipe(world, outlet, 14, -1, true, 0);
         pipe(world, outlet, 13, -1, false, 0);
         pipe(world, outlet, 12, -1, true, 2);

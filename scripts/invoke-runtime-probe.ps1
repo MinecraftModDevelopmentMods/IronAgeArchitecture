@@ -1,6 +1,6 @@
 param(
     [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only')][string]$Mode='core',
-    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\rye-downpipe-shoe-0.1.11',
+    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\rye-eaves-0.1.12',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$FurnitureJar='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\furniture\mods\iron-age-furniture-0.3.0.110021.jar',
     [string]$Java8='C:\Users\johnb\.gradle\jdks\temurin-8-amd64-windows.2\bin\java.exe'
@@ -101,7 +101,7 @@ if($Mode -eq 'legacy-jetties') {$args+='-Diaa.legacyJetties=true'}
 if($Mode -eq 'legacy-fascia') {$args+='-Diaa.legacyFascia=true'}
 if($Mode -eq 'core') {$args+=@('-Diaa.eraMatrix=true','-Diaa.recipeMatrix=true')}
 if($Mode -eq 'disabled') {$args+='-Diaa.expectedVariants=0'}
-if($Mode -eq 'clay-only') {$args+=@('-Diaa.expectedVariants=15','-Diaa.clayOnly=true','-Diaa.recipeMatrix=true')}
+if($Mode -eq 'clay-only') {$args+=@('-Diaa.expectedVariants=16','-Diaa.clayOnly=true','-Diaa.recipeMatrix=true')}
 $args+=@('-jar',$forge,'nogui')
 Push-Location $folder
 try {

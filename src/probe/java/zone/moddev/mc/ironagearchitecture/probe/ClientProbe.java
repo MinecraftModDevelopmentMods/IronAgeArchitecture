@@ -84,6 +84,14 @@ public final class ClientProbe extends ProbeProxy {
                     }
                 }
                 checkDrainModels(mc);
+                IBakedModel lining = mc.getBlockRendererDispatcher().getModelForState(
+                    ArchitectureBlocks.CLAY_FASCIA_LINED.getDefaultState());
+                if (lining.getQuads(null, null, 0).stream().noneMatch(
+                    quad -> "minecraft:blocks/planks_big_oak".equals(quad.getSprite().getIconName())))
+                    throw new IllegalStateException("Soffit lining missing from fascia mesh");
+                IBakedModel soffit = mc.getRenderItem().getItemModelMesher().getItemModel(new ItemStack(ArchitectureBlocks.SOFFIT));
+                if (soffit.getParticleTexture().getIconName().contains("missingno"))
+                    throw new IllegalStateException("Missing soffit item model");
                 phase=60;ticks=0;
                 return;
             }
@@ -116,14 +124,14 @@ public final class ClientProbe extends ProbeProxy {
             checkPalettes(mc);
             mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
         } else if (phase>=60&&phase<=65) {
-            double[][] cameras={{-62,25,-16,-46,17,1},{-32,9.1,-7,-46,16,0},
-                {-51.8,15.5,-7,-55.2,18.3,-.5},{-31.8,10.4,-6,-34.5,13.5,-.3},
+            double[][] cameras={{-62,25,-16,-46,17,1},{-44.5,11.7,-15,-45.6,16.5,-.4},
+                {-51.8,15.5,-6.2,-55.2,18.8,-.6},{-31.8,10.4,-6,-35.4,14.2,-.4},
                 {-32.7,8.9,-2.8,-34.5,10.55,.5},{-32.7,8.9,-2.8,-34.5,10.55,.5}};
             double[] camera=cameras[phase-60];
             lookAt(mc,camera[0],camera[1],camera[2],camera[3],camera[4],camera[5]);
             if (ticks<=130) return;
-            String[] names={"rye-guttering-overview.png","rye-guttering-street.png",
-                "rye-guttering-half-jetty.png","rye-guttering-full-jetty.png","rye-downpipe-shoe-closeup.png","rye-downpipe-shoe-rain.png"};
+            String[] names={"rye-eaves-overview.png","rye-eaves-street.png",
+                "rye-eaves-exposed.png","rye-eaves-lined.png","rye-eaves-shoe.png","rye-eaves-rain.png"};
             if (phase == 65 && !rainReady(mc)) {
                 if (ticks > 300) throw new IllegalStateException("Preview rain did not reach the pipe foot");
                 return;

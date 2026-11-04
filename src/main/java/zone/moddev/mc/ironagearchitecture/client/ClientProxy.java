@@ -38,6 +38,9 @@ public final class ClientProxy extends CommonProxy {
                 ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block),meta,new ModelResourceLocation(name,"inventory"));
             }
         }
+        if (ArchitectureBlocks.SOFFIT != null)
+            ModelLoader.setCustomModelResourceLocation(ArchitectureBlocks.SOFFIT, 0,
+                new ModelResourceLocation(ArchitectureBlocks.SOFFIT.getRegistryName(), "inventory"));
         if (ArchitectureBlocks.GUTTER != null) for (GutterItem item : gutterItems())
             ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
         for(JettyBracketItem item:ArchitectureBlocks.BRACKETS) ModelLoader.setCustomModelResourceLocation(item,0,new ModelResourceLocation(item.getRegistryName(),"inventory"));
@@ -90,6 +93,7 @@ public final class ClientProxy extends CommonProxy {
                 event.getModelRegistry().putObject(key,new RoofBakedModel(base,block,state,
                         Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture)));
             }
+            if (!ArchitectureBlocks.VISIBLE.contains(block)) continue;
             ModelResourceLocation inventory = new ModelResourceLocation(block.getRegistryName(),"inventory");
             event.getModelRegistry().putObject(inventory,new RoofBakedModel(event.getModelRegistry().getObject(inventory),block,
                     block.getDefaultState(),Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture)));
@@ -101,6 +105,7 @@ public final class ClientProxy extends CommonProxy {
 
     @SubscribeEvent public void stitch(TextureStitchEvent.Pre event) {
         event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/glass_silver"));event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/iron_block"));
+        event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/planks_big_oak"));
         for(String wood:ArchitectureBlocks.WOODS) {
             event.getMap().registerSprite(new ResourceLocation("ironagearchitecture:blocks/beam_"+wood));
             event.getMap().registerSprite(new ResourceLocation("minecraft:blocks/log_"+(wood.equals("dark_oak")?"big_oak":wood)+"_top"));

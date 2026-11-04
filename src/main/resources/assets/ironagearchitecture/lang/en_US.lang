@@ -490,6 +490,7 @@ tile.ironagearchitecture.clay_tile_ridge.name=Clay Tile Ridge Cap
 tile.ironagearchitecture.clay_tile_fascia.name=Clay Tile Fascia
 tile.ironagearchitecture.clay_tile_verge.name=Clay Tile Verge
 tile.ironagearchitecture.clay_tile_ridge_end.name=Clay Tile Ridge End
+item.ironagearchitecture.dark_oak_soffit.name=Dark Oak Soffit
 item.ironagearchitecture.iron_gutter.name=Iron Gutter
 item.ironagearchitecture.iron_gutter_outlet.name=Iron Gutter Outlet
 tile.ironagearchitecture.iron_downpipe.name=Iron Downpipe
@@ -550,6 +551,8 @@ tile.ironagearchitecture.leaded_window_thin_limewashed_cob_diamond_dark_oak.name
 tile.ironagearchitecture.leaded_window_thin_limewashed_cob_rectangle_dark_oak.name=Limewashed Dark Oak Rectangular Leaded Window (Thin)
 item.ironagearchitecture.leaded_pane.0.name=Diamond Leaded Pane
 item.ironagearchitecture.leaded_pane.1.name=Rectangular Leaded Pane
+hint.ironagearchitecture.soffit.fit=Fit under a clay fascia. Sneak and use an empty hand underneath to recover it.
+hint.ironagearchitecture.soffit.craft=Stack two dark oak slabs in the crafting grid to make four soffits.
 hint.ironagearchitecture.gutter.fit=Fit to the outside face of a bare clay fascia. Sneak and use an empty hand to recover it.
 hint.ironagearchitecture.gutter.outlet=Place a downpipe beneath the outlet to carry rain down.
 hint.ironagearchitecture.gutter.craft=Three iron ingots in a row make six gutters. Add an ingot to make an outlet.
