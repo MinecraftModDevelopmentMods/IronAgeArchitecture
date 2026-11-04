@@ -35,8 +35,11 @@ floor edges, and matching corner pieces let the overhang continue around the sid
 
 ## Getting started
 
-The first alpha targets **Minecraft 1.10.2 with Forge**. Everything is crafted from vanilla
+The **0.1.8.110021 alpha** is for **Minecraft 1.10.2 with Forge**. Everything is crafted from vanilla
 ingredients, and the main content families can be enabled or disabled in the configuration.
+
+See the [CurseForge files](https://www.curseforge.com/minecraft/mc-mods/ironagearchitecture/files/all)
+for downloads and the [changelog](CHANGELOG.txt) for what's changed since the first alpha.
 
 Start with plain wattle and daub, surround it with matching planks to make post panels,
 then arrange those panels into rails, studs, braces and corners. The same patterns work
