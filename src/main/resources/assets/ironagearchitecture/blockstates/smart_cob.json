@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "finish=0": {
+      "model": "ironagearchitecture:smart_cob_raw_mesh"
+    },
+    "finish=1": {
+      "model": "ironagearchitecture:smart_cob_limewashed_mesh"
+    }
+  }
+}

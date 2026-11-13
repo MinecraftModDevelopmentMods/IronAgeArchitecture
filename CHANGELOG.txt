@@ -1,3 +1,18 @@
+0.1.15.110021 - Alpha
+
+I've added smart cob for houses with softer corners and rounded wall outlines.
+It is a separate earthen wall, without the timber framing of wattle and daub.
+
+- Build a connected outline and let the cob round it within the blocks you've placed.
+  Stepped outlines and thicker walls give the curves more room.
+- Choose warm raw cob with a little straw, or a pale limewashed finish.
+- Four matching cob in a square make four smart cob. Craft one alone to recover cob.
+- Smart cob is available in Automatic and Hybrid and belongs to both era palettes.
+- Existing cob blocks and saved buildings keep their original appearance.
+
+This update focuses on the walls and works with the existing doors, windows and roofs.
+Flowing rooflines and cob-specific windows are still to come.
+
 0.1.14.110021 - Alpha
 
 I've added smart wattle and daub so you can build a house with a much smaller

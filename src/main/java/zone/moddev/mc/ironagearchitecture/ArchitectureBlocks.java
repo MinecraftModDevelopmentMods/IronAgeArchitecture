@@ -44,6 +44,7 @@ public final class ArchitectureBlocks {
     public static DownpipeBlock DOWNPIPE, DOWNPIPE_OFFSET, DOWNPIPE_SHOE;
 
     public static int variants(Block block) {
+        if(block instanceof SmartCobBlock)return 2;
         if (block instanceof FrameBlock) return ((FrameBlock)block).variants();
         return block == DOWNPIPE_OFFSET ? 4 : 1;
     }
@@ -63,6 +64,7 @@ public final class ArchitectureBlocks {
         List<FrameBlock> result=new ArrayList<>(WALLS);result.addAll(PARTIALS);result.addAll(FLOORS);result.addAll(SMART_WALLS);return result;
     }
     public static FrameBlock DAUB;
+    public static SmartCobBlock SMART_COB;
     public static final List<SmartWallBlock> SMART_WALLS = new ArrayList<>();
     public static final List<FireplaceBlock> FIREPLACES = new ArrayList<>();
     public static final List<RoofBlock> ROOFS = new ArrayList<>();
@@ -97,6 +99,7 @@ public final class ArchitectureBlocks {
             item(stairs, new EraItemBlock(stairs));
             STAIRS.add(stairs);
         }
+        if(ArchitectureConfig.smartCob) {SMART_COB=block(new SmartCobBlock(),"smart_cob");item(SMART_COB,new SmartCobItem(SMART_COB));}
         if (ArchitectureConfig.frames) {
             DAUB=wall(null,FrameFamily.INFILL);
             for (String wood : WOODS) for(FrameFamily family:FrameFamily.values()) {
@@ -194,6 +197,7 @@ public final class ArchitectureBlocks {
         throw new IllegalArgumentException("Unregistered smart wall");
     }
     public static boolean available(Item item) {
+        if(item instanceof SmartCobItem)return ArchitectureConfig.buildingMode.automatic();
         if(item instanceof SmartWallItem) return ArchitectureConfig.buildingMode.automatic();
         Block block=Block.getBlockFromItem(item);
         return ArchitectureConfig.buildingMode.manual()||!(block instanceof FrameBlock)||block instanceof JettyFloorBlock

@@ -18,6 +18,14 @@ const shapes = ['straight','inner_left','inner_right','outer_left','outer_right'
 const lang = {'itemGroup.ironagearchitecture':'Iron Age Architecture',
   'itemGroup.ironagearchitecture.iron_age':'Iron Age',
   'itemGroup.ironagearchitecture.late_medieval_tudor':'Late Medieval & Tudor'};
+state('smart_cob',{'finish=0':{model:`${ns}:smart_cob_raw_mesh`},'finish=1':{model:`${ns}:smart_cob_limewashed_mesh`}});
+for(const [finish,texture] of ['raw','limewashed'].entries()) {
+  model(`smart_cob_${texture}_mesh`,{parent:'minecraft:block/block',textures:{particle:`${ns}:blocks/smart_cob_${texture}`},elements:[]});
+  item(`smart_cob_${finish}`,`smart_cob_${texture}_mesh`);
+  lang[`tile.${ns}.smart_cob.${finish}.name`]=finish?'Limewashed Smart Cob':'Smart Cob';
+}
+lang[`hint.${ns}.smart_cob.place`]='Build a wall outline; cob rounds its corners and stepped curves within the blocks you place.';
+lang[`hint.${ns}.smart_cob.craft`]='Four matching cob in a square make four smart cob. Craft one alone to recover cob.';
 for (const [key, text] of Object.entries({
   'wall.post':'Shape three matching post panels into a wall pattern.',
   'wall.patterns':'Row: rails; column: studs; diagonal: braces; L: corners.',
@@ -276,7 +284,7 @@ for(const name of obsolete) {
     else fs.unlinkSync(file);
   }
 }
-for(const name of [...woods.map(wood=>`beam_${wood}`),'clay_tile','clay_tile_cap']) {
+for(const name of [...woods.map(wood=>`beam_${wood}`),'clay_tile','clay_tile_cap','smart_cob_raw','smart_cob_limewashed']) {
   const file=path.join(root,assets,'textures/blocks',`${name}.png`);
   if(!fs.existsSync(file)) failures.push('missing material texture '+name);
   else {const png=fs.readFileSync(file);if(png.readUInt32BE(16)!==32||png.readUInt32BE(20)!==32) failures.push('material texture must be 32x32: '+name);}

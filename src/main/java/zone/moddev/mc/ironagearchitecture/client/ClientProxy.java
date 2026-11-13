@@ -30,6 +30,20 @@ import net.minecraft.util.ResourceLocation;
 
 /** Models are registered before baking and never referenced by common classes. */
 public final class ClientProxy extends CommonProxy {
+    @Override public zone.moddev.mc.ironagearchitecture.block.SmartCobProfile cobProfile(net.minecraft.world.IBlockAccess access,net.minecraft.util.math.BlockPos pos) {
+        if(access instanceof net.minecraft.world.World)return super.cobProfile(access,pos);
+        net.minecraft.world.World world=Minecraft.getMinecraft().world;
+        return world==null?zone.moddev.mc.ironagearchitecture.block.SmartCobProfile.SQUARE:zone.moddev.mc.ironagearchitecture.block.SmartCobData.get(world).profile(pos);
+    }
+    @Override public void cobSnapshot(zone.moddev.mc.ironagearchitecture.SmartCobNetwork.Packet packet) {
+        Minecraft.getMinecraft().addScheduledTask(()->{
+            net.minecraft.world.World world=Minecraft.getMinecraft().world;if(world==null||world.provider.getDimension()!=packet.dimension)return;
+            zone.moddev.mc.ironagearchitecture.block.SmartCobData data=zone.moddev.mc.ironagearchitecture.block.SmartCobData.get(world);
+            if(packet.replace)data.clearChunk(packet.x,packet.z);
+            for(java.util.Map.Entry<Long,zone.moddev.mc.ironagearchitecture.block.SmartCobProfile> entry:packet.cells.entrySet())data.put(net.minecraft.util.math.BlockPos.fromLong(entry.getKey()),entry.getValue());
+            world.markBlockRangeForRenderUpdate(packet.x*16-1,0,packet.z*16-1,packet.x*16+16,255,packet.z*16+16);
+        });
+    }
     private zone.moddev.mc.ironagearchitecture.BuildingMode localBuildingMode;
     @SubscribeEvent public void disconnected(net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         Minecraft.getMinecraft().addScheduledTask(()->applyBuildingMode(localBuildingMode));
@@ -44,8 +58,10 @@ public final class ClientProxy extends CommonProxy {
         zone.moddev.mc.ironagearchitecture.ArchitectureRecipes.register();
     }
     @SubscribeEvent public void smartChunkUnloaded(net.minecraftforge.event.world.ChunkEvent.Unload event) {
-        if(event.getWorld().isRemote)
+        if(event.getWorld().isRemote) {
             zone.moddev.mc.ironagearchitecture.block.SmartWallData.get(event.getWorld()).clearChunk(event.getChunk().xPosition,event.getChunk().zPosition);
+            zone.moddev.mc.ironagearchitecture.block.SmartCobData.get(event.getWorld()).clearChunk(event.getChunk().xPosition,event.getChunk().zPosition);
+        }
     }
     @Override public int smartLayout(net.minecraft.world.IBlockAccess access,net.minecraft.util.math.BlockPos pos) {
         if(access instanceof net.minecraft.world.World) return super.smartLayout(access,pos);
@@ -74,7 +90,7 @@ public final class ClientProxy extends CommonProxy {
         for (Block block : ArchitectureBlocks.VISIBLE) {
             int count = ArchitectureBlocks.variants(block);
             for (int meta = 0; meta < count; meta++) {
-                String name = block.getRegistryName().toString() + (block instanceof FrameBlock || block == ArchitectureBlocks.DOWNPIPE_OFFSET ? "_" + meta : "");
+                String name = block.getRegistryName().toString() + (block instanceof FrameBlock || block instanceof zone.moddev.mc.ironagearchitecture.block.SmartCobBlock || block == ArchitectureBlocks.DOWNPIPE_OFFSET ? "_" + meta : "");
                 ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block),meta,new ModelResourceLocation(name,"inventory"));
             }
         }
@@ -87,6 +103,12 @@ public final class ClientProxy extends CommonProxy {
         if(ArchitectureBlocks.LEADED_PANE!=null) for(int meta=0;meta<2;meta++) ModelLoader.setCustomModelResourceLocation(ArchitectureBlocks.LEADED_PANE,meta,new ModelResourceLocation("ironagearchitecture:leaded_pane_"+meta,"inventory"));
     }
     @SubscribeEvent public void bake(ModelBakeEvent event) {
+        if(ArchitectureBlocks.SMART_COB!=null) for(int finish=0;finish<2;finish++) {
+            ModelResourceLocation key=new ModelResourceLocation(ArchitectureBlocks.SMART_COB.getRegistryName(),"finish="+finish);
+            event.getModelRegistry().putObject(key,new SmartCobBakedModel(event.getModelRegistry().getObject(key),finish));
+            key=new ModelResourceLocation(ArchitectureBlocks.SMART_COB.getRegistryName()+"_"+finish,"inventory");
+            event.getModelRegistry().putObject(key,new SmartCobBakedModel(event.getModelRegistry().getObject(key),finish));
+        }
         for(WindowBlock window:ArchitectureBlocks.WINDOWS) {
             java.util.Map<Integer,WindowBakedModel> shared=new java.util.HashMap<>();
             for(IBlockState state:window.getBlockState().getValidStates()) {ModelResourceLocation key=new ModelResourceLocation(window.getRegistryName(),variant(state));int shape=window.getMetaFromState(state)&7;WindowBakedModel model=shared.get(shape);if(model==null){model=new WindowBakedModel(event.getModelRegistry().getObject(key),state.withProperty(WindowBlock.POWERED,false));shared.put(shape,model);}event.getModelRegistry().putObject(key,model);}

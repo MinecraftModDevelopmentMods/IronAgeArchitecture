@@ -27,7 +27,21 @@ match the timber and daub to your walls, then stack sections to make taller case
 They swing outwards with a right-click or redstone, and each column opens separately.
 Full and half-depth surrounds fit both ordinary walls and projecting upper floors.
 
-## Smart walls
+## Rounded cob
+
+Smart cob makes continuous earthen walls with softer corners and rounded outlines.
+Build a connected wall from full blocks, using a stepped outline for a curved bay or
+an oval cottage. The shaping stays inside the blocks you've placed, so thicker walls
+give it more room. Raw cob has a warm earth finish with a little straw; limewashed cob is pale and softly mottled.
+
+Four matching cob in a square make four smart cob. Craft one alone to recover the
+ordinary block, or limewash it singly or in batches of eight. Smart cob is available
+in Automatic and Hybrid, independently of timber framing. Existing cob blocks keep their original shapes.
+
+Smart cob currently focuses on walls and uses the existing doors, windows and roofs.
+Flowing rooflines and cob-specific windows are later additions.
+
+## Smart timber walls
 
 Build the wall, add doors and windows, and let smart wattle and daub arrange the timber.
 Posts frame the openings, rails follow the storeys and braces fill the solid bays.

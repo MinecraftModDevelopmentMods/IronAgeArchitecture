@@ -16,6 +16,13 @@ public final class ArchitectureRecipes {
     private static ItemStack count(ItemStack stack,int count) {ItemStack result=stack.copy();result.stackSize=count;return result;}
     public static void register() {
         if(ArchitectureConfig.cob) registerCob();
+        if(ArchitectureConfig.smartCob&&ArchitectureConfig.buildingMode.automatic()) {
+            for(int finish=0;finish<2;finish++) {
+                ItemStack smart=new ItemStack(ArchitectureBlocks.SMART_COB,1,finish),cob=new ItemStack(ArchitectureBlocks.COB.get(finish));
+                shaped(count(smart,4),"CC","CC",'C',cob);shapeless(cob,smart);
+            }
+            wash(new ItemStack(ArchitectureBlocks.SMART_COB,1,0),new ItemStack(ArchitectureBlocks.SMART_COB,1,1));
+        }
         if(ArchitectureConfig.frames) {
             registerDaub();
             if(ArchitectureConfig.buildingMode.manual()) {registerWalls();registerCorners();}

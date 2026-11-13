@@ -3,12 +3,38 @@
 Permanent building components for the Iron Age series, starting on Minecraft 1.10.2 Forge.
 Architecture runs independently of Iron Age Furniture.
 
-Version 0.1.14.110021 contains raw and limewashed cob blocks,
+Version 0.1.15.110021 contains raw and limewashed cob blocks,
 stairs and slabs; modular wattle-and-daub walls in all six vanilla woods; and smooth
 thatch, slate and clay tile roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
 timber floors, support brackets, hanging clay tiles, openable leaded windows, and brick and
-stone fireplaces. There are 158 visible variants in Automatic, or 566 in Hybrid,
+stone fireplaces, plus rounded smart cob walls. There are 160 visible variants in Automatic, or 568 in Hybrid,
 including the wood and finish choices.
+
+## Rounded smart cob
+
+Put four matching ordinary cob blocks in a 2×2 square to make four smart cob.
+Craft a smart block alone to recover ordinary cob. Raw and limewashed finishes can
+be shaped and recovered this way; single and batch limewashing work as usual.
+The existing single-cob recipe still makes plain wattle and daub.
+
+Start with connected full blocks. A rectangular cottage gets softened corners;
+a stepped outline makes a rounded bay or oval room. Keep the blocks connected along
+their faces. Diagonal-only touches cannot make a continuous wall. Use thicker walls
+where you want a broader curve. Cob stays inside the placed cells and reduces the
+rounding where space is tight.
+
+Fit the existing doors, glass panes or leaded windows into the openings. Matching
+courses keep their outside shape as openings are added. The wall has no timber
+frame; its soft earthen surface continues around the corners and into the reveals.
+
+Smart cob is available in Automatic and Hybrid. It stays registered in Manual so
+existing smart-cob buildings remain readable. `blocks.smartCob` enables the family
+and requires `blocks.cob`; timber framing and windows can be disabled independently.
+It belongs to both era palettes. With default Automatic settings, the kit has 348
+recipes; selecting Iron Age alone leaves 42.
+
+The Rounded Cob Preview uses the existing roof pieces. Rounded eaves, flowing roofs,
+new window styles and half-depth cob pieces are outside this first wall preview.
 
 ## Manual wattle and daub
 
