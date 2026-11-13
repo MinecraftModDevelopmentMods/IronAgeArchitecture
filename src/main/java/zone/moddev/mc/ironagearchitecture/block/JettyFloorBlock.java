@@ -99,6 +99,10 @@ public final class JettyFloorBlock extends FrameBlock {
                     EnumFacing turn=below.getValue(WindowBlock.FACING),inverse=turn==EnumFacing.EAST?EnumFacing.WEST:turn==EnumFacing.WEST?EnumFacing.EAST:turn;
                     occupied=(WallGeometry.rotate(point[0],0,point[2],inverse)[2]>=8)==((WindowBlock)below.getBlock()).back;
                 }
+                if(below.getBlock() instanceof SmartWallBlock) {
+                    int footprint=((SmartWallBlock)below.getBlock()).mask(below);
+                    occupied=(footprint&(1<<((point[0]<8?0:1)+(point[2]<8?0:2))))!=0;
+                }
                 if(below.getBlock() instanceof PartialWallBlock) {
                     EnumFacing turn=below.getValue(FACING);
                     EnumFacing inverse=turn==EnumFacing.EAST?EnumFacing.WEST:turn==EnumFacing.WEST?EnumFacing.EAST:turn;

@@ -56,7 +56,7 @@ Roof blocks save facing. Clay verges also save which half overhangs the gable.
 Inner/outer corners and ridge caps derive from same-material neighbours.
 Slopes rise one block per block; ridge caps rise half a block and belong one row above the adjacent slopes.
 The roof mesh is smooth; collision is a conservative approximation within 1/16 of the surface.
-No architectural block needs a tile entity or scheduled ticking.
+No architectural block needs a tile entity. Smart wall edits are coalesced into bounded end-of-tick work.
 
 WindowBlock is a separate light-transmitting family. Metadata is horizontal facing in
 bits 0-1, open in bit 2 and cached power in bit 3. Wood, finish, depth and leading live
@@ -101,6 +101,8 @@ rather than the canonical inventory block's default shape.
 
 SurfaceGeometry clips buried faces from the shared solid parts. At coplanar intersections,
 boards, posts and rails have deterministic ownership; braces sit slightly behind the main frame.
+Diagonal covers are subtracted as convex prisms, so their end caps replace the plaster
+they occupy without cutting rectangular holes around the sloping timber.
 The collision union continues to use the solid parts. Horizontal ties reverse their reflected
 mesh winding so the exposed underside remains visible.
 One-sided automatic rails are clipped against the timber outlines at the rail's height.
@@ -127,6 +129,45 @@ Bracket outlines must run counter-clockwise without a repeated closing vertex. C
 outlines turn the entire extrusion inside out, exposing the back of the attachment surface
 and making the support appear hollow. Unit tests and the native client check the actual
 bracket face winding; the native check covers both reaches and every saved direction.
+
+## Smart walls
+
+SmartWallBlock keeps its wood, finish and full/half/corner footprint independent of its
+appearance. The two visible profiles have canonical items. Joining two half panels
+creates an L footprint which drops both original panels. Each wood uses two block IDs.
+The full ID packs facing in bits 0-1, finish in bit 2 and the L footprint in bit 3,
+using all 16 metadata values. The thin ID retains facing and finish in bits 0-2.
+Its old low-eight values and the full wall's old low-eight values keep their meanings.
+Separate smart-corner IDs only register with building.retainLegacyWallIds.
+
+SmartFacade is a deterministic, coordinate-independent grammar over an occupied facade
+with explicit openings and manual anchors. SmartWallPlanner surveys loaded coplanar
+sections, including window ownership cells, independently on each elevation. Floors
+split the survey into storeys. It caps a section at 2,048 cells, 48 columns and 32 rows.
+An incomplete or oversized survey retains its saved framing. Bare sections use a simple
+frame until their surroundings are known. Manual pieces contribute constraints in Hybrid.
+
+SmartWallData saves four eight-bit face descriptors per wall in per-dimension WorldSavedData.
+SmartWallEvents coalesces changes and repairs loaded chunk borders. Idle walls do no survey
+work. Chunk-watch snapshots and changed descriptors are sent to the client; render workers
+read only the cached descriptors. No tile entities, render-thread world scans or forced
+chunk loads are used. Automatic is the fresh-install default and omits all 144 manual
+framed-wall IDs. Hybrid and Manual register them. Plain daub, floors and brackets remain
+independent of that choice. Existing configs default retainLegacyWallIds to true; a fresh
+config defaults it to false. The missing-mapping handler fails affected world loads rather
+than letting Forge discard omitted walls, including with automatic query confirmation.
+Client recipe lists and creative browsing follow the server mode and
+return to the local setting after disconnecting.
+
+With all content families enabled, packaged registry checks measure 320 block IDs
+for fresh Automatic, 464 for fresh Hybrid/Manual, or 470 with legacy wall retention.
+The 150-ID saving consists of 144 manual wall IDs and six separate smart-corner IDs.
+Count actual registry entries when checking the 1.10–1.12 budget; creative variants,
+unlisted framing descriptors and baked meshes do not each consume a block ID.
+
+The shared WallGeometry and SurfaceGeometry path clips the timber members. Smart occupancy
+supplies collision, targeting, placement clearance and jetty support. Both depths can craft
+leaded windows. Recipe accounting preserves framing quantity separately from glazing.
 
 ## Era membership
 
@@ -164,7 +205,7 @@ resource generator and item tooltips.
 
 Run scripts/invoke-runtime-probe.ps1 after prepareProbe. Modes cover core, reload, furniture,
 disabled, windows-disabled, legacy, legacy-daub, legacy-jetties, iron-age, late-medieval,
-mixed-eras, no-eras, invalid-era, clay-disabled, clay-only and legacy-fascia.
+mixed-eras, no-eras, invalid-era, clay-disabled, clay-only, manual, automatic, legacy-fascia and legacy-fireplaces.
 Only Forge/server libraries and the explicitly named Furniture JAR are read from retained runtimes;
 no existing worlds or configs are copied or changed. Each mode has an isolated runtime except reload,
 which verifies the saved core world. Servers bind to loopback. Keep failed logs when correcting failures.
@@ -194,9 +235,10 @@ flues across a chunk border, blocked and disconnected runs, the three outlets an
 The core reload checks that the fires still draw from the correct floor.
 
 The optional client probe requires iaa.probe=true, iaa.clientProbe=true and iaa.keepRunning=true.
-It creates its own Rye Fireplace Preview, checks mesh and material variants and both
-creative tabs, captures the interiors and the stack with one fire and then both lit,
-then shuts down. With fireplaces disabled it captures the eaves and guttering instead.
+It creates its own Smart Walls Preview, checks mesh and material variants and both
+creative tabs, captures the three smart houses and their jetties, then shuts down.
+The houses use 7, 9 and 11 block widths, different windows, both jetty depths and a
+manual anchor. Server/client descriptor equality is checked before capture.
 Every visible item must also provide a translated crafting hint without tooltip errors.
 The client script's PreviewName argument selects a separate save without replacing an earlier preview.
 After verification copy the preview save into the ordinary run/saves directory and launch without the probe.

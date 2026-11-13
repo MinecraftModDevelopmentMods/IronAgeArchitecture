@@ -1,6 +1,7 @@
 param(
-    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\rye-fireplaces-0.1.13\native-client-verified',
-    [string]$PreviewName='Rye Fireplace Preview',
+    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\smart-walls-auto-0.1.14\native-client-reviewed',
+    [string]$PreviewName='Automatic Walls Preview',
+    [switch]$SurfaceCheck,
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$GradleHome='D:\GradleCaches\minecraft-mods-shared',
     [string]$AssetsDirectory='',
@@ -61,6 +62,7 @@ $args=@('-Xmx2G',('-Djava.library.path='+(Join-Path $slime 'natives')),'-Diaa.pr
     'net.minecraft.launchwrapper.Launch','--tweakClass','net.minecraftforge.fml.common.launcher.FMLTweaker',
     '--username','ArchitecturePreview','--version','1.10.2','--gameDir',$Runtime,'--assetsDir',$AssetsDirectory,
     '--assetIndex','1.10','--uuid','00000000000000000000000000000001','--accessToken','0','--userType','legacy','--versionType','release','--width','1280','--height','800')
+if($SurfaceCheck) {$args=@('-Diaa.surfacePreview=true')+$args}
 Push-Location $Runtime
 try {
     & $Java8 @args *> 'native-client-console.log'

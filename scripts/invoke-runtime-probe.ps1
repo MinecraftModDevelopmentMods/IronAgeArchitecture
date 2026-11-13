@@ -1,6 +1,6 @@
 param(
-    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only')][string]$Mode='core',
-    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\rye-fireplaces-0.1.13',
+    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only','manual','hybrid','automatic','legacy-fireplaces','legacy-smart')][string]$Mode='core',
+    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\smart-walls-auto-0.1.14',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$FurnitureJar='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\furniture\mods\iron-age-furniture-0.3.0.110021.jar',
     [string]$Java8='C:\Users\johnb\.gradle\jdks\temurin-8-amd64-windows.2\bin\java.exe'
@@ -42,6 +42,23 @@ if($Mode -eq 'legacy-jetties') {
     [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\IronAgeArchitecture\candidates\0.1.2.110021-jettied-storeys\Jettied Street Preview.zip',$staging)
     Copy-Item -LiteralPath (Join-Path $staging 'Jettied Street Preview') -Destination (Join-Path $folder 'world') -Recurse
 }
+if($Mode -eq 'legacy-fireplaces') {
+    if(Test-Path -LiteralPath (Join-Path $folder 'world')) {throw 'Legacy fireplace probe requires a fresh destination'}
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $staging=Join-Path $folder 'fireplace-preview-source'
+    [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\IronAgeArchitecture\manual-testing\rye-fireplaces-0.1.13\Rye Fireplace Preview.zip',$staging)
+    Copy-Item -LiteralPath (Join-Path $staging 'Rye Fireplace Preview') -Destination (Join-Path $folder 'world') -Recurse
+}
+if($Mode -eq 'legacy-smart') {
+    if(Test-Path -LiteralPath (Join-Path $folder 'world')) {throw 'Legacy smart wall probe requires a fresh destination'}
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $staging=Join-Path $folder 'smart-preview-source'
+    [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\IronAgeArchitecture\manual-testing\smart-walls-0.1.14-surface-fix\Smart Walls Surface Preview.zip',$staging)
+    Copy-Item -LiteralPath (Join-Path $staging 'Smart Walls Surface Preview') -Destination (Join-Path $folder 'world') -Recurse
+    New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
+    # An existing alpha config without the new setting must retain every old identity.
+    "building {`n S:mode=automatic`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+}
 if($Mode -eq 'legacy-fascia') {
     if(Test-Path -LiteralPath (Join-Path $folder 'world')) {throw 'Legacy fascia probe requires a fresh disposable destination'}
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -53,6 +70,12 @@ $eraModes=@{'iron-age'=@('iron_age');'late-medieval'=@('late_medieval_tudor');'m
 if($eraModes.ContainsKey($Mode)) {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
     ("recipes {`n S:survivalEras <`n"+($eraModes[$Mode] -join "`n")+"`n >`n}`n") | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+}
+if($Mode -in @('manual','hybrid','automatic','legacy','legacy-daub','legacy-jetties','legacy-fascia','legacy-fireplaces')) {
+    New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
+    $wallMode=if($Mode -like 'legacy*') {'manual'} else {$Mode}
+    $legacy=($Mode -like 'legacy*').ToString().ToLowerInvariant()
+    ("building {`n S:mode="+$wallMode+"`n B:retainLegacyWallIds="+$legacy+"`n}") | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }
 if($Mode -eq 'windows-disabled') {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
@@ -75,6 +98,10 @@ blocks {
     B:fireplaces=false
 }
 "@ | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+}
+if($Mode -notin @('core','reload','manual','hybrid','automatic','legacy','legacy-daub','legacy-jetties','legacy-fascia','legacy-fireplaces','legacy-smart')) {
+    New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
+    Add-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Value "building {`n S:mode=automatic`n B:retainLegacyWallIds=false`n}" -Encoding ascii
 }
 'eula=true' | Set-Content -LiteralPath (Join-Path $folder 'eula.txt') -Encoding ascii
 @'
@@ -100,6 +127,8 @@ if($Mode -eq 'legacy') {$args+='-Diaa.legacy=true'}
 if($Mode -eq 'legacy-daub') {$args+='-Diaa.legacyDaub=true'}
 if($Mode -eq 'legacy-jetties') {$args+='-Diaa.legacyJetties=true'}
 if($Mode -eq 'legacy-fascia') {$args+='-Diaa.legacyFascia=true'}
+if($Mode -eq 'legacy-fireplaces') {$args+='-Diaa.legacyFireplaces=true'}
+if($Mode -eq 'legacy-smart') {$args+='-Diaa.legacySmart=true'}
 if($Mode -eq 'core') {$args+=@('-Diaa.eraMatrix=true','-Diaa.recipeMatrix=true')}
 if($Mode -eq 'disabled') {$args+='-Diaa.expectedVariants=0'}
 if($Mode -eq 'clay-only') {$args+=@('-Diaa.expectedVariants=16','-Diaa.clayOnly=true','-Diaa.recipeMatrix=true')}

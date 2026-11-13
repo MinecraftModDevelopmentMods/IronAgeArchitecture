@@ -15,11 +15,14 @@ import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
 final class EraProbe {
     private static void require(boolean condition,String message) {if(!condition) throw new IllegalStateException(message);}
     static int expectedRecipes() {
-        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.windows?2010:1863)+(ArchitectureConfig.clayTiles?20:0)+fireplaceParts():
+        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?(ArchitectureConfig.windows?306:159):(ArchitectureConfig.windows?2010:1863))+(ArchitectureConfig.clayTiles?20:0)+fireplaceParts()+smartRecipes():
             ArchitectureConfig.survivalEras.allowed.contains(Era.IRON_AGE)?36:0;
     }
     static int expectedVariants() {
-        return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 16 : 0) + fireplaceParts();
+        return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 16 : 0) + fireplaceParts() - (ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?408:0) + (ArchitectureConfig.frames && ArchitectureConfig.buildingMode.automatic() ? 24 : 0);
+    }
+    private static int smartRecipes() {
+        return ArchitectureConfig.frames && ArchitectureConfig.buildingMode==BuildingMode.HYBRID ? 72+(ArchitectureConfig.windows?48:0) : 0;
     }
     private static int fireplaceParts() {
         return ArchitectureConfig.fireplaces ? (ArchitectureConfig.clayTiles ? 16 : 14) : 0;
@@ -47,6 +50,8 @@ final class EraProbe {
         EraSelection selected=ArchitectureConfig.survivalEras;
         boolean cob=ArchitectureConfig.cob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,windows=ArchitectureConfig.windows;
         boolean clayTiles = ArchitectureConfig.clayTiles, fireplaces = ArchitectureConfig.fireplaces;
+        boolean retain=ArchitectureConfig.retainLegacyWallIds;
+        BuildingMode mode=ArchitectureConfig.buildingMode;
         String[][] cases={{"all"},{"iron_age"},{"late_medieval_tudor"},{"iron_age","late_medieval_tudor"},{},{"typo"},{"iron_age","typo"},{" IRON_AGE ","iron_age"}};
         try {
             recipes.removeIf(EraProbe::ours);ArchitectureConfig.survivalEras=EraSelection.parse("all");ArchitectureRecipes.register();
@@ -55,7 +60,7 @@ final class EraProbe {
             Files.createDirectories(Paths.get("era-matrix"));
             for(int c=0;c<cases.length;c++) {
                 Path file=Paths.get("era-matrix",c+".cfg");
-                String text="blocks {\n B:leadedWindows="+windows+"\n B:clayTiles="+clayTiles+"\n B:fireplaces="+fireplaces+"\n}\nrecipes {\n S:survivalEras <\n"+String.join("\n",cases[c])+"\n >\n}\n";
+                String text="blocks {\n B:leadedWindows="+windows+"\n B:clayTiles="+clayTiles+"\n B:fireplaces="+fireplaces+"\n}\nbuilding {\n S:mode="+mode.name().toLowerCase(java.util.Locale.ROOT)+"\n}\nrecipes {\n S:survivalEras <\n"+String.join("\n",cases[c])+"\n >\n}\n";
                 Files.write(file,text.getBytes(StandardCharsets.UTF_8));ArchitectureConfig.load(file.toFile());
                 recipes.removeIf(EraProbe::ours);ArchitectureRecipes.register();
                 int count=0;for(IRecipe recipe:recipes) if(ours(recipe)) {require(EraCatalog.canCraft(recipe.getRecipeOutput()),"Prohibited registered output");count++;}
@@ -81,6 +86,8 @@ final class EraProbe {
             ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;
             ArchitectureConfig.clayTiles = clayTiles;
             ArchitectureConfig.fireplaces = fireplaces;
+            ArchitectureConfig.buildingMode = mode;
+            ArchitectureConfig.retainLegacyWallIds = retain;
         }
     }
 }

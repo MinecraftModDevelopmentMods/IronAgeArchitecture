@@ -27,6 +27,17 @@ match the timber and daub to your walls, then stack sections to make taller case
 They swing outwards with a right-click or redstone, and each column opens separately.
 Full and half-depth surrounds fit both ordinary walls and projecting upper floors.
 
+## Smart walls
+
+Build the wall, add doors and windows, and let smart wattle and daub arrange the timber.
+Posts frame the openings, rails follow the storeys and braces fill the solid bays.
+Different sizes and openings give the houses different framing.
+
+Automatic is the default building mode. You build with smart walls, and the manual
+wall patterns stay out of the inventory and registry. Choose Hybrid to add deliberate
+posts, rails and braces alongside the smart walls, or Manual for the individual pieces.
+Existing configurations keep their selected mode and retain the older block IDs for saved buildings.
+
 ## Fireplaces and chimneys
 
 Build a small brick hearth or a wider stone inglenook with separate jambs and lintels.
@@ -52,10 +63,13 @@ ingredients, and the main content families can be enabled or disabled in the con
 See the [CurseForge files](https://www.curseforge.com/minecraft/mc-mods/ironagearchitecture/files/all)
 for downloads and the [changelog](CHANGELOG.txt) for what's changed since the first alpha.
 
-Start with plain wattle and daub, surround it with matching planks to make post panels,
-then arrange those panels into rails, studs, braces and corners. The same patterns work
-for full walls, thin walls and short pieces. Paired designs swap one-for-one, and offcuts
-can be joined back together. Item tooltips give a reminder while you build.
+Start with plain wattle and daub and surround it with four matching planks to make four
+smart walls. Build the house and leave openings for doors and windows. Cut full panels
+into thin ones for half-block overhangs, then sneak-use two thin panels together to turn
+a corner. Item tooltips give a reminder while you build.
+
+In Hybrid and Manual, the same starting recipe makes post panels. Shape those into
+rails, studs, braces and corners. Paired designs swap one-for-one, and offcuts can be joined back together.
 
 You can limewash pieces before or after shaping, singly or in batches of eight. The
 [crafting guide](docs/BUILDING-GUIDE.md#crafting) covers the wall patterns, floors,

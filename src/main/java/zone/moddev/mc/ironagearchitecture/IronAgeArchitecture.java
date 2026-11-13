@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 /** Permanent building components in the Iron Age series. */
-@Mod(modid = IronAgeArchitecture.MODID, name = "Iron Age Architecture", version = "0.1.13.110021",
+@Mod(modid = IronAgeArchitecture.MODID, name = "Iron Age Architecture", version = "0.1.14.110021",
         acceptedMinecraftVersions = "[1.10.2]", dependencies = "required-after:Forge@[12.18.3.2511,)")
 public final class IronAgeArchitecture {
     public static final String MODID = "ironagearchitecture";
@@ -22,4 +22,15 @@ public final class IronAgeArchitecture {
         proxy.preInit();
     }
     @Mod.EventHandler public void init(FMLInitializationEvent event) { ArchitectureRecipes.register(); }
+    @Mod.EventHandler public void missingMappings(net.minecraftforge.fml.common.event.FMLMissingMappingsEvent event) {
+        boolean blocked=false;
+        if(!ArchitectureConfig.frames || ArchitectureConfig.retainLegacyWallIds) return;
+        for(net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping mapping:event.get()) {
+            String name=mapping.name;
+            if(name.startsWith(MODID+":timber_") || name.startsWith(MODID+":partial_")&&name.contains("_timber_")
+                    || name.startsWith(MODID+":smart_daub_corner_")) {mapping.fail();blocked=true;}
+        }
+        if(blocked) org.apache.logging.log4j.LogManager.getLogger("IronAgeArchitecture").error(
+            "This world uses older wall IDs. Set building.retainLegacyWallIds=true in config/ironagearchitecture.cfg and restart to keep those buildings.");
+    }
 }

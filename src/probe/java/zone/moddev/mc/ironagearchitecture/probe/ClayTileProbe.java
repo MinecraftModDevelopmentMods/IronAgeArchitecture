@@ -62,7 +62,7 @@ final class ClayTileProbe {
                 JettyFloorBlock floor = ArchitectureBlocks.findFloor("oak", FloorShape.FULL, null);
                 IBlockState deck = floor.getDefaultState().withProperty(FrameBlock.FACING, facing);
                 require((floor.connections(deck, world, pos.up()) >> 16) == 3, "Tile wall supports wrong deck quarters " + facing);
-                PartialWallBlock wall = ArchitectureBlocks.findPartial("oak", FrameFamily.POST, WallProfile.THIN);
+                FrameBlock wall = ArchitectureConfig.buildingMode.manual()?ArchitectureBlocks.findPartial("oak", FrameFamily.POST, WallProfile.THIN):ArchitectureBlocks.findSmart("oak",1);
                 IBlockState placed = wall.getStateForPlacement(world, pos.up(), EnumFacing.UP, .5F, 1, .5F, 0, player);
                 require(placed.getValue(FrameBlock.FACING) == facing, "Timber did not inherit the tile plane");
                 world.setBlockState(pos, placed, 2);

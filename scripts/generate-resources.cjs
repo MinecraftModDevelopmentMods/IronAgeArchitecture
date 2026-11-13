@@ -154,6 +154,26 @@ model('dark_oak_soffit',{parent:'minecraft:block/block',textures:{wood:'minecraf
     ['down','up','north','south','west','east'].map(face=>[face,{texture:'#wood'}]))}]});
 item('dark_oak_soffit','dark_oak_soffit');
 lang[`item.${ns}.dark_oak_soffit.name`] = 'Dark Oak Soffit';
+for(const [woodIndex,wood] of woods.entries()) {
+  const mesh=`smart_daub_mesh_${wood}`;
+  model(mesh,{parent:'minecraft:block/block',textures:{particle:`${ns}:blocks/limewashed_cob`},elements:[]});
+  for(const profile of ['full','thin','corner']) {
+    // Full panels 2/3 are packed L footprints. Keep separate corner models for old saves.
+    const name=`smart_daub_${profile}_${wood}`,variants={};
+    for(const facing of Object.keys(facings)) for(let panel=0;panel<4;panel++)
+      variants[`facing=${facing},panel=${panel}`]={model:`${ns}:${mesh}`};
+    state(name,variants);
+    if(profile==='corner') continue;
+    for(let finish=0;finish<2;finish++) {
+      item(name+'_'+finish,mesh);
+      lang[`tile.${ns}.${name}.${finish}.name`]=`${finish?'Limewashed ':''}${names[woodIndex]} Smart ${profile==='thin'?'Thin ':''}Wattle and Daub`;
+    }
+  }
+}
+lang[`hint.${ns}.smart.place`]='Build the wall; its posts, rails and braces follow the facade and openings.';
+lang[`hint.${ns}.smart.corner`]='Sneak-use a thin panel on another thin smart wall to form a corner.';
+lang[`hint.${ns}.smart.craft`]='Hybrid: matching post panel + stick. Cut and rejoin full and thin panels.';
+lang[`hint.${ns}.smart.craft.auto`]='Four matching planks around full daub make four smart full walls.';
 const fireplaceParts = {
   hearth:'Hearth', firebox:'Firebox', jamb:'Fireplace Jamb', lintel:'Fireplace Lintel',
   flue:'Chimney Flue', collar:'Clay Roof Collar', pot_cap:'Chimney Pot', slab_cap:'Vented Chimney Cap'

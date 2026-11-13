@@ -7,6 +7,7 @@ Read README.md and docs/DEVELOPMENT.md before changing this mod.
 - This is an independent member of the series. Do not introduce a Furniture dependency.
 - Keep shared behaviour in focused base classes; roof rendering and collision share RoofGeometry.
 - Metadata is limited to four bits. Spend models before block IDs; do not add tile entities for simple variants.
+- Keep fresh Automatic registration economical for the 1.10–1.12 ID limit. Check actual registry counts and spare metadata before adding another block ID. Retain old identities through the compatibility setting.
 - Edit the resource generator, then run it explicitly. Its --check mode must never rewrite resources.
 - Keep common code free of client classes. Keep src/probe code outside player artifacts and ordinary Eclipse launches.
 - Use disposable worlds. Do not alter Furniture worlds, checkouts, configs or existing qualification evidence.

@@ -33,7 +33,10 @@ final class RecipeProbe {
     static void verify(World world) {
         if(ArchitectureConfig.frames) for(int wood=0;wood<6;wood++) for(int finish=0;finish<2;finish++) {
             ItemStack plank=new ItemStack(Blocks.PLANKS,1,wood),infill=new ItemStack(ArchitectureBlocks.DAUB,1,finish);
-            crafts(world,new ItemStack(ArchitectureBlocks.FRAMES.get(wood),4,finish*2),null,plank,null,plank,infill,plank,null,plank,null);
+            ItemStack wall=ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC
+                ?new ItemStack(ArchitectureBlocks.findSmart(ArchitectureBlocks.WOODS[wood],0),4,finish)
+                :new ItemStack(ArchitectureBlocks.FRAMES.get(wood),4,finish*2);
+            crafts(world,wall,null,plank,null,plank,infill,plank,null,plank,null);
             ItemStack other=new ItemStack(Blocks.PLANKS,1,(wood+1)%6);
             crafts(world,null,null,other,null,plank,infill,plank,null,plank,null);
         }
@@ -42,8 +45,10 @@ final class RecipeProbe {
             crafts(world,null,glazed,null,null,glazed); // Full/thin wall cutting must not multiply glazing.
             crafts(world,null,glazed,glazed); // Rejoining glazed frames is deliberately unavailable too.
             crafts(world,null,glazed,new ItemStack(ArchitectureBlocks.LEADED_PANE,1,window.diamond?0:1));
-            FrameBlock panel=window.thin?ArchitectureBlocks.findPartial(window.wood,FrameFamily.POST,WallProfile.THIN):ArchitectureBlocks.findWall(window.wood,FrameFamily.POST);
-            crafts(world,null,new ItemStack(panel,1,window.finish*2+1),new ItemStack(ArchitectureBlocks.LEADED_PANE,1,window.diamond?0:1));
+            if(ArchitectureConfig.buildingMode.manual()) {
+                FrameBlock panel=window.thin?ArchitectureBlocks.findPartial(window.wood,FrameFamily.POST,WallProfile.THIN):ArchitectureBlocks.findWall(window.wood,FrameFamily.POST);
+                crafts(world,null,new ItemStack(panel,1,window.finish*2+1),new ItemStack(ArchitectureBlocks.LEADED_PANE,1,window.diamond?0:1));
+            }
             if(window.finish==0) {
                 String otherWood=window.wood.equals("oak")?"spruce":"oak";
                 for(WindowBlock other:new WindowBlock[]{ArchitectureBlocks.findWindow(otherWood,0,window.thin,window.diamond,false),ArchitectureBlocks.findWindow(window.wood,1,window.thin,window.diamond,false),ArchitectureBlocks.findWindow(window.wood,0,!window.thin,window.diamond,false),ArchitectureBlocks.findWindow(window.wood,0,window.thin,!window.diamond,false)})
@@ -125,6 +130,7 @@ final class RecipeProbe {
         Item item=stack.getItem();if(item instanceof JettyBracketItem) return ((JettyBracketItem)item).fullReach?2:1;
         Block block=Block.getBlockFromItem(item);
         if(block instanceof JettyFloorBlock) return Integer.bitCount(((JettyFloorBlock)block).shape.mask);
+        if(block instanceof SmartWallBlock) return ((SmartWallBlock)block).profile==0?4:2;
         if(block instanceof PartialWallBlock) {WallProfile p=((PartialWallBlock)block).profile;return p.corner?p.quarters():(p==WallProfile.THIN?2:1);}
         if(ArchitectureBlocks.SLABS.contains(block)) return 2;
         if(ArchitectureBlocks.STAIRS.contains(block)) return 3;

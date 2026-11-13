@@ -32,6 +32,7 @@ public final class FrameItem extends EraItemBlock {
         return EnumActionResult.SUCCESS;
     }
     @Override public void getSubItems(Item item, CreativeTabs tab, List<ItemStack> list) {
+        if(!zone.moddev.mc.ironagearchitecture.ArchitectureBlocks.available(this)) return;
         for (int meta = 0; meta < ((FrameBlock)block).variants(); meta++) list.add(new ItemStack(item, 1, meta));
     }
     @Override public void addInformation(ItemStack stack,EntityPlayer player,List<String> tooltip,boolean advanced) {

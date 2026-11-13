@@ -27,6 +27,7 @@ public final class ArchitectureBlocks {
     public static final String[] WOODS = {"oak", "spruce", "birch", "jungle", "acacia", "dark_oak"};
     public static final String[] FINISHES = {"cob", "limewashed_cob"};
     public static final List<Block> VISIBLE = new ArrayList<>();
+    public static final List<Block> REGISTERED = new ArrayList<>();
     public static final List<Block> COB = new ArrayList<>();
     public static final List<CobSlab> SLABS = new ArrayList<>();
     public static final List<CobStairs> STAIRS = new ArrayList<>();
@@ -48,7 +49,7 @@ public final class ArchitectureBlocks {
     }
     public static List<ItemStack> visibleStacks() {
         List<ItemStack> result=new ArrayList<>();
-        for(Block block:VISIBLE) for(int meta=0;meta<variants(block);meta++) result.add(new ItemStack(block,1,meta));
+        for(Block block:VISIBLE) if(available(Item.getItemFromBlock(block))) for(int meta=0;meta<variants(block);meta++) result.add(new ItemStack(block,1,meta));
         for(JettyBracketItem item:BRACKETS) result.add(new ItemStack(item));
         if(LEADED_PANE!=null) {result.add(new ItemStack(LEADED_PANE,1,0));result.add(new ItemStack(LEADED_PANE,1,1));}
         if (GUTTER != null) {
@@ -59,9 +60,10 @@ public final class ArchitectureBlocks {
         return result;
     }
     public static List<FrameBlock> meshes() {
-        List<FrameBlock> result=new ArrayList<>(WALLS);result.addAll(PARTIALS);result.addAll(FLOORS);return result;
+        List<FrameBlock> result=new ArrayList<>(WALLS);result.addAll(PARTIALS);result.addAll(FLOORS);result.addAll(SMART_WALLS);return result;
     }
     public static FrameBlock DAUB;
+    public static final List<SmartWallBlock> SMART_WALLS = new ArrayList<>();
     public static final List<FireplaceBlock> FIREPLACES = new ArrayList<>();
     public static final List<RoofBlock> ROOFS = new ArrayList<>();
     public static TileHangingBlock CLAY_HANGING, CLAY_HANGING_THIN;
@@ -72,6 +74,7 @@ public final class ArchitectureBlocks {
         block.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID, name));
         block.setUnlocalizedName(IronAgeArchitecture.MODID + "." + name);
         GameRegistry.register(block);
+        REGISTERED.add(block);
         return block;
     }
     private static void item(Block block, ItemBlock item) {
@@ -97,11 +100,18 @@ public final class ArchitectureBlocks {
         if (ArchitectureConfig.frames) {
             DAUB=wall(null,FrameFamily.INFILL);
             for (String wood : WOODS) for(FrameFamily family:FrameFamily.values()) {
-                if(family==FrameFamily.INFILL) continue;
+                if(family==FrameFamily.INFILL || !ArchitectureConfig.registerManualWalls()) continue;
                 FrameBlock frame=wall(wood,family);
                 if(family==FrameFamily.POST) FRAMES.add(frame);
             }
             registerJetties();
+            for(String timber:WOODS) for(int profile=0;profile<3;profile++) {
+                if(profile==2 && !ArchitectureConfig.retainLegacyWallIds) continue;
+                SmartWallBlock smart=block(new SmartWallBlock(timber,profile),"smart_daub_"+(profile==0?"full_":profile==1?"thin_":"corner_")+timber);
+                SMART_WALLS.add(smart);
+                if(profile!=2) item(smart,new SmartWallItem(smart));
+                Blocks.FIRE.setFireInfo(smart,5,20);
+            }
             if(ArchitectureConfig.windows) registerWindows();
         }
         if (ArchitectureConfig.thatch) roofFamily("thatch", true);
@@ -178,6 +188,17 @@ public final class ArchitectureBlocks {
         for(WindowBlock block:WINDOWS) if(block.wood.equals(wood)&&block.finish==finish&&block.thin==thin&&block.diamond==diamond&&block.right==right&&block.back==back) return block;
         throw new IllegalArgumentException("Unregistered window "+wood+" "+finish+" "+thin+" "+diamond+" "+right);
     }
+    public static SmartWallBlock findSmart(String wood,int profile) {
+        // New corners share the full wall's spare metadata; old corner IDs only load saves.
+        for(SmartWallBlock wall:SMART_WALLS) if(wall.wood.equals(wood)&&wall.profile==(profile==2?0:profile)) return wall;
+        throw new IllegalArgumentException("Unregistered smart wall");
+    }
+    public static boolean available(Item item) {
+        if(item instanceof SmartWallItem) return ArchitectureConfig.buildingMode.automatic();
+        Block block=Block.getBlockFromItem(item);
+        return ArchitectureConfig.buildingMode.manual()||!(block instanceof FrameBlock)||block instanceof JettyFloorBlock
+            ||((FrameBlock)block).family==FrameFamily.INFILL;
+    }
     private static FrameBlock wall(String wood,FrameFamily family) {
         FrameBlock frame=block(new FrameBlock(wood,family),family.registryPrefix+(wood==null?"":"_"+wood));
         item(frame,new FrameItem(frame));WALLS.add(frame);
@@ -192,7 +213,7 @@ public final class ArchitectureBlocks {
         for(WallProfile profile:WallProfile.values()) {
             if(!profile.corner) partial(null,FrameFamily.INFILL,profile);
             for(String wood:WOODS) for(FrameFamily family:FrameFamily.values()) {
-                if(family==FrameFamily.INFILL||profile.corner&&family!=FrameFamily.TERMINAL) continue;
+                if(family==FrameFamily.INFILL||profile.corner&&family!=FrameFamily.TERMINAL||!ArchitectureConfig.registerManualWalls()) continue;
                 partial(wood,family,profile);
             }
         }

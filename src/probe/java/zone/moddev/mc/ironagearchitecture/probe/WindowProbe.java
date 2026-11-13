@@ -148,7 +148,8 @@ final class WindowProbe {
             clear(world,pos);player.setHeldItem(EnumHand.MAIN_HAND,null);
         }
         for(EnumFacing facing:EnumFacing.HORIZONTALS) for(boolean interior:new boolean[]{false,true}) {
-            clear(world,pos);PartialWallBlock wall=ArchitectureBlocks.findPartial("oak",FrameFamily.POST,WallProfile.THIN);
+            clear(world,pos);FrameBlock wall=zone.moddev.mc.ironagearchitecture.ArchitectureConfig.buildingMode.manual()
+                ?ArchitectureBlocks.findPartial("oak",FrameFamily.POST,WallProfile.THIN):ArchitectureBlocks.findSmart("oak",1);
             IBlockState support=wall.getDefaultState().withProperty(FrameBlock.FACING,facing);world.setBlockState(pos.down(),support,2);
             Vec3d standing=point(pos,8,0,interior?48:-32,facing);player.setPosition(standing.xCoord,standing.yCoord,standing.zCoord);player.rotationYaw=facing.getOpposite().getHorizontalIndex()*90;
             ItemStack stack=new ItemStack(ArchitectureBlocks.findWindow("oak",0,true,true,false));
