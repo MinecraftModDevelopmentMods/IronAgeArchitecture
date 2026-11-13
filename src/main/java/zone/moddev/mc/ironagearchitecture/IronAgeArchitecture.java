@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 /** Permanent building components in the Iron Age series. */
-@Mod(modid = IronAgeArchitecture.MODID, name = "Iron Age Architecture", version = "0.1.14.110021",
+@Mod(modid = IronAgeArchitecture.MODID, name = "Iron Age Architecture", version = "0.1.15.110021",
         acceptedMinecraftVersions = "[1.10.2]", dependencies = "required-after:Forge@[12.18.3.2511,)")
 public final class IronAgeArchitecture {
     public static final String MODID = "ironagearchitecture";

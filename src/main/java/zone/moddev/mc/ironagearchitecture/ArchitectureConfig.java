@@ -5,7 +5,7 @@ import net.minecraftforge.common.config.Configuration;
 
 /** Complete content-family switches. Framed panels require the cob family. */
 public final class ArchitectureConfig {
-    public static boolean cob, frames, thatch, slate, windows, clayTiles, fireplaces;
+    public static boolean cob, smartCob, frames, thatch, slate, windows, clayTiles, fireplaces;
     public static BuildingMode buildingMode = BuildingMode.AUTOMATIC;
     public static boolean retainLegacyWallIds;
     public static boolean registerManualWalls() { return buildingMode.manual() || retainLegacyWallIds; }
@@ -16,6 +16,7 @@ public final class ArchitectureConfig {
         Configuration config = new Configuration(file);
         config.load();
         cob = config.getBoolean("cob", "blocks", true, "Raw and limewashed cob blocks, stairs and slabs.");
+        smartCob=config.getBoolean("smartCob","blocks",true,"Rounded smart cob walls; requires cob. Keeps its block ID in Manual mode so saved walls remain readable.")&&cob;
         frames = config.getBoolean("timberFrames", "blocks", true, "All six timber frames; also requires cob.") && cob;
         windows = config.getBoolean("leadedWindows", "blocks", true, "Openable leaded windows; requires timberFrames and cob.") && frames;
         thatch = config.getBoolean("thatch", "blocks", true, "Thatch slopes and ridge caps.");

@@ -47,7 +47,7 @@ final class WallRegistrationProbe {
     }
     private static boolean present(String name) {return Block.REGISTRY.containsKey(new ResourceLocation(IronAgeArchitecture.MODID,name));}
     private static void verifyConfigUpgrade() throws Exception {
-        boolean cob=ArchitectureConfig.cob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,
+        boolean cob=ArchitectureConfig.cob,smartCob=ArchitectureConfig.smartCob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,
             windows=ArchitectureConfig.windows,clay=ArchitectureConfig.clayTiles,fireplaces=ArchitectureConfig.fireplaces,retain=ArchitectureConfig.retainLegacyWallIds;
         BuildingMode mode=ArchitectureConfig.buildingMode;EraSelection eras=ArchitectureConfig.survivalEras;
         Path directory=Paths.get("wall-config-matrix",UUID.randomUUID().toString());Files.createDirectories(directory);
@@ -64,7 +64,7 @@ final class WallRegistrationProbe {
                 require(ArchitectureConfig.buildingMode==selected&&!ArchitectureConfig.retainLegacyWallIds&&ArchitectureConfig.registerManualWalls()==selected.manual(),"explicit mode "+selected);
             }
         } finally {
-            ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;
+            ArchitectureConfig.cob=cob;ArchitectureConfig.smartCob=smartCob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;
             ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clay;ArchitectureConfig.fireplaces=fireplaces;
             ArchitectureConfig.retainLegacyWallIds=retain;ArchitectureConfig.buildingMode=mode;ArchitectureConfig.survivalEras=eras;
         }

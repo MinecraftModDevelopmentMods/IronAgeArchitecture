@@ -1,6 +1,10 @@
 itemGroup.ironagearchitecture=Iron Age Architecture
 itemGroup.ironagearchitecture.iron_age=Iron Age
 itemGroup.ironagearchitecture.late_medieval_tudor=Late Medieval & Tudor
+tile.ironagearchitecture.smart_cob.0.name=Smart Cob
+tile.ironagearchitecture.smart_cob.1.name=Limewashed Smart Cob
+hint.ironagearchitecture.smart_cob.place=Build a wall outline; cob rounds its corners and stepped curves within the blocks you place.
+hint.ironagearchitecture.smart_cob.craft=Four matching cob in a square make four smart cob. Craft one alone to recover cob.
 hint.ironagearchitecture.wall.post=Shape three matching post panels into a wall pattern.
 hint.ironagearchitecture.wall.patterns=Row: rails; column: studs; diagonal: braces; L: corners.
 hint.ironagearchitecture.wall.swap=Craft alone to swap the paired pattern.

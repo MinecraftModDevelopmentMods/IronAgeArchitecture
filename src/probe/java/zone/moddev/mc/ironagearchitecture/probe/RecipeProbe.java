@@ -117,6 +117,7 @@ final class RecipeProbe {
         Item item=stack.getItem();
         if(item instanceof JettyBracketItem) return "floor:"+((JettyBracketItem)item).wood;
         Block block=Block.getBlockFromItem(item);
+        if(block instanceof SmartCobBlock)return "daub:"+(stack.getMetadata()&1);
         if(block instanceof JettyFloorBlock) return "floor:"+((JettyFloorBlock)block).wood;
         if(block instanceof FrameBlock) {FrameBlock wall=(FrameBlock)block;return wall.family==FrameFamily.INFILL?"daub:"+wall.finish(stack.getMetadata()):"frame:"+wall.wood+":"+wall.finish(stack.getMetadata());}
         if(item instanceof GutterItem || block instanceof DownpipeBlock) return "iron_drain";

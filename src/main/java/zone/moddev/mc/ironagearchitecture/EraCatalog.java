@@ -13,7 +13,7 @@ public final class EraCatalog {
         if(item instanceof JettyBracketItem||item instanceof LeadedPaneItem||item instanceof GutterItem||item instanceof SoffitItem) return EnumSet.of(Era.LATE_MEDIEVAL_TUDOR);
         if(!(item instanceof ItemBlock)) return EnumSet.noneOf(Era.class);
         Block block=((ItemBlock)item).getBlock();
-        boolean shared=ArchitectureBlocks.COB.contains(block)||ArchitectureBlocks.SLABS.contains(block)||ArchitectureBlocks.STAIRS.contains(block)
+        boolean shared=block instanceof SmartCobBlock||ArchitectureBlocks.COB.contains(block)||ArchitectureBlocks.SLABS.contains(block)||ArchitectureBlocks.STAIRS.contains(block)
             ||block instanceof FrameBlock&&((FrameBlock)block).family==FrameFamily.INFILL
             ||block instanceof RoofBlock&&"thatch".equals(((RoofBlock) block).materialKey);
         return shared?EnumSet.allOf(Era.class):EnumSet.of(Era.LATE_MEDIEVAL_TUDOR);

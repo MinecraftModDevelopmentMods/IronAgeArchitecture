@@ -13,9 +13,11 @@ public final class EraTabs {
             @Override public void displayAllRelevantItems(java.util.List<net.minecraft.item.ItemStack> items) {
                 super.displayAllRelevantItems(items);
                 if(era==Era.LATE_MEDIEVAL_TUDOR)
-                    items.sort(java.util.Comparator.comparingInt(stack->stack.getItem() instanceof zone.moddev.mc.ironagearchitecture.block.SmartWallItem?0:1));
+                    items.sort(java.util.Comparator.comparingInt(stack->stack.getItem() instanceof zone.moddev.mc.ironagearchitecture.block.SmartWallItem?0:stack.getItem() instanceof zone.moddev.mc.ironagearchitecture.block.SmartCobItem?1:2));
+                else items.sort(java.util.Comparator.comparingInt(stack->stack.getItem() instanceof zone.moddev.mc.ironagearchitecture.block.SmartCobItem?0:1));
             }
             @Override public Item getTabIconItem() {
+                if(era==Era.IRON_AGE&&ArchitectureBlocks.SMART_COB!=null&&ArchitectureConfig.buildingMode.automatic())return Item.getItemFromBlock(ArchitectureBlocks.SMART_COB);
                 if(era==Era.LATE_MEDIEVAL_TUDOR&&ArchitectureConfig.buildingMode.automatic()&&!ArchitectureBlocks.SMART_WALLS.isEmpty())
                     return Item.getItemFromBlock(ArchitectureBlocks.findSmart("oak",0));
                 if(era==Era.LATE_MEDIEVAL_TUDOR&&!ArchitectureBlocks.FRAMES.isEmpty()) return Item.getItemFromBlock(ArchitectureBlocks.FRAMES.get(0));

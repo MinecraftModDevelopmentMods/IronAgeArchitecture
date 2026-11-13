@@ -87,6 +87,10 @@ public final class ClientProbe extends ProbeProxy {
                 for(net.minecraft.client.renderer.block.model.BakedQuad quad:model.getQuads(state,null,0)) if(quad.getSprite().getIconName().contains("missingno")) throw new IllegalStateException("Missing window texture "+state);
             }
             checkFireplaceModels(mc);
+            if(ArchitectureBlocks.SMART_COB!=null)for(int finish=0;finish<2;finish++) {
+                IBlockState state=ArchitectureBlocks.SMART_COB.getStateFromMeta(finish);IBakedModel model=mc.getBlockRendererDispatcher().getModelForState(state);
+                if(!(model instanceof zone.moddev.mc.ironagearchitecture.client.SmartCobBakedModel)||model.getQuads(state,null,0).isEmpty()||model.getParticleTexture().getIconName().contains("missingno"))throw new IllegalStateException("Missing smart cob model or texture");
+            }
             if (ArchitectureConfig.clayTiles) {
                 for (net.minecraft.block.Block panel : new net.minecraft.block.Block[]{ArchitectureBlocks.CLAY_HANGING, ArchitectureBlocks.CLAY_HANGING_THIN}) {
                     for (IBlockState state : panel.getBlockState().getValidStates()) {
@@ -104,13 +108,14 @@ public final class ClientProbe extends ProbeProxy {
                 IBakedModel soffit = mc.getRenderItem().getItemModelMesher().getItemModel(new ItemStack(ArchitectureBlocks.SOFFIT));
                 if (soffit.getParticleTexture().getIconName().contains("missingno"))
                     throw new IllegalStateException("Missing soffit item model");
-                phase=80;ticks=0;
+                phase=ArchitectureConfig.smartCob?90:80;ticks=0;
                 if (phase == 70) {
                     setPreviewGameType(mc, GameType.SPECTATOR);
                     setPreviewDoor(mc, true);
                 }
                 return;
             }
+            if(ArchitectureConfig.smartCob){phase=90;ticks=0;return;}
             capture(mc,"jettied-street-overview.png");
             lookAt(mc,-5,74,-7,3,69.5,2);phase=3;ticks=0;
         } else if(phase==3&&ticks>120) {
@@ -158,6 +163,8 @@ public final class ClientProbe extends ProbeProxy {
             setPreviewRain(mc, false);
             checkPalettes(mc);
             mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
+        } else if(phase>=90&&phase<=96) {
+            captureRoundedCob(mc);
         } else if (phase >= 80 && phase <= 87) {
             captureSmartWalls(mc);
         } else if (phase >= 70 && phase <= 75) {
@@ -169,10 +176,40 @@ public final class ClientProbe extends ProbeProxy {
             if(!ensurePalette(mc,Era.LATE_MEDIEVAL_TUDOR)) {ticks=0;return;}
             if(ticks>80) {
                 capture(mc,"late-medieval-tudor-palette.png");mc.displayGuiScreen(null);
-                System.out.println("IAA_CLIENT_PROBE_PASS creativeIronAge=14 creativeLateMedievalTudor="+EraProbe.expectedVariants());phase=10;
+                System.out.println("IAA_CLIENT_PROBE_PASS creativeIronAge="+EraProbe.sharedVariants()+" creativeLateMedievalTudor="+EraProbe.expectedVariants());phase=10;
                 mc.shutdown();
             }
         }
+    }
+    private void captureRoundedCob(Minecraft mc) {
+        double[][] cameras={{-39,10,-45,-39,14,4},{-71.5,10.2,-2.5,-68.6,12,.6},{-49,10.3,-7,-40,12.7,.8},
+            {-6.5,10.2,14,-10.1,13,6},{-39.5,11.2,5,-39.5,12.7,.5},{-64,10,-18,-61,11.6,-10},{-36,32,16,-36,10,5}};
+        String[] names={"rounded-cob-street.png","rounded-cob-cottage-corner.png","rounded-cob-oval.png","rounded-cob-bay.png","rounded-cob-interior.png","rounded-cob-square-comparison.png","rounded-cob-overhead-cutaway.png"};
+        double[] c=cameras[phase-90];lookAt(mc,c[0],c[1],c[2],c[3],c[4],c[5]);
+        if(ticks<=150)return;
+        if(phase==90) {
+            BlockPos at=new BlockPos(-69,11,0);net.minecraft.world.World server=mc.getIntegratedServer().worldServerForDimension(0);
+            zone.moddev.mc.ironagearchitecture.block.SmartCobData expected=zone.moddev.mc.ironagearchitecture.block.SmartCobData.get(server),actual=zone.moddev.mc.ironagearchitecture.block.SmartCobData.get(mc.world);
+            if(!actual.contains(at)||!expected.profile(at).equals(actual.profile(at)))throw new IllegalStateException("Cob contours did not reach the client");
+            System.out.println("IAA_COB_CLIENT_PASS matchingProfiles=true");
+        }
+        capture(mc,names[phase-90]);
+        if(phase==95)mc.getIntegratedServer().addScheduledTask(()->RoundedCobPreview.roofs(mc.getIntegratedServer().worldServerForDimension(0),false));
+        if(phase<96){phase++;ticks=0;return;}
+        mc.getIntegratedServer().addScheduledTask(()->{
+            WorldServer world=mc.getIntegratedServer().worldServerForDimension(0);RoundedCobPreview.roofs(world,true);
+            for(EntityPlayer player:world.playerEntities) {
+                BlockPos spawn=RoundedCobPreview.SPAWN;player.setPositionAndUpdate(spawn.getX()+.5,spawn.getY(),spawn.getZ()+.5);
+                player.inventory.setInventorySlotContents(0,new ItemStack(ArchitectureBlocks.SMART_COB,64,0));
+                player.inventory.setInventorySlotContents(1,new ItemStack(ArchitectureBlocks.SMART_COB,64,1));
+                player.inventory.setInventorySlotContents(2,new ItemStack(net.minecraft.init.Blocks.GLASS_PANE,64));
+                player.inventory.setInventorySlotContents(3,new ItemStack(net.minecraft.init.Items.SPRUCE_DOOR,16));
+                player.inventory.setInventorySlotContents(4,new ItemStack(net.minecraft.block.Block.getBlockFromName("ironagearchitecture:thatch_roof"),64));
+                player.inventory.setInventorySlotContents(5,new ItemStack(net.minecraft.block.Block.getBlockFromName("ironagearchitecture:thatch_ridge"),32));
+                player.inventory.setInventorySlotContents(6,new ItemStack(net.minecraft.init.Blocks.PLANKS,64,1));
+            }
+        });
+        checkPalettes(mc);mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
     }
     private void captureSmartWalls(Minecraft mc) {
         double[][] cameras={{-12,10,-25,-10,15,0},{-20,10,-10,-21.5,14,0},
@@ -337,7 +374,7 @@ public final class ClientProbe extends ProbeProxy {
     private void checkPalettes(Minecraft mc) {
             for(Era era:Era.values()) {
                 java.util.List<ItemStack> items=new java.util.ArrayList<>();EraTabs.tab(era).displayAllRelevantItems(items);
-                int expected=era==Era.IRON_AGE?14:EraProbe.expectedVariants();
+                int expected=era==Era.IRON_AGE?EraProbe.sharedVariants():EraProbe.expectedVariants();
                 if(era==Era.LATE_MEDIEVAL_TUDOR&&ArchitectureConfig.buildingMode.automatic()
                         &&!(items.get(0).getItem() instanceof zone.moddev.mc.ironagearchitecture.block.SmartWallItem))
                     throw new IllegalStateException("Smart walls should be first in the palette");

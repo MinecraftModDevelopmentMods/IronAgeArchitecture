@@ -1,6 +1,6 @@
 param(
-    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\smart-walls-auto-0.1.14\native-client-reviewed',
-    [string]$PreviewName='Automatic Walls Preview',
+    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\rounded-smart-cob-0.1.15\native-client-reviewed',
+    [string]$PreviewName='Rounded Cob Preview',
     [switch]$SurfaceCheck,
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$GradleHome='D:\GradleCaches\minecraft-mods-shared',

@@ -169,6 +169,38 @@ The shared WallGeometry and SurfaceGeometry path clips the timber members. Smart
 supplies collision, targeting, placement clearance and jetty support. Both depths can craft
 leaded windows. Recipe accounting preserves framing quantity separately from glazing.
 
+## Rounded smart cob
+
+SmartCobBlock uses one ID and metadata bit 0 for finish. Curves are derived geometry,
+not additional blocks or tile entities. Registration depends on cob/smartCob; acquisition
+follows Automatic/Hybrid independently of timber framing. Plain cob IDs are unchanged.
+
+SmartCobPlanner surveys connected sections up to 2,048 cells, 48×48 horizontally and
+32 vertically. Short openings form virtual structural columns, then actual missing cells
+are cut from a common course outline. Contact strips are shared by matching courses.
+This prevents window rows from acquiring different silhouettes or texture phases.
+SmartCobGeometry uses material-contained visibility shortcuts, quadratic contour fillets
+and a shallow inward skin. Failed thickness checks reduce rounding; the last fallback is
+the original footprint. No geometry is added to air cells. Java2D geometry is pure CPU
+code and runs headless on the dedicated Java 8 server.
+
+SmartCobProfile stores immutable, cell-clipped contours at 1/4096 precision, boundary
+ownership, smooth normals and contour-distance texture phase. The versioned per-dimension
+SmartCobData and separate bounded SmartCobNetwork snapshots leave timber data unchanged.
+Chunk events repair loaded borders without forcing loads. Idle walls do no surveys;
+only entity-blocked expansions have a short retry queue until the obstruction clears.
+
+SmartCobMesh supplies rendering and exact triangle selection. Its 1/32 collision grid
+merges occupied rectangles, keeping conservative collision within 1/16 block of the mesh.
+Interior cut faces are hidden and neighbouring courses subtract shared caps. Chunk-baked
+meshes use smooth vertex lighting; atlas wraps are split before baking to avoid stretched
+horizontal texture stripes. Vanilla light blocking remains cell-based on this legacy engine.
+
+The default Automatic totals are 321 registered IDs, 160 visible variants and 348 recipes.
+Hybrid adds two visible variants and six recipes to its previous totals. Manual retains
+the new ID for saved walls, but its visible variants and recipes do not change. Iron Age
+survival in Automatic/Hybrid has 42 recipes, including the six smart-cob conversions/finishes.
+
 ## Era membership
 
 EraCatalog supplies both creative membership and survival recipe eligibility. Basic cob,
@@ -205,7 +237,8 @@ resource generator and item tooltips.
 
 Run scripts/invoke-runtime-probe.ps1 after prepareProbe. Modes cover core, reload, furniture,
 disabled, windows-disabled, legacy, legacy-daub, legacy-jetties, iron-age, late-medieval,
-mixed-eras, no-eras, invalid-era, clay-disabled, clay-only, manual, automatic, legacy-fascia and legacy-fireplaces.
+mixed-eras, no-eras, invalid-era, clay-disabled, clay-only, manual, hybrid, automatic,
+cob-disabled, cob-only, legacy-smart, legacy-fascia and legacy-fireplaces.
 Only Forge/server libraries and the explicitly named Furniture JAR are read from retained runtimes;
 no existing worlds or configs are copied or changed. Each mode has an isolated runtime except reload,
 which verifies the saved core world. Servers bind to loopback. Keep failed logs when correcting failures.
@@ -235,10 +268,12 @@ flues across a chunk border, blocked and disconnected runs, the three outlets an
 The core reload checks that the fires still draw from the correct floor.
 
 The optional client probe requires iaa.probe=true, iaa.clientProbe=true and iaa.keepRunning=true.
-It creates its own Smart Walls Preview, checks mesh and material variants and both
-creative tabs, captures the three smart houses and their jetties, then shuts down.
-The houses use 7, 9 and 11 block widths, different windows, both jetty depths and a
-manual anchor. Server/client descriptor equality is checked before capture.
+With smart cob enabled it creates Rounded Cob Preview: a simple cottage, a stepped
+oval and an L-shaped house with a rounded bay, plus an unchanged ordinary-cob corner.
+It checks mesh/material variants, client contour synchronization and both creative tabs,
+then captures street, corner, opening, interior and roof-off overhead views. Existing
+roof pieces are restored before saving. Without smart cob it uses the timber preview
+with different house sizes, windows, both jetty depths and a manual anchor.
 Every visible item must also provide a translated crafting hint without tooltip errors.
 The client script's PreviewName argument selects a separate save without replacing an earlier preview.
 After verification copy the preview save into the ordinary run/saves directory and launch without the probe.
