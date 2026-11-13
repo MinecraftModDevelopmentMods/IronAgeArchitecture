@@ -1,3 +1,19 @@
+0.1.14.110021 - Alpha
+
+I've added smart wattle and daub so you can build a house with a much smaller
+inventory. The posts, rails and braces follow the walls and their openings.
+
+- Automatic is the default. Build with smart walls, or choose Hybrid to use the
+  individual posts, rails and braces alongside them. Manual is still available.
+- New Automatic setups leave out the manual wall block IDs. Smart corners now
+  share a block ID with full walls. Existing configs keep the older IDs so saved
+  buildings still load.
+- The kit comes in all six woods, with raw and limewashed finishes and full
+  or half-depth walls. Thin panels can join into corners.
+- Manual posts, rails and braces guide the smart framing in Hybrid.
+- Smart panels can be glazed with the existing leaded panes.
+- Tidied up the timber and plaster joins to stop the surfaces flickering.
+
 0.1.13.110021 - Alpha
 
 I've added brick and stone fireplaces to the Rye kit. You can build a small

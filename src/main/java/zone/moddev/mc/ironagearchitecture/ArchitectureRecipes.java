@@ -10,14 +10,18 @@ import zone.moddev.mc.ironagearchitecture.block.*;
 /** Shared starters, lossless shaping and finish-preserving conversions. */
 public final class ArchitectureRecipes {
     private ArchitectureRecipes() { }
-    private static void shaped(ItemStack output,Object... inputs) {if(EraCatalog.canCraft(output)) GameRegistry.addRecipe(output,inputs);}
-    private static void shapeless(ItemStack output,Object... inputs) {if(EraCatalog.canCraft(output)) GameRegistry.addShapelessRecipe(output,inputs);}
+    private static void shaped(ItemStack output,Object... inputs) {if(EraCatalog.canCraft(output)&&ArchitectureBlocks.available(output.getItem())) GameRegistry.addRecipe(output,inputs);}
+    private static void shapeless(ItemStack output,Object... inputs) {if(EraCatalog.canCraft(output)&&ArchitectureBlocks.available(output.getItem())) GameRegistry.addShapelessRecipe(output,inputs);}
     private static ItemStack stack(Block block,int count,int meta) {return new ItemStack(block,count,meta);}
     private static ItemStack count(ItemStack stack,int count) {ItemStack result=stack.copy();result.stackSize=count;return result;}
     public static void register() {
         if(ArchitectureConfig.cob) registerCob();
         if(ArchitectureConfig.frames) {
-            registerWalls();registerWallCuts();registerCorners();registerFloors();
+            registerDaub();
+            if(ArchitectureConfig.buildingMode.manual()) {registerWalls();registerCorners();}
+            registerWallCuts();
+            registerFloors();
+            if(ArchitectureConfig.buildingMode.automatic()) registerSmartWalls();
             for(Block block:ArchitectureBlocks.VISIBLE) if(block instanceof FrameBlock&&!(block instanceof JettyFloorBlock)) {
                 FrameBlock wall=(FrameBlock)block;
                 int patterns=wall.variants()/2;
@@ -102,21 +106,40 @@ public final class ArchitectureRecipes {
         wash(new ItemStack(ArchitectureBlocks.SLABS.get(0)),new ItemStack(ArchitectureBlocks.SLABS.get(1)));
         wash(new ItemStack(ArchitectureBlocks.STAIRS.get(0)),new ItemStack(ArchitectureBlocks.STAIRS.get(1)));
     }
+    private static void registerSmartWalls() {
+        for(int wood=0;wood<6;wood++) for(int finish=0;finish<2;finish++) {
+            String timber=ArchitectureBlocks.WOODS[wood];
+            ItemStack full=stack(ArchitectureBlocks.findSmart(timber,0),1,finish);
+            ItemStack thin=stack(ArchitectureBlocks.findSmart(timber,1),1,finish);
+            if(ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC)
+                shaped(count(full,4)," P ","PDP"," P ",'P',new ItemStack(Blocks.PLANKS,1,wood),'D',stack(ArchitectureBlocks.DAUB,1,finish));
+            else {
+                ItemStack post=stack(ArchitectureBlocks.findWall(timber,FrameFamily.POST),1,finish*2);
+                shapeless(full,post,Items.STICK);shapeless(post,full);
+            }
+            cut(full,thin);join(thin,full);
+        }
+    }
     private static void registerWindows() {
         shaped(new ItemStack(ArchitectureBlocks.LEADED_PANE,8,0),"GGG","GIG","GGG",'G',Blocks.GLASS_PANE,'I',Items.IRON_INGOT);
         for(int pattern=0;pattern<2;pattern++) shapeless(new ItemStack(ArchitectureBlocks.LEADED_PANE,1,1-pattern),new ItemStack(ArchitectureBlocks.LEADED_PANE,1,pattern));
         for(WindowBlock window:ArchitectureBlocks.WINDOWS) if(!window.right&&!window.back) {
-            FrameBlock panel=window.thin?ArchitectureBlocks.findPartial(window.wood,FrameFamily.POST,WallProfile.THIN):ArchitectureBlocks.findWall(window.wood,FrameFamily.POST);
-            shapeless(new ItemStack(window),stack(panel,1,window.finish*2),new ItemStack(ArchitectureBlocks.LEADED_PANE,1,window.diamond?0:1));
+            if(ArchitectureConfig.buildingMode.manual()) {
+                FrameBlock panel=window.thin?ArchitectureBlocks.findPartial(window.wood,FrameFamily.POST,WallProfile.THIN):ArchitectureBlocks.findWall(window.wood,FrameFamily.POST);
+                shapeless(new ItemStack(window),stack(panel,1,window.finish*2),new ItemStack(ArchitectureBlocks.LEADED_PANE,1,window.diamond?0:1));
+            }
+            if(ArchitectureConfig.buildingMode.automatic()) shapeless(new ItemStack(window),stack(ArchitectureBlocks.findSmart(window.wood,window.thin?1:0),1,window.finish),new ItemStack(ArchitectureBlocks.LEADED_PANE,1,window.diamond?0:1));
             shapeless(new ItemStack(ArchitectureBlocks.findWindow(window.wood,window.finish,window.thin,!window.diamond,false)),new ItemStack(window));
             if(window.finish==0) wash(new ItemStack(window),new ItemStack(ArchitectureBlocks.findWindow(window.wood,1,window.thin,window.diamond,false)));
         }
     }
-    private static void registerWalls() {
+    private static void registerDaub() {
         for(int finish=0;finish<2;finish++) {
             shapeless(stack(ArchitectureBlocks.DAUB,1,finish),ArchitectureBlocks.COB.get(finish));
             shapeless(new ItemStack(ArchitectureBlocks.COB.get(finish)),stack(ArchitectureBlocks.DAUB,1,finish));
         }
+    }
+    private static void registerWalls() {
         for(int wood=0;wood<6;wood++) for(int finish=0;finish<2;finish++) {
             String timber=ArchitectureBlocks.WOODS[wood];
             shaped(stack(ArchitectureBlocks.FRAMES.get(wood),4,finish*2)," P ","PDP"," P ",

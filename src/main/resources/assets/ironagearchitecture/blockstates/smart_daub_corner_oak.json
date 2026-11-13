@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "facing=north,panel=0": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=north,panel=1": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=north,panel=2": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=north,panel=3": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=east,panel=0": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=east,panel=1": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=east,panel=2": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=east,panel=3": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=south,panel=0": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=south,panel=1": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=south,panel=2": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=south,panel=3": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=west,panel=0": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=west,panel=1": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=west,panel=2": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    },
+    "facing=west,panel=3": {
+      "model": "ironagearchitecture:smart_daub_mesh_oak"
+    }
+  }
+}

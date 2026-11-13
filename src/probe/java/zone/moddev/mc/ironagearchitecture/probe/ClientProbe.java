@@ -48,7 +48,7 @@ public final class ClientProbe extends ProbeProxy {
             mc.gameSettings.pauseOnLostFocus=false;
             phase=1;ticks=0;
             String preview = System.getProperty("iaa.previewName",
-                ArchitectureConfig.fireplaces ? "Rye Fireplace Preview" : RyeTilePreview.NAME);
+                "Smart Walls Preview");
             if (new java.io.File(mc.mcDataDir, "saves/" + preview).exists())
                 throw new IllegalStateException("Use a fresh world for the native preview");
             mc.launchIntegratedServer(preview,preview,new WorldSettings(137,GameType.CREATIVE,false,false,WorldType.FLAT));
@@ -59,7 +59,7 @@ public final class ClientProbe extends ProbeProxy {
             mc.setIngameNotInFocus();
             mc.player.capabilities.allowFlying=true;mc.player.capabilities.isFlying=true;
             if (ArchitectureConfig.clayTiles && ArchitectureConfig.frames)
-                lookAt(mc, -32, 9.5, -12.4, -39.5, 17.5, 3.6);
+                lookAt(mc, -10, 12, -24, -9, 16, 0);
             else lookAt(mc,48,102,-85,48,73,4);
         } else if(phase==2&&ticks>260) {
             for(RoofBlock roof:ArchitectureBlocks.ROOFS) for(IBlockState state:roof.getBlockState().getValidStates()) {
@@ -104,7 +104,7 @@ public final class ClientProbe extends ProbeProxy {
                 IBakedModel soffit = mc.getRenderItem().getItemModelMesher().getItemModel(new ItemStack(ArchitectureBlocks.SOFFIT));
                 if (soffit.getParticleTexture().getIconName().contains("missingno"))
                     throw new IllegalStateException("Missing soffit item model");
-                phase=ArchitectureConfig.fireplaces ? 70 : 60;ticks=0;
+                phase=80;ticks=0;
                 if (phase == 70) {
                     setPreviewGameType(mc, GameType.SPECTATOR);
                     setPreviewDoor(mc, true);
@@ -158,6 +158,8 @@ public final class ClientProbe extends ProbeProxy {
             setPreviewRain(mc, false);
             checkPalettes(mc);
             mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
+        } else if (phase >= 80 && phase <= 87) {
+            captureSmartWalls(mc);
         } else if (phase >= 70 && phase <= 75) {
             captureFireplacePreview(mc);
         } else if(phase==8) {
@@ -172,6 +174,51 @@ public final class ClientProbe extends ProbeProxy {
             }
         }
     }
+    private void captureSmartWalls(Minecraft mc) {
+        double[][] cameras={{-12,10,-25,-10,15,0},{-20,10,-10,-21.5,14,0},
+            {-11,10,-9,-10.5,15,-.5},{12,11,-11,2,16,-.3},{10,12,6,4,16,-.5},{-17,10.2,1.2,-19.2,12.4,4}};
+        String[] names={"smart-walls-street.png","smart-small-cottage.png","smart-half-jetty.png","smart-full-jetty.png","smart-corners-and-side.png","smart-l-shaped-return.png"};
+        if(Boolean.getBoolean("iaa.surfacePreview")) {
+            cameras=java.util.Arrays.copyOf(cameras,8);
+            cameras[6]=new double[]{-20,10.1,11.2,-20,12.1,14.5};
+            cameras[7]=new double[]{-10.1,12.5,-2.3,-10.6,15.2,-.7};
+            names=java.util.Arrays.copyOf(names,8);
+            names[6]="manual-brace-end-surfaces.png";names[7]="smart-jetty-brace-surfaces.png";
+        }
+        double[] camera=cameras[phase-80];
+        lookAt(mc,camera[0],camera[1],camera[2],camera[3],camera[4],camera[5]);
+        if(ticks<=150) return;
+        if(phase==80) {
+            net.minecraft.world.World server=mc.getIntegratedServer().worldServerForDimension(0);
+            BlockPos at=new BlockPos(-11,15,-1);
+            int expected=zone.moddev.mc.ironagearchitecture.block.SmartWallData.get(server).code(at);
+            int actual=zone.moddev.mc.ironagearchitecture.block.SmartWallData.get(mc.world).code(at);
+            if(expected==0||expected!=actual) throw new IllegalStateException("Smart layout did not reach the client");
+            System.out.println("IAA_SMART_CLIENT_PASS serverLayout=true matchingClient=true");
+        }
+        capture(mc,names[phase-80]);
+        if(phase<80+names.length-1){phase++;ticks=0;return;}
+        mc.getIntegratedServer().addScheduledTask(()->{
+            WorldServer world=mc.getIntegratedServer().worldServerForDimension(0);
+            for(EntityPlayer player:world.playerEntities) {
+                BlockPos spawn=SmartWallPreview.SPAWN;
+                player.setPositionAndUpdate(spawn.getX()+.5,spawn.getY(),spawn.getZ()+.5);
+                player.inventory.setInventorySlotContents(0,new ItemStack(ArchitectureBlocks.findSmart("spruce",0),64,1));
+                player.inventory.setInventorySlotContents(1,new ItemStack(ArchitectureBlocks.findSmart("spruce",1),64,1));
+                player.inventory.setInventorySlotContents(2,new ItemStack(ArchitectureBlocks.findWindow("spruce",1,true,true,false),32));
+                player.inventory.setInventorySlotContents(3,new ItemStack(ArchitectureBlocks.findFloor("spruce",zone.moddev.mc.ironagearchitecture.block.FloorShape.FULL,null),64));
+                player.inventory.setInventorySlotContents(4,new ItemStack(net.minecraft.block.Block.getBlockFromName("ironagearchitecture:clay_tile_roof"),64));
+                player.inventory.setInventorySlotContents(5,ArchitectureConfig.buildingMode.manual()
+                    ?new ItemStack(ArchitectureBlocks.findWall("spruce",zone.moddev.mc.ironagearchitecture.block.FrameFamily.POST),64,2)
+                    :new ItemStack(ArchitectureBlocks.findSmart("spruce",0),64,1));
+                player.inventory.setInventorySlotContents(6,new ItemStack(ArchitectureBlocks.findSmart("oak",0),64));
+                player.inventory.setInventorySlotContents(7,new ItemStack(ArchitectureBlocks.findSmart("dark_oak",0),64,1));
+            }
+        });
+        checkPalettes(mc);
+        mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
+    }
+
     private void captureFireplacePreview(Minecraft mc) {
         double[][] cameras = {
             {-37.5, 10.03, 1.4, -37.5, 11.1, 4.0},
@@ -291,6 +338,9 @@ public final class ClientProbe extends ProbeProxy {
             for(Era era:Era.values()) {
                 java.util.List<ItemStack> items=new java.util.ArrayList<>();EraTabs.tab(era).displayAllRelevantItems(items);
                 int expected=era==Era.IRON_AGE?14:EraProbe.expectedVariants();
+                if(era==Era.LATE_MEDIEVAL_TUDOR&&ArchitectureConfig.buildingMode.automatic()
+                        &&!(items.get(0).getItem() instanceof zone.moddev.mc.ironagearchitecture.block.SmartWallItem))
+                    throw new IllegalStateException("Smart walls should be first in the palette");
                 if(items.size()!=expected) throw new IllegalStateException("Creative tab "+era+" expected "+expected+" got "+items.size());
                 for(ItemStack item:items) if(!zone.moddev.mc.ironagearchitecture.EraCatalog.eras(item.getItem()).contains(era)) throw new IllegalStateException("Wrong era item "+item);
                 for(ItemStack item:items) {

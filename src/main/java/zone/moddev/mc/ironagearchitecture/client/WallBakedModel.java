@@ -20,6 +20,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
+import zone.moddev.mc.ironagearchitecture.block.SmartWallBlock;
 import zone.moddev.mc.ironagearchitecture.block.JettyFloorBlock;
 import zone.moddev.mc.ironagearchitecture.block.SurfaceGeometry;
 import zone.moddev.mc.ironagearchitecture.block.TimberCorners;
@@ -46,11 +47,15 @@ public final class WallBakedModel implements IBakedModel {
         if(side!=null) return Collections.emptyList();
         Integer mask=extended instanceof IExtendedBlockState?((IExtendedBlockState)extended).getValue(FrameBlock.CONNECTIONS):null;
         Integer patch=extended instanceof IExtendedBlockState?((IExtendedBlockState)extended).getValue(TimberCorners.PROPERTY):null;
+        if(block instanceof SmartWallBlock) {
+            patch=mask;
+            mask=extended instanceof IExtendedBlockState?((IExtendedBlockState)extended).getValue(SmartWallBlock.LAYOUT):0;
+        }
         int joins=mask==null?0:mask,corners=patch==null?0:patch;long key=(joins&0xffffffffL)|((long)corners<<32);
         List<BakedQuad> found=cache.get(key);
         if(found!=null) return found;
         List<BakedQuad> quads=new ArrayList<>();
-        for(SurfaceGeometry.Face face:SurfaceGeometry.faces(block.parts(state,joins,corners),state.getValue(FrameBlock.FACING))) {
+        for(SurfaceGeometry.Face face:SurfaceGeometry.faces(block.parts(state,joins,corners),(block instanceof SmartWallBlock?EnumFacing.NORTH:state.getValue(FrameBlock.FACING)))) {
             double[][] p=face.points;
             if(p.length==4) add(quads,face.part,p);
             else for(int i=1;i<p.length-1;i++) add(quads,face.part,new double[][]{p[0],p[i],p[i+1],p[i+1]});
@@ -61,7 +66,7 @@ public final class WallBakedModel implements IBakedModel {
         return found;
     }
     private void add(List<BakedQuad> quads,Part part,double[][] points) {
-        EnumFacing facing=state.getValue(BlockHorizontal.FACING);
+        EnumFacing facing=block instanceof SmartWallBlock?EnumFacing.NORTH:state.getValue(BlockHorizontal.FACING);
         double[][] positions=new double[4][3];
         for(int v=0;v<4;v++) {
             double[] point=points[part.horizontal?3-v:v];

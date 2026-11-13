@@ -43,6 +43,16 @@ public final class WallRuns {
             if (panel.isThin()) add(list, pos, state.getValue(TileHangingBlock.FACING), 0, 16, 0, 8);
             return list;
         }
+        if(state.getBlock() instanceof SmartWallBlock) {
+            SmartWallBlock smart=(SmartWallBlock)state.getBlock();
+            EnumFacing facing=state.getValue(FrameBlock.FACING);
+            if(smart.profile(state)==0) {add(list,pos,EnumFacing.NORTH,0,16,0,16);add(list,pos,EnumFacing.EAST,0,16,0,16);}
+            else {
+                add(list,pos,facing,0,16,0,8);
+                if(smart.profile(state)==2) add(list,pos,facing.rotateYCCW(),0,16,8,16);
+            }
+            return list;
+        }
         if(!(state.getBlock() instanceof FrameBlock)||state.getBlock() instanceof JettyFloorBlock) return list;
         EnumFacing facing=state.getValue(FrameBlock.FACING);
         if(state.getBlock() instanceof PartialWallBlock) {
@@ -73,6 +83,8 @@ public final class WallRuns {
 
     /** Normal pointing towards the occupied half, independent of a casement's outward facing. */
     static EnumFacing straightHalfFacing(IBlockState state) {
+        if(state.getBlock() instanceof SmartWallBlock&&((SmartWallBlock)state.getBlock()).profile(state)==1)
+            return state.getValue(FrameBlock.FACING);
         if (state.getBlock() instanceof TileHangingBlock && ((TileHangingBlock) state.getBlock()).isThin()) {
             return state.getValue(TileHangingBlock.FACING);
         }

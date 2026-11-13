@@ -3,13 +3,16 @@
 Permanent building components for the Iron Age series, starting on Minecraft 1.10.2 Forge.
 Architecture runs independently of Iron Age Furniture.
 
-Version 0.1.13.110021 contains raw and limewashed cob blocks,
+Version 0.1.14.110021 contains raw and limewashed cob blocks,
 stairs and slabs; modular wattle-and-daub walls in all six vanilla woods; and smooth
 thatch, slate and clay tile roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
 timber floors, support brackets, hanging clay tiles, openable leaded windows, and brick and
-stone fireplaces. There are 542 visible variants including the wood and finish choices.
+stone fireplaces. There are 158 visible variants in Automatic, or 566 in Hybrid,
+including the wood and finish choices.
 
-## Wattle and daub
+## Manual wattle and daub
+
+These individual patterns are available in Hybrid and Manual modes.
 
 Build filled daub walls with principal posts, corner/end posts, sill/head rails, narrow
 studs or close studding, and deliberate left/right diagonals. Plain infill has no border.
@@ -30,6 +33,52 @@ rising/falling pattern when needed, then continue the line through the next sect
 All modules are ordinary wall blocks with raw or limewashed infill. The connections are
 derived from neighbouring blocks, so there are no wall tile entities or ticking components.
 The original timber_frame block IDs and four item subtypes remain readable.
+
+## Smart wattle and daub
+
+Automatic is the default. Four matching planks around full daub make four smart walls.
+Build your walls with it, leaving openings for doors and windows. The framing adjusts
+as the building takes shape. Floors divide the storeys, and stepped wall outlines form
+gables. Posts and braces follow each facade, including the returns around corners.
+
+All six woods and both finishes are available. Two full smart panels vertically make
+four thin panels. Two thin panels side by side rejoin into a full panel. Limewashing
+works singly and in batches of eight, just like the ordinary walls.
+
+Thin panels inherit the occupied half of a neighbouring thin wall or window. Sneak
+to choose another plane. Sneak-use another thin panel on the end of a thin smart wall
+to turn a corner. Mining that joined corner returns both panels. Full walls keep their
+full footprint as their framing changes.
+
+In Hybrid, add a stick to a full post panel to make a smart wall. Use the individual wall pieces to guide the result. A principal post
+anchors a bay, rails set a horizontal line, and a diagonal asks the smart wall to continue
+that brace. Craft a smart full panel alone to recover a matching principal post.
+
+A leaded pane and a matching smart full or thin wall also make a window. Place floors,
+roofs, windows and the other building pieces in the usual way.
+
+Set `building.mode` in `config/ironagearchitecture.cfg` and restart.
+
+| Mode | Wall kit |
+| --- | --- |
+| `manual` | The individual wall patterns and their original recipes |
+| `hybrid` | Both kits, with manual pieces guiding smart framing |
+| `automatic` | Smart framing. Four matching planks around full daub make four smart walls |
+
+Automatic leaves the manual wall patterns out of registration on new installations,
+saving block IDs as well as keeping the inventory smaller. The rest of the building
+kit remains available. Client and server need matching registration settings and a restart.
+
+When upgrading an existing configuration, `building.retainLegacyWallIds` is enabled
+to keep older manual walls and smart corners readable. Leave it enabled for your existing
+villages. For a new world or modpack, Automatic with this setting `false` uses the smaller
+registry. Changing the mode does not convert placed walls. A world that needs an omitted
+wall ID will refuse to load and tell you to turn compatibility back on.
+
+Smart walls reconsider nearby sections after a building edit. Saved framing is retained
+while an adjoining chunk is unavailable. A section can span up to 48 blocks horizontally
+and 32 vertically. Larger uninterrupted sections use the simple provisional framing;
+corners and floor levels divide ordinary houses into smaller sections.
 
 ## Jettied storeys
 

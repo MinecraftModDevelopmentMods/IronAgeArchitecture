@@ -112,16 +112,75 @@ public final class SurfaceGeometry {
         }
         return visible;
     }
+    private static double dot(double[] a,double[] b) {return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+    /** Convex cover planes in the owner's texture coordinates: outward normal and offset. */
+    private static List<double[]> planes(Part owner,Part cover,EnumFacing facing) {
+        double x=0,y=0;
+        for(double[] p:cover.outline) {x+=p[0];y+=p[1];}
+        double[] world=cover.transform(x/cover.outline.length,y/cover.outline.length,(cover.front+cover.back)/2,facing);
+        double[] centre=owner.inverse(world[0],world[1],world[2],facing);
+        List<double[]> planes=new ArrayList<>();
+        for(double[][] face:raw(cover)) {
+            double[][] local=new double[face.length][];
+            for(int i=0;i<face.length;i++) {
+                world=cover.transform(face[i][0],face[i][1],face[i][2],facing);
+                local[i]=owner.inverse(world[0],world[1],world[2],facing);
+            }
+            if(area(local)<1e-6) continue;
+            double[] n=normal(local);double edge=dot(n,local[0]);
+            // Horizontal parts reflect the local axes, so derive the outside from the solid.
+            if(dot(n,centre)>edge) {for(int axis=0;axis<3;axis++) n[axis]=-n[axis];edge=-edge;}
+            planes.add(new double[]{n[0],n[1],n[2],edge});
+        }
+        return planes;
+    }
+    private static double[][] clip(double[][] polygon,double[] plane,boolean inside) {
+        if(polygon.length==0) return polygon;
+        List<double[]> out=new ArrayList<>();double[] previous=polygon[polygon.length-1];
+        double before=plane[3]-dot(plane,previous);boolean was=inside?before>=-EPS:before<-EPS;
+        for(double[] current:polygon) {
+            double after=plane[3]-dot(plane,current);boolean now=inside?after>=-EPS:after<-EPS;
+            if(was!=now) {
+                double t=(-EPS-before)/(after-before);double[] cut=new double[3];
+                for(int axis=0;axis<3;axis++) cut[axis]=previous[axis]+t*(current[axis]-previous[axis]);
+                out.add(cut);
+            }
+            if(now) out.add(current);
+            previous=current;before=after;was=now;
+        }
+        return clean(out);
+    }
+    private static List<double[][]> subtract(double[][] face,List<double[]> planes,boolean ownerWins) {
+        double[] n=normal(face);
+        for(double[] plane:planes) {
+            boolean outside=true;
+            for(double[] p:face) if(plane[3]-dot(plane,p)>=-EPS) {outside=false;break;}
+            if(outside) return Collections.singletonList(face);
+            if(ownerWins&&dot(n,plane)>.999999&&Math.abs(dot(plane,face[0])-plane[3])<EPS)
+                return Collections.singletonList(face);
+        }
+        List<double[][]> visible=new ArrayList<>();double[][] remaining=face;
+        for(double[] plane:planes) {
+            if(remaining.length<3) break;
+            double[][] outside=clip(remaining,plane,false);
+            if(area(outside)>1e-6) visible.add(outside);
+            remaining=clip(remaining,plane,true);
+        }
+        return visible;
+    }
     public static List<Face> faces(List<Part> parts,EnumFacing facing) {
         List<Face> result=new ArrayList<>();
         for(int i=0;i<parts.size();i++) {
             Part owner=parts.get(i);List<double[][]> faces=raw(owner);
             for(int j=0;j<parts.size()&&!faces.isEmpty();j++) {
-                if(i==j||!box(parts.get(j))) continue;
-                Part cover=parts.get(j);double[] bounds=localBox(owner,cover.bounds(facing),facing);
+                if(i==j) continue;
+                Part cover=parts.get(j);boolean rectangular=box(cover);
+                double[] bounds=rectangular?localBox(owner,cover.bounds(facing),facing):null;
+                List<double[]> planes=rectangular?null:planes(owner,cover,facing);
                 boolean wins=priority(owner)>priority(cover)||priority(owner)==priority(cover)&&i<j;
                 List<double[][]> next=new ArrayList<>();
-                for(double[][] face:faces) if(area(face)>1e-6) next.addAll(subtract(face,bounds,wins));
+                for(double[][] face:faces) if(area(face)>1e-6)
+                    next.addAll(rectangular?subtract(face,bounds,wins):subtract(face,planes,wins));
                 faces=next;
             }
             for(double[][] face:faces) if(area(face)>1e-6) result.add(new Face(owner,face));

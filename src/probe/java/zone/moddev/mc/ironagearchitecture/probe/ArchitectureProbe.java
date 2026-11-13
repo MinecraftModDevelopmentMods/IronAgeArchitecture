@@ -45,7 +45,7 @@ import net.minecraft.util.Rotation;
 
 /** Disposable packaged-runtime verification mod. Never part of the player jar. */
 @Mod(modid="ironagearchitectureprobe",name="Architecture Verification",version="1",acceptableRemoteVersions="*",
-        dependencies="required-after:ironagearchitecture@[0.1.13.110021]")
+        dependencies="required-after:ironagearchitecture@[0.1.14.110021]")
 public final class ArchitectureProbe {
     @SidedProxy(clientSide="zone.moddev.mc.ironagearchitecture.probe.ClientProbe",serverSide="zone.moddev.mc.ironagearchitecture.probe.ProbeProxy")
     public static ProbeProxy proxy;
@@ -55,6 +55,28 @@ public final class ArchitectureProbe {
         if(!Boolean.getBoolean("iaa.probe")) return;
         MinecraftServer server=FMLCommonHandler.instance().getMinecraftServerInstance();
         WorldServer world=server.worldServerForDimension(0);
+        if(Boolean.getBoolean("iaa.legacySmart")) {
+            WallRegistrationProbe.verify();
+            require(ArchitectureConfig.retainLegacyWallIds,"upgraded config retains old walls");
+            BlockPos corner=new BlockPos(-15,15,-1),thin=new BlockPos(-14,15,-1),anchor=new BlockPos(2,15,-1);
+            require(world.getBlockState(corner).getBlock()==Block.getBlockFromName("ironagearchitecture:smart_daub_corner_spruce"),"Old smart corner identity");
+            require(((SmartWallBlock)world.getBlockState(corner).getBlock()).mask(world.getBlockState(corner))==14,"Old smart corner footprint");
+            require(world.getBlockState(thin).getBlock()==ArchitectureBlocks.findSmart("spruce",1),"Old smart thin identity");
+            require(world.getBlockState(anchor).getBlock()==ArchitectureBlocks.findWall("dark_oak",FrameFamily.POST),"Old manual anchor");
+            require(SmartWallData.get(world).code(new BlockPos(-25,10,0))!=0,"Old saved framing");
+            server.saveAllWorlds(false);
+            finish(server,"{\"passed\":true,\"legacySmart\":true,\"blockIds\":"+ArchitectureBlocks.REGISTERED.size()+",\"runtimeSha256\":\""+System.getProperty("iaa.runtimeSha256")+"\"}\n");
+            return;
+        }
+        if (Boolean.getBoolean("iaa.legacyFireplaces")) {
+            BlockPos lower=new BlockPos(-38,10,4),upper=new BlockPos(-39,14,4);
+            require(world.getBlockState(lower).getBlock()==ArchitectureBlocks.fireplace(FireplaceBlock.Masonry.STONE,FireplaceBlock.Kind.FIREBOX),"Legacy downstairs firebox");
+            require(world.getBlockState(upper).getBlock()==ArchitectureBlocks.fireplace(FireplaceBlock.Masonry.STONE,FireplaceBlock.Kind.FIREBOX),"Legacy upstairs firebox");
+            for(BlockPos outlet:new BlockPos[]{new BlockPos(-38,22,4),new BlockPos(-39,22,4)})
+                require(FireplaceDraft.smokeOutlet(world,outlet,world.getBlockState(outlet))!=null,"Legacy independent draft");
+            finish(server,"{\"passed\":true,\"legacyFireplaces\":true,\"runtimeSha256\":\""+System.getProperty("iaa.runtimeSha256")+"\"}\n");
+            return;
+        }
         if (Boolean.getBoolean("iaa.legacyFascia")) {
             int bareFascias = GutterProbe.verifyOldPreview(world);
             finish(server, "{\"passed\":true,\"bareFascias\":" + bareFascias
@@ -62,6 +84,7 @@ public final class ArchitectureProbe {
             return;
         }
         verifyConfigMatrix();
+        WallRegistrationProbe.verify();
         if(Boolean.getBoolean("iaa.eraMatrix")) EraProbe.verify(world);
         if(Boolean.getBoolean("iaa.recipeMatrix")) RecipeProbe.verify(world);
         if(Boolean.getBoolean("iaa.legacy")) verifyLegacy(world);
@@ -77,7 +100,7 @@ public final class ArchitectureProbe {
         if(Boolean.getBoolean("iaa.legacyJetties")) {
             int index=0;
             for(Block block:savedBlocks) {
-                if (ClayTileProbe.isClay(block) || block instanceof FireplaceBlock) continue;
+                if (ClayTileProbe.isClay(block) || block instanceof FireplaceBlock || block instanceof SmartWallBlock) continue;
                 for(int meta=0;meta<16;meta++) {
                     require(world.getBlockState(new BlockPos(100+index,70,100)).equals(block.getStateFromMeta(meta)),"0.1.2 saved state "+index);
                     index++;
@@ -95,6 +118,7 @@ public final class ArchitectureProbe {
                 List<ItemStack> drops=block.getDrops(world,pos,state,0);
                 Item expected=block instanceof PartialWallBlock?Item.getItemFromBlock(((PartialWallBlock)block).canonical()):
                     block instanceof JettyFloorBlock?Item.getItemFromBlock(((JettyFloorBlock)block).canonical()):
+                    block instanceof SmartWallBlock?Item.getItemFromBlock(ArchitectureBlocks.findSmart(((SmartWallBlock)block).wood,((SmartWallBlock)block).profile(state)==2?1:((SmartWallBlock)block).profile(state))):
                     block instanceof FasciaBlock?Item.getItemFromBlock(ArchitectureBlocks.CLAY_FASCIA):Item.getItemFromBlock(block);
                 int dropCount = 1;
                 if (block instanceof JettyFloorBlock && ((JettyFloorBlock)block).bracket != null) dropCount++;
@@ -126,7 +150,7 @@ public final class ArchitectureProbe {
             require(actual!=null&&ItemStack.areItemStacksEqual(actual,output),"Recipe shadowed "+output);
             recipes++;
         }
-        if(variants>=460) {
+        if(ArchitectureConfig.frames && ArchitectureConfig.buildingMode.manual()) {
             require(recipes==EraProbe.expectedRecipes(),"Recipe catalog changed "+recipes);
             verifyRoofs(world);
             verifyWalls(world);
@@ -147,19 +171,21 @@ public final class ArchitectureProbe {
                 require(total==2,"Double slab quantity");
             }
         }
+        if(ArchitectureConfig.windows && !ArchitectureConfig.buildingMode.manual()) WindowProbe.verify(world,reload);
         ClayTileProbe.verify(world);
         GutterProbe.verify(world);
         FireplaceProbe.verify(world, reload);
-        if (!reload && clayClient) RyeTilePreview.build(world);
+        SmartWallProbe.verify(world,reload);
+        if (!reload && clayClient) SmartWallPreview.build(world);
         if (Boolean.getBoolean("iaa.clayOnly")) {
             require(variants == 16 && recipes == 20 && RecipeProbe.verifyReachability() == 16, "Standalone clay tiles");
         }
         world.setWorldTime(1000);world.getGameRules().setOrCreateGameRule("doDaylightCycle","false");
         world.getGameRules().setOrCreateGameRule("doFireTick","false");world.getGameRules().setOrCreateGameRule("doMobSpawning","false");
         world.getGameRules().setOrCreateGameRule("spawnRadius","0");
-        world.setSpawnPoint(clayClient ? RyeTilePreview.SPAWN : new BlockPos(7,64,-9));
+        world.setSpawnPoint(clayClient ? SmartWallPreview.SPAWN : new BlockPos(7,64,-9));
         server.saveAllWorlds(false);
-        String result="{\"passed\":true,\"variants\":"+variants+",\"recipes\":"+recipes+",\"states\":"+states+",\"reload\":"+reload
+        String result="{\"passed\":true,\"blockIds\":"+ArchitectureBlocks.REGISTERED.size()+",\"variants\":"+variants+",\"recipes\":"+recipes+",\"states\":"+states+",\"reload\":"+reload
                 +",\"legacy\":"+Boolean.getBoolean("iaa.legacy")+",\"legacyDaub\":"+Boolean.getBoolean("iaa.legacyDaub")
                 +",\"legacyJetties\":"+Boolean.getBoolean("iaa.legacyJetties")+",\"eras\":"+new com.google.gson.Gson().toJson(zone.moddev.mc.ironagearchitecture.ArchitectureConfig.survivalEras.allowed)
                 +",\"eraMatrix\":"+Boolean.getBoolean("iaa.eraMatrix")+",\"recipeMatrix\":"+Boolean.getBoolean("iaa.recipeMatrix")+",\"runtimeSha256\":\""+System.getProperty("iaa.runtimeSha256","development")+"\"}\n";
@@ -174,6 +200,8 @@ public final class ArchitectureProbe {
     private void verifyConfigMatrix() throws Exception {
         boolean cob=ArchitectureConfig.cob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,windows=ArchitectureConfig.windows;
         boolean clayTiles = ArchitectureConfig.clayTiles, fireplaces = ArchitectureConfig.fireplaces;
+        boolean retain=ArchitectureConfig.retainLegacyWallIds;
+        zone.moddev.mc.ironagearchitecture.BuildingMode mode=ArchitectureConfig.buildingMode;
         zone.moddev.mc.ironagearchitecture.EraSelection eras=ArchitectureConfig.survivalEras;
         java.nio.file.Path directory=Paths.get("config-matrix");Files.createDirectories(directory);
         try {
@@ -187,7 +215,7 @@ public final class ArchitectureProbe {
                         &&ArchitectureConfig.thatch==((mask&4)!=0)&&ArchitectureConfig.slate==((mask&8)!=0)&&ArchitectureConfig.windows==((mask&19)==19)
                         &&ArchitectureConfig.clayTiles==((mask&32)!=0)&&ArchitectureConfig.fireplaces==((mask&64)!=0),"Config mask "+mask);
             }
-        } finally {ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clayTiles;ArchitectureConfig.fireplaces=fireplaces;ArchitectureConfig.survivalEras=eras;}
+        } finally {ArchitectureConfig.cob=cob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clayTiles;ArchitectureConfig.fireplaces=fireplaces;ArchitectureConfig.survivalEras=eras;ArchitectureConfig.buildingMode=mode;ArchitectureConfig.retainLegacyWallIds=retain;}
     }
     private void verifyWallHeads(WorldServer world) {
         BlockPos pos=new BlockPos(95,90,95);

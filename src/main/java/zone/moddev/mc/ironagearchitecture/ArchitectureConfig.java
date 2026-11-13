@@ -6,9 +6,13 @@ import net.minecraftforge.common.config.Configuration;
 /** Complete content-family switches. Framed panels require the cob family. */
 public final class ArchitectureConfig {
     public static boolean cob, frames, thatch, slate, windows, clayTiles, fireplaces;
+    public static BuildingMode buildingMode = BuildingMode.AUTOMATIC;
+    public static boolean retainLegacyWallIds;
+    public static boolean registerManualWalls() { return buildingMode.manual() || retainLegacyWallIds; }
     public static EraSelection survivalEras=EraSelection.parse("all");
     private ArchitectureConfig() { }
     public static void load(File file) {
+        boolean existingConfig = file.isFile();
         Configuration config = new Configuration(file);
         config.load();
         cob = config.getBoolean("cob", "blocks", true, "Raw and limewashed cob blocks, stairs and slabs.");
@@ -23,6 +27,14 @@ public final class ArchitectureConfig {
         eras.setRequiresMcRestart(true);
         survivalEras=EraSelection.parse(eras.getStringList());
         for(String unknown:survivalEras.unknown) org.apache.logging.log4j.LogManager.getLogger("IronAgeArchitecture").warn("Ignoring unknown survival era '{}'. Valid IDs: iron_age, late_medieval_tudor, all",unknown);
+        net.minecraftforge.common.config.Property mode = config.get("building", "mode", "automatic",
+            "Wall building mode: automatic, hybrid or manual. Automatic uses smart walls and omits manual wall block IDs unless retainLegacyWallIds is enabled. Match the server settings. Restart required.");
+        mode.setRequiresMcRestart(true);
+        buildingMode = BuildingMode.parse(mode.getString());
+        net.minecraftforge.common.config.Property legacy = config.get("building", "retainLegacyWallIds", existingConfig,
+            "Keep the older manual wall and separate smart-corner IDs when loading existing worlds. Enabled when upgrading an existing config. New installations default to false to save block IDs. Do not turn this off for a world containing those blocks. Match the server settings. Restart required.");
+        legacy.setRequiresMcRestart(true);
+        retainLegacyWallIds = legacy.getBoolean();
         if (config.hasChanged()) config.save();
     }
 }

@@ -64,7 +64,7 @@ public final class WindowBlock extends BlockHorizontal {
         if(!world.isRemote) WindowController.toggle(world,pos,player);return true;
     }
     private static boolean allowsPlacement(@Nullable ItemStack held) {
-        return held != null && (held.getItem() instanceof WindowItem || held.getItem() instanceof TileHangingItem);
+        return held != null && (held.getItem() instanceof WindowItem || held.getItem() instanceof TileHangingItem || held.getItem() instanceof SmartWallItem);
     }
     @Override public void neighborChanged(IBlockState state,World world,BlockPos pos,Block changed){if(!world.isRemote) WindowController.neighbor(world,pos);}
     @Override public void onBlockAdded(World world,BlockPos pos,IBlockState state){if(!world.isRemote) WindowController.neighbor(world,pos);}

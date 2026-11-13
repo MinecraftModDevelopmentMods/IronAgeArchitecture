@@ -72,6 +72,13 @@ public class FrameBlock extends BlockHorizontal {
         IBlockState previous=world.getBlockState(pos);BlockPos previousPos=pos;
         for(int distance=1;distance<=16;distance++) {
             IBlockState neighbour=world.getBlockState(pos.offset(direction,distance));
+            if(neighbour.getBlock() instanceof SmartWallBlock) {
+                SmartWallBlock smart=(SmartWallBlock)neighbour.getBlock();
+                BlockPos at=pos.offset(direction,distance);
+                if(wood==null||!wood.equals(smart.wood)||!WallRuns.touches(previous,previousPos,neighbour,at,direction)) return 0;
+                int code=SmartWallGeometry.face(zone.moddev.mc.ironagearchitecture.IronAgeArchitecture.proxy.smartLayout(world,at),plane);
+                return ((code&SmartFacade.BOTTOM)!=0?1:0)|((code&SmartFacade.TOP)!=0?2:0);
+            }
             if(neighbour.getBlock() instanceof WindowBlock) {
                 WindowBlock window=(WindowBlock)neighbour.getBlock();BlockPos at=pos.offset(direction,distance);
                 if(wood==null||!wood.equals(window.wood)||!WallRuns.touches(previous,previousPos,neighbour,at,direction)) return 0;
