@@ -1,0 +1,43 @@
+package zone.moddev.mc.ironagearchitecture.probe;
+
+import java.util.*;
+import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.*;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import zone.moddev.mc.ironagearchitecture.*;
+import zone.moddev.mc.ironagearchitecture.block.*;
+
+/** No world preparation or shape draining: fresh-process login, streaming and movement. */
+final class CityColdClientProbe {
+    final int viewDistance=Integer.getInteger("iaa.cityViewDistance",6),houses=Integer.getInteger("iaa.performanceHouses",500),across=(int)Math.ceil(Math.sqrt(houses));
+    final List<Double> frames=new ArrayList<>(),serverTicks=new ArrayList<>();final List<String> views=new ArrayList<>();
+    int phase,ticks,clientTick;long frameTime,launch,firstFrame,joined,firstSynced,serverStart;volatile boolean serverPending=true;java.util.concurrent.CompletableFuture<Boolean> check;int expectedCells,receivedCells,serverDecoded;double saveMs;long bytes;int validated;
+    @SubscribeEvent public void frame(TickEvent.RenderTickEvent e){if(e.phase!=TickEvent.Phase.END)return;long now=System.nanoTime();if(phase>=1&&phase<=4&&joined!=0&&frameTime!=0)frames.add((now-frameTime)/1e6);frameTime=now;if(joined!=0&&firstFrame==0)firstFrame=now;}
+    @SubscribeEvent public void serverTick(TickEvent.WorldTickEvent e){if(e.world.isRemote||e.world.provider.getDimension()!=0)return;if(e.phase==TickEvent.Phase.START){serverStart=System.nanoTime();return;}synchronized(serverTicks){serverTicks.add((System.nanoTime()-serverStart)/1e6);}serverPending=SmartChunkWork.pending(e.world)||SmartCobEvents.pending(e.world);}
+    @SubscribeEvent public void clientTick(TickEvent.ClientTickEvent e)throws Exception{
+        if(e.phase!=TickEvent.Phase.END)return;Minecraft mc=Minecraft.getMinecraft();ticks++;clientTick++;
+        if(launch!=0&&System.nanoTime()-launch>300000000000L)throw new IllegalStateException("City cold-load timed out");
+        if(phase==0&&mc.currentScreen instanceof GuiMainMenu&&ticks>60){phase=1;ticks=0;mc.gameSettings.pauseOnLostFocus=false;mc.gameSettings.renderDistanceChunks=viewDistance;mc.gameSettings.limitFramerate=60;launch=System.nanoTime();String name=System.getProperty("iaa.previewName");mc.launchIntegratedServer(name,name,new WorldSettings(137,GameType.CREATIVE,false,false,WorldType.FLAT));return;}
+        if(mc.player==null)return;if(joined==0){joined=System.nanoTime();ticks=0;mc.displayGuiScreen(null);mc.gameSettings.hideGUI=true;mc.player.capabilities.allowFlying=true;mc.player.capabilities.isFlying=true;System.out.println("IAA_CITY_JOIN_MS "+((joined-launch)/1e6));}
+        if(phase<1||phase>4)return;
+        double center=32+across*8;double[][] places={{center+12,75,center+12},{40,76,40},{32+across*16-12,78,40},{center+12,104,center+12}};double[] p=places[phase-1];camera(mc,p[0],p[1],p[2]);
+        if(serverPending)return;
+        if(check==null){if(ticks%10!=0)return;check=new java.util.concurrent.CompletableFuture<>();mc.getIntegratedServer().addScheduledTask(()->{try{check.complete(validate(mc));}catch(Throwable failure){check.completeExceptionally(failure);}});return;}
+        if(!check.isDone())return;boolean synced=check.get();check=null;if(!synced)return;
+        if(phase==1&&firstSynced==0){firstSynced=System.nanoTime();System.out.println("IAA_CITY_SYNC_MS "+(firstSynced-launch)/1e6);}
+        if(ticks<400)return;
+        List<Double> sorted=new ArrayList<>(frames);Collections.sort(sorted);if(sorted.size()<60)throw new IllegalStateException("Insufficient cold frames");String row="{\"view\":"+phase+",\"frames\":"+sorted.size()+",\"p50Ms\":"+percent(sorted,50)+",\"p95Ms\":"+percent(sorted,95)+",\"p99Ms\":"+percent(sorted,99)+",\"maxMs\":"+percent(sorted,100)+",\"expectedCells\":"+expectedCells+",\"receivedCells\":"+receivedCells+",\"serverDecodedCells\":"+serverDecoded+"}";views.add(row);System.out.println("IAA_CITY_COLD_VIEW "+row);net.minecraft.util.ScreenShotHelper.saveScreenshot(mc.mcDataDir,"cold-city-"+phase+".png",mc.displayWidth,mc.displayHeight,mc.getFramebuffer());phase++;ticks=0;frames.clear();frameTime=0;
+        if(phase==5){SmartLightingProbe.verify(mc.world,new BlockPos(mc.player.posX,75,mc.player.posZ));java.util.concurrent.Future<?> saved=mc.getIntegratedServer().addScheduledTask(()->{long start=System.nanoTime();mc.getIntegratedServer().saveAllWorlds(false);saveMs=(System.nanoTime()-start)/1e6;});saved.get();System.gc();Thread.sleep(100);long heap=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();List<Double> tickCopy; synchronized(serverTicks){tickCopy=new ArrayList<>(serverTicks);}Collections.sort(tickCopy);String json="{\"passed\":true,\"houses\":"+houses+",\"runtimeSha256\":\""+System.getProperty("iaa.runtimeSha256")+"\",\"viewDistance\":"+viewDistance+",\"cpuProcessors\":"+Runtime.getRuntime().availableProcessors()+",\"heapMaxMiB\":"+Runtime.getRuntime().maxMemory()/1048576+",\"heapAfterGcMiB\":"+heap/1048576+",\"joinMs\":"+(joined-launch)/1e6+",\"firstFrameMs\":"+(firstFrame-launch)/1e6+",\"nearbyShapesReadyMs\":"+(firstSynced-launch)/1e6+",\"saveMs\":"+saveMs+",\"roofWireBytes\":"+bytes+",\"maxRoofBytesPerServerTick\":"+0L+",\"serverTickP95Ms\":"+percent(tickCopy,95)+",\"serverTickMaxMs\":"+percent(tickCopy,100)+",\"views\":["+String.join(",",views)+"]}";if(firstSynced==0||(firstSynced-launch)>20000000000L||heap>1200L*1048576)throw new IllegalStateException("City qualification exceeded readiness or retained-heap bounds: "+json);Files.write(mc.mcDataDir.toPath().resolve("city-client.json"),json.getBytes(StandardCharsets.UTF_8));System.out.println("IAA_CLIENT_PROBE_PASS cityCold=true "+json);mc.shutdown();}
+    }
+    private boolean validate(Minecraft mc){int cx=(int)Math.floor(mc.player.posX)>>4,cz=(int)Math.floor(mc.player.posZ)>>4;WorldServer server=mc.getIntegratedServer().worldServerForDimension(0);int expected=0,received=0;
+        for(int x=cx-viewDistance+1;x<cx+viewDistance;x++)for(int z=cz-viewDistance+1;z<cz+viewDistance;z++){BlockPos chunkPos=new BlockPos(x*16,64,z*16);if(!mc.world.isBlockLoaded(chunkPos)||!server.isBlockLoaded(chunkPos))continue;net.minecraft.world.chunk.Chunk chunk=server.getChunkFromChunkCoords(x,z);for(net.minecraft.world.chunk.storage.ExtendedBlockStorage section:chunk.getBlockStorageArray())if(section!=null&&!section.isEmpty())for(int px=0;px<16;px++)for(int py=0;py<16;py++)for(int pz=0;pz<16;pz++){net.minecraft.block.state.IBlockState state=section.get(px,py,pz);if(!SmartThatchBlock.owner(state))continue;expected++;BlockPos p=new BlockPos(x*16+px,section.getYLocation()+py,z*16+pz);net.minecraft.block.state.IBlockState client=mc.world.getBlockState(p);if(!SmartThatchBlock.owner(client)||ThatchShape.at(server,p,state)!=ThatchShape.at(mc.world,p,client))return false;received++;}}
+        expectedCells=expected;receivedCells=received;serverDecoded=0;bytes=0;return expected>1000;
+    }
+    static double percent(List<Double> a,int p){return a.get((a.size()-1)*p/100);}
+    static void camera(Minecraft mc,double x,double y,double z){mc.player.setPosition(x,y,z);mc.player.rotationYaw=135;mc.player.rotationPitch=22;mc.player.prevRotationYaw=135;mc.player.prevRotationPitch=22;mc.getIntegratedServer().addScheduledTask(()->{for(net.minecraft.entity.player.EntityPlayer p:mc.getIntegratedServer().worldServerForDimension(0).playerEntities)p.setPositionAndUpdate(x,y,z);});}
+}

@@ -55,7 +55,7 @@ recessed plaster samples the lit adjacent cell rather than its own dark interior
 Roof blocks save facing. Clay verges also save which half overhangs the gable.
 Inner/outer corners and ridge caps derive from same-material neighbours.
 Slopes rise one block per block; ridge caps rise half a block and belong one row above the adjacent slopes.
-The roof mesh is smooth; collision is a conservative approximation within 1/16 of the surface.
+Roof collision is a conservative approximation within 1/16 of the surface.
 No architectural block needs a tile entity. Smart wall edits are coalesced into bounded end-of-tick work.
 
 WindowBlock is a separate light-transmitting family. Metadata is horizontal facing in
@@ -196,10 +196,173 @@ Interior cut faces are hidden and neighbouring courses subtract shared caps. Chu
 meshes use smooth vertex lighting; atlas wraps are split before baking to avoid stretched
 horizontal texture stripes. Vanilla light blocking remains cell-based on this legacy engine.
 
-The default Automatic totals are 321 registered IDs, 160 visible variants and 348 recipes.
-Hybrid adds two visible variants and six recipes to its previous totals. Manual retains
-the new ID for saved walls, but its visible variants and recipes do not change. Iron Age
-survival in Automatic/Hybrid has 42 recipes, including the six smart-cob conversions/finishes.
+Fresh Automatic totals are 321 registered IDs, 159 visible variants and 346 recipes.
+Iron Age survival in Automatic has 40 recipes. Hybrid has 569 visible variants;
+Manual retains the smart IDs for saved buildings without exposing smart acquisition.
+
+## Smart thatch
+
+SmartThatchBlock stores owner facing in metadata bits 0-1. The hidden part uses
+bit 3 (LINKED) for a local underside; metadata zero remains the retired rounded
+helper. PROFILE is derived from neighbours. No shape adds a block ID.
+
+ThatchShape reads at most 25 positions in a one-cell neighbourhood. Missing chunks
+are never forced. Its finite 56-profile kit has four orientations. ThatchGeometry
+precomputes a half-block-deep skin, splits it at the cell floor, merges coplanar
+faces and rotates the shared results. A straight slope uses 11 faces across both
+parts; a flat section uses six. The underside follows the top at a constant vertical
+depth. Collision uses fixed 16/32-column spans within 1/16 block; rays use the exact
+closed mesh. No world-specific geometry is generated, transmitted or saved.
+
+The lower fragment uses only the cell immediately below its owner. Both therefore
+share a vanilla chunk, even when the roof crosses a horizontal chunk border.
+Helpers have no item or independent drops. They forward picking, harvesting and
+explosions to the owner above. Breaking the owner clears its part. Fire and forced
+air replacement consume the linked owner; other block placement trims the lower
+fragment and preserves the roof. No unrelated block is removed.
+
+Edits repair only the immediate neighbourhood. New part placement checks entity
+clearance. An entity-blocked fit schedules a normal ten-tick retry on that owner;
+idle roofs do not tick. SmartChunkWork budgets one-off loaded-chunk conversion and
+coalesced border repairs. The Level NBT marker ironagearchitecture_thatch_skin
+records conversion. Ordinary block packets synchronize both parts. Legacy part
+metadata zero and orphaned parts are removed during repair.
+
+Models are baked once. Duplicate listed LINKED states share the same baked model;
+all inert legacy variants share one empty model. Render calls read immutable quads.
+
+Earlier rounded roof owners remain in the save and adopt the finite shapes. Old
+SmartThatchData, template store, geometry and network classes have been removed.
+Their files are left untouched and ignored; they are not migration inputs. Cob and
+timber profiles remain independent. Retired thatch dirty records are ignored.
+
+blocks.thatch controls smart and manual content independently of cob/timber.
+Existing configs default retainLegacyThatchIds to true; fresh Automatic configs
+omit the two old IDs. Hybrid/Manual always register them. Recipes respect mode
+and era independently of registration. Never load original golden roofs with
+their compatibility IDs disabled. Both smart identities stay registered in all modes.
+
+## Smart-system performance
+
+World access for timber/cob stays on the server thread. SmartWallPlanner and
+SmartCobPlanner capture loaded descriptors; pure facade and contour work runs on
+SmartShapeWorker with backpressure and cancellation on unload. Notifications are
+coalesced, identical cob courses reuse contours, and finished profiles remain
+available during edits. No worker reads or mutates a World.
+
+SmartShapeDirtyData records unfinished cob and timber work. Completed saved
+buildings retain their profiles on load; unfinished profiles and deferred borders
+resume bounded surveys (2,048 blocks, 48x48 horizontally, 32 vertically). Thatch
+has no roof survey or generated-shape queue. Local underside repairs use ordinary
+block updates instead of a geometry synchronization channel. Its update cost
+is bounded by the local block neighbourhood, independent of the size of the roof.
+
+SmartLighting caches neighbouring light samples within a render rebuild's
+ChunkCache only. Live World samples remain uncached; new contexts resample light.
+
+prepare-city-fixture.cjs makes disposable 300/500-house loading fixtures by translating and
+optionally rotating completed houses, including normals, collision and ownership. It does not
+measure construction throughput or claim hundreds of unique architectural designs. Cold-city
+client probes launch a fresh process with -Xmx2G, four reported processors, CPU affinity 0x55,
+six-chunk view distance and a 60 FPS cap. They time entry and nearby shape synchronization,
+check received cells against the server, travel between districts and verify light-cache refresh.
+Qualification currently requires nearby synchronization within 20 seconds and retained heap
+below 1,200 MiB after the route. Keep raw frame stalls and failed runs in the evidence; the host
+GPU remains high-end and fresh processes do not imply a flushed operating-system disk cache.
+
+scripts/invoke-smart-performance.ps1 measures real continuous-placement world ticks,
+queue drain, idle/edit work and saves. It binds receipts to the player JAR. Its city is
+kept within the spawn area because a headless server has no real player to keep the fixture
+loaded. BlocksPerTick=4 exercises 80 placements per second. Native city runs additionally
+measure frame intervals and verify a warm pass reuses the loaded city's baked meshes.
+scripts/audit-simple-thatch.cjs checks the physical owner count and legacy cleanup.
+The older audit-smart-city.cjs is retained for historical rounded-roof evidence only;
+it does not qualify this finite-state implementation.
+Keep intermediate failures and profiling trials alongside the final receipts; functional
+probes, stress measurements and the player's gameplay acceptance are separate evidence.
+
+## Dedicated-server multiplayer qualification
+
+The player JAR installs LegacyHandshakeGuard through the early channel-registration
+event. It serializes only incoming FML|HS packets, including forwarding handshake
+completion through Forge's shared embedded channel. Ordinary gameplay packets keep
+their normal network threads. The guard does not set any JVM properties or replace
+Forge classes. Final qualification uses the default Netty thread count and includes
+three reconnect rounds on each ten-client run. Receipts count installed guards and
+record the actual network-thread override, if any.
+
+SmartChunkWork gives cob, timber, thatch and window border validation one shared
+two-millisecond world-tick budget. Unloaded/replaced chunks discard their jobs;
+saved profiles stay readable while checks await their turn. SmartCobNetwork also
+paces chunk snapshots, retains coalesced cell deltas during building, and cancels
+unwatched chunks. A single bounded packet/check may overshoot the soft time target.
+
+SmartShapePages saves cob overlays for 2x2-chunk areas using the dimension's
+MapStorage handler. Original cob snapshots stay untouched; empty pages preserve
+deletions. Ordinary autosaves write dirty pages, and corrupt pages fail visibly.
+Keep cob page files with the save. Thatch now needs only ordinary chunk block data.
+Native persistence checks cover dimensions, deletions and reload.
+
+Use -GcLog for GC/safepoint timing and -Profile for Java Flight Recorder during
+diagnosis. Flight recording substantially affected pauses in the observed Java 8
+runs, so keep those recordings separate from final gameplay timings. Slow-tick
+receipts include server-thread CPU time as well as elapsed time. -Reconnects 3
+exercises four login bursts per client without restarting the server.
+The former rounded-roof save benchmark has been retired with that storage engine.
+
+`scripts/invoke-multiplayer-probe.ps1` launches a headless Forge server and 1, 5 or
+10 separate native Forge clients over loopback TCP. Run each count with both
+`-Layout together` and `-Layout spread`, using a fresh `-Root` every time. The
+source world is copied; existing saves are never used in place. Use `-Prepare`
+once to pre-generate the travel area and construction pads, then use that saved
+world as the common source for the six measured cases.
+
+For click-level checks use invoke-client-preview.ps1 with -ThatchInteraction
+and -ColdCity. Add -CitySource to test a disposable copy of the 500-house city.
+The probe uses actual client ray hits and one controller action per edit, with
+no resends or explicit shape drains. It fills four gaps above cob, then mines and
+replaces a pitched roof edge. City runs also mine an existing saved roof. Receipts
+time immediate client prediction, observed server acceptance, matching local shape
+selection and the first render-frame callback after synchronization. That callback
+is not GPU completion. Screenshots provide separate visual evidence.
+
+The probe is a separate test mod. Clients join together, walk beside the saved
+walls, build through vanilla placement/mining packets, travel to another district
+and return. Each client performs 91 actions, leaving 46 wall blocks and 25 roof
+blocks. Grouped clients build separate plots in the same district; this does not
+test several people editing the same connected facade. At each checkpoint, each
+client must match the server's nearby roof, cob and timber descriptors. A completed
+connection alone is insufficient. `scripts/audit-multiplayer-world.cjs <case-root>`
+then checks saved material quantities and preservation of the original buildings
+and cob profiles. audit-simple-thatch.cjs separately counts material owners and
+legacy helpers, verifies cleanup markers and canonical metadata, and requires
+no retired helper or orphaned underside remains in a cleaned chunk. Ignored old roof mesh files stay untouched. Run this read-only audit after the timed workload has stopped.
+
+Receipts bind both player and probe JAR hashes. They include phase tick timings,
+CPU time, loaded chunks, post-login TCP payload, shape synchronization, live heap
+and sampled process memory. The steady target is at least 19 TPS with p95 tick
+work below 50 ms during idle and simultaneous building. Always report maximum
+ticks and join/travel delays too: the steady target does not mean hitch-free play.
+Retain failed attempts and their logs, including login failures, alongside repeats.
+
+Earlier burst-login tests reproduced a Forge 1.10.2 handshake failure in
+HandshakeCompletionHandler, whose shared dispatcher attribute can be overwritten
+by concurrent network threads. `-NetworkThreads 1` explicitly adds
+`-Dio.netty.eventLoopThreads=1` to the test server. Keep this as a named launch
+configuration for baseline comparisons, separate from the default. The player JAR
+now handles this race through LegacyHandshakeGuard. This old control does not
+reduce the four game/worker cores or change the player JAR. The probe's own
+acknowledgement channel reads the handler from each raw FMLProxyPacket, avoiding
+the shared NET_HANDLER attribute while retaining strict sender checks.
+
+The server has a 2 GiB heap, four reported processors and affinity to four physical
+cores. Clients use separate cores, 1.5 GiB heaps, six-chunk view distance and small
+windows; background clients are capped at 10 FPS. This exercises real chunk baking
+and network handling, but shared-host rendering is not a ten-PC FPS benchmark.
+Loopback excludes internet latency, packet loss and constrained upload bandwidth.
+A modern processor restricted to four cores is not proof for every average server.
+Keep these limits, generated-city repetition and short phase durations with the
+results. Gameplay acceptance and longer server soak tests remain separate.
 
 ## Era membership
 
@@ -238,7 +401,8 @@ resource generator and item tooltips.
 Run scripts/invoke-runtime-probe.ps1 after prepareProbe. Modes cover core, reload, furniture,
 disabled, windows-disabled, legacy, legacy-daub, legacy-jetties, iron-age, late-medieval,
 mixed-eras, no-eras, invalid-era, clay-disabled, clay-only, manual, hybrid, automatic,
-cob-disabled, cob-only, legacy-smart, legacy-fascia and legacy-fireplaces.
+cob-disabled, cob-only, thatch-disabled, thatch-only, legacy-cob, legacy-smart,
+legacy-fascia and legacy-fireplaces.
 Only Forge/server libraries and the explicitly named Furniture JAR are read from retained runtimes;
 no existing worlds or configs are copied or changed. Each mode has an isolated runtime except reload,
 which verifies the saved core world. Servers bind to loopback. Keep failed logs when correcting failures.
@@ -268,8 +432,10 @@ flues across a chunk border, blocked and disconnected runs, the three outlets an
 The core reload checks that the fires still draw from the correct floor.
 
 The optional client probe requires iaa.probe=true, iaa.clientProbe=true and iaa.keepRunning=true.
-With smart cob enabled it creates Rounded Cob Preview: a simple cottage, a stepped
-oval and an L-shaped house with a rounded bay, plus an unchanged ordinary-cob corner.
+With smart cob and thatch enabled it creates Smart Thatch Preview: a simple cottage,
+a stepped oval and an L-shaped house with a rounded bay, plus an unchanged golden-roof comparison.
+The preview configuration retains the original thatch IDs for that comparison. With
+thatch disabled the client uses the rounded cob view instead.
 It checks mesh/material variants, client contour synchronization and both creative tabs,
 then captures street, corner, opening, interior and roof-off overhead views. Existing
 roof pieces are restored before saving. Without smart cob it uses the timber preview

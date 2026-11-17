@@ -65,6 +65,7 @@ public final class ArchitectureBlocks {
     }
     public static FrameBlock DAUB;
     public static SmartCobBlock SMART_COB;
+    public static SmartThatchBlock SMART_THATCH,SMART_THATCH_PART;
     public static final List<SmartWallBlock> SMART_WALLS = new ArrayList<>();
     public static final List<FireplaceBlock> FIREPLACES = new ArrayList<>();
     public static final List<RoofBlock> ROOFS = new ArrayList<>();
@@ -117,7 +118,11 @@ public final class ArchitectureBlocks {
             }
             if(ArchitectureConfig.windows) registerWindows();
         }
-        if (ArchitectureConfig.thatch) roofFamily("thatch", true);
+        if (ArchitectureConfig.thatch) {
+            SMART_THATCH=block(new SmartThatchBlock(false),"smart_thatch");item(SMART_THATCH,new SmartThatchItem(SMART_THATCH));
+            SMART_THATCH_PART=block(new SmartThatchBlock(true),"smart_thatch_part");Blocks.FIRE.setFireInfo(SMART_THATCH,60,20);Blocks.FIRE.setFireInfo(SMART_THATCH_PART,60,20);
+            if(ArchitectureConfig.registerManualThatch())roofFamily("thatch",true);
+        }
         if (ArchitectureConfig.slate) roofFamily("slate", false);
         if (ArchitectureConfig.clayTiles) {
             roofFamily("clay_tile", false);
@@ -197,9 +202,11 @@ public final class ArchitectureBlocks {
         throw new IllegalArgumentException("Unregistered smart wall");
     }
     public static boolean available(Item item) {
+        if(item instanceof SmartThatchItem)return ArchitectureConfig.buildingMode.automatic();
         if(item instanceof SmartCobItem)return ArchitectureConfig.buildingMode.automatic();
         if(item instanceof SmartWallItem) return ArchitectureConfig.buildingMode.automatic();
         Block block=Block.getBlockFromItem(item);
+        if(block instanceof RoofBlock&&"thatch".equals(((RoofBlock)block).materialKey))return ArchitectureConfig.buildingMode.manual();
         return ArchitectureConfig.buildingMode.manual()||!(block instanceof FrameBlock)||block instanceof JettyFloorBlock
             ||((FrameBlock)block).family==FrameFamily.INFILL;
     }

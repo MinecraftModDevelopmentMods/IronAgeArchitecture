@@ -1,3 +1,22 @@
+0.1.16.110021 - Local preview
+
+I've added smart thatch so a rough stepped roof can choose its own slopes,
+hips, valleys and ridges. It has a weathered straw finish and a thicker profile.
+
+- The cut edges have some proper depth, with the underside following the roof pitch.
+- A row beyond the wall makes an angled overhang. Carry it past a gable for a raking edge.
+- Shapes come from a small shared kit and follow nearby blocks without a roof-wide smoothing job.
+- The lower edge can use the cell below. Point at either part to mine or pick one roof section.
+- Existing walls and supports trim the covering, and placing it checks space around players.
+- Automatic uses smart thatch. Hybrid keeps both kits, and Manual keeps the original pieces.
+- Three wheat above three sticks make six pieces. Hybrid lets slopes swap one-for-one.
+- Existing configs retain the old golden roofs. Fresh Automatic setups save their block IDs.
+- Cob and timber updates and saves are spread out to keep busy towns responsive.
+- Fixed a multiplayer login race, so servers can keep their usual Java settings.
+
+This is a local preview. Please try an existing world on a copy: smart roofs will
+look different, while original golden thatch keeps its appearance.
+
 0.1.15.110021 - Alpha
 
 I've added smart cob for houses with softer corners and rounded wall outlines.

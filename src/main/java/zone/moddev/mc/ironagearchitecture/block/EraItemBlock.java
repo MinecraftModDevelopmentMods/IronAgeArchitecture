@@ -12,6 +12,7 @@ import java.util.List;
 public class EraItemBlock extends ItemBlock {
     public EraItemBlock(Block block) {super(block);}
     @Override public CreativeTabs[] getCreativeTabs() {return EraTabs.forItem(this);}
+    @Override public void getSubItems(net.minecraft.item.Item item,CreativeTabs tab,List<ItemStack> items){if(ArchitectureBlocks.available(this))super.getSubItems(item,tab,items);}
     protected static void hint(List<String> tooltip,String key) {tooltip.add(net.minecraft.util.text.translation.I18n.translateToLocal("hint.ironagearchitecture."+key));}
     @Override public void addInformation(ItemStack stack,EntityPlayer player,List<String> tooltip,boolean advanced) {
         if (block instanceof TrimmedRoofBlock) {

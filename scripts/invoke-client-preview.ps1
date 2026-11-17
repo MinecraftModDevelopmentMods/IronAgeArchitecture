@@ -1,7 +1,14 @@
 param(
-    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\rounded-smart-cob-0.1.15\native-client-reviewed',
-    [string]$PreviewName='Rounded Cob Preview',
+    [string]$Runtime='D:\IronAgeArchitecture\manual-testing\smart-thatch-0.1.16\native-client-reviewed',
+    [string]$PreviewName='Smart Thatch Preview',
     [switch]$SurfaceCheck,
+    [switch]$ThatchInteraction,
+    [string]$PlayerJar,
+    [string]$CitySource,
+    [int]$CityHouses=64,
+    [switch]$ColdCity,
+    [int]$CpuCount=4,
+    [int]$CityViewDistance=6,
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$GradleHome='D:\GradleCaches\minecraft-mods-shared',
     [string]$AssetsDirectory='',
@@ -25,7 +32,15 @@ if(!$AssetsDirectory) {
 if(!$AssetsDirectory -or !(Test-Path -LiteralPath (Join-Path $AssetsDirectory 'indexes/1.10.json'))) {throw 'Minecraft 1.10 asset index is missing'}
 if((Get-FileHash -LiteralPath (Join-Path $AssetsDirectory 'indexes/1.10.json') -Algorithm SHA1).Hash -ne $metadata.assetIndex.sha1) {throw 'Minecraft asset index checksum mismatch'}
 New-Item -ItemType Directory -Force -Path $Runtime,(Join-Path $Runtime 'mods'),(Join-Path $Runtime 'libraries') | Out-Null
-Copy-Item -LiteralPath (Join-Path $repo ('build/libs/'+$runtimeJar)),(Join-Path $repo 'build/probe/architecture-probe.jar') -Destination (Join-Path $Runtime 'mods')
+New-Item -ItemType Directory -Force -Path (Join-Path $Runtime 'config') | Out-Null
+'building {
+ S:mode=automatic
+ B:retainLegacyWallIds=false
+ B:retainLegacyThatchIds=true
+}' | Set-Content -LiteralPath (Join-Path $Runtime 'config/ironagearchitecture.cfg') -Encoding ascii
+if(!$PlayerJar){$PlayerJar=Join-Path $repo ('build/libs/'+$runtimeJar)}
+Copy-Item -LiteralPath $PlayerJar,(Join-Path $repo 'build/probe/architecture-probe.jar') -Destination (Join-Path $Runtime 'mods')
+if($CitySource){New-Item -ItemType Directory -Force -Path (Join-Path $Runtime 'saves') | Out-Null; Copy-Item -LiteralPath $CitySource -Destination (Join-Path $Runtime ('saves/'+$PreviewName)) -Recurse}
 $forge=Join-Path $ServerTemplate 'forge-1.10.2-12.18.3.2511-universal.jar'
 $classpath=[System.Collections.Generic.List[string]]::new()
 $classpath.Add($vanilla);$classpath.Add($forge)
@@ -56,17 +71,27 @@ showInventoryAchievementHint:false
 renderDistance:8
 guiScale:2
 fancyGraphics:true
+maxFps:120
+enableVsync:false
 '@ | Set-Content -LiteralPath (Join-Path $Runtime 'options.txt') -Encoding ascii
 $digest=(Get-FileHash -LiteralPath (Join-Path $Runtime ('mods/'+$runtimeJar)) -Algorithm SHA256).Hash.ToLowerInvariant()
 $args=@('-Xmx2G',('-Djava.library.path='+(Join-Path $slime 'natives')),'-Diaa.probe=true','-Diaa.clientProbe=true','-Diaa.keepRunning=true',('-Diaa.previewName='+$PreviewName),('-Diaa.runtimeSha256='+$digest),'-cp',($classpath -join ';'),
     'net.minecraft.launchwrapper.Launch','--tweakClass','net.minecraftforge.fml.common.launcher.FMLTweaker',
     '--username','ArchitecturePreview','--version','1.10.2','--gameDir',$Runtime,'--assetsDir',$AssetsDirectory,
     '--assetIndex','1.10','--uuid','00000000000000000000000000000001','--accessToken','0','--userType','legacy','--versionType','release','--width','1280','--height','800')
+if($CitySource){$args=@('-Diaa.cityClient=true',('-Diaa.performanceHouses='+$CityHouses))+$args}
+if($ColdCity){$args=@('-Diaa.cityCold=true',('-XX:ActiveProcessorCount='+$CpuCount),('-Diaa.cityViewDistance='+$CityViewDistance))+$args}
 if($SurfaceCheck) {$args=@('-Diaa.surfacePreview=true')+$args}
+if($ThatchInteraction){$args=@('-Diaa.thatchInteraction=true')+$args}
 Push-Location $Runtime
 try {
-    & $Java8 @args *> 'native-client-console.log'
+    if($ColdCity){
+        $psi=[Diagnostics.ProcessStartInfo]::new($Java8);$psi.WorkingDirectory=$Runtime;$psi.UseShellExecute=$false;$psi.CreateNoWindow=$true;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true;foreach($argument in $args){$psi.ArgumentList.Add($argument)}
+        $game=[Diagnostics.Process]::Start($psi);$game.ProcessorAffinity=[IntPtr]0x55
+        $output=[IO.File]::Open((Join-Path $Runtime 'native-client-console.log'),[IO.FileMode]::Create,[IO.FileAccess]::Write,[IO.FileShare]::ReadWrite);$errors=[IO.File]::Open((Join-Path $Runtime 'native-client-errors.log'),[IO.FileMode]::Create,[IO.FileAccess]::Write,[IO.FileShare]::ReadWrite)
+        try{$outTask=$game.StandardOutput.BaseStream.CopyToAsync($output);$errTask=$game.StandardError.BaseStream.CopyToAsync($errors);[long]$peakMemory=0;while(!$game.WaitForExit(1000)){$game.Refresh();$peakMemory=[Math]::Max([long]$peakMemory,[long]$game.WorkingSet64)};$outTask.GetAwaiter().GetResult() | Out-Null;$errTask.GetAwaiter().GetResult() | Out-Null;$global:LASTEXITCODE=$game.ExitCode;[pscustomobject]@{CpuAffinityMask='0x55';Processors=$CpuCount;RequestedHeapMiB=2048;ViewDistance=$CityViewDistance;SampledPeakWorkingSetMiB=$peakMemory/1MB;ExitCode=$game.ExitCode} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $Runtime 'native-envelope.json')}finally{$output.Dispose();$errors.Dispose();if(!$game.HasExited){$game.Kill()};$game.Dispose()}
+    }else{& $Java8 @args *> 'native-client-console.log'}
     if($LASTEXITCODE -ne 0) {throw "Client exited $LASTEXITCODE"}
     if(!(Select-String -LiteralPath 'native-client-console.log' -SimpleMatch 'IAA_CLIENT_PROBE_PASS')) {throw 'Client probe did not finish'}
-    Get-Content -LiteralPath 'architecture-probe.json'
+    if($ThatchInteraction){Get-Content -LiteralPath 'thatch-interaction.json'}elseif($CitySource){Get-Content -LiteralPath 'city-client.json'}else{Get-Content -LiteralPath 'architecture-probe.json'}
 } finally {Pop-Location}

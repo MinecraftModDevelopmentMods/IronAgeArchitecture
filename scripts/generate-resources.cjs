@@ -18,6 +18,15 @@ const shapes = ['straight','inner_left','inner_right','outer_left','outer_right'
 const lang = {'itemGroup.ironagearchitecture':'Iron Age Architecture',
   'itemGroup.ironagearchitecture.iron_age':'Iron Age',
   'itemGroup.ironagearchitecture.late_medieval_tudor':'Late Medieval & Tudor'};
+for(const name of ['smart_thatch','smart_thatch_part'])state(name,Object.fromEntries(['north','east','south','west'].flatMap(facing=>[false,true].flatMap(linked=>Array.from({length:56},(_,profile)=>[`facing=${facing},linked=${linked},profile=${profile}`,{model:`${ns}:smart_thatch_mesh`}])))));
+model('smart_thatch_mesh',{parent:'minecraft:block/block',textures:{particle:`${ns}:blocks/smart_thatch`,surface:`${ns}:blocks/smart_thatch`,edge:`${ns}:blocks/smart_thatch_edge`},elements:[]});
+item('smart_thatch','smart_thatch_mesh');
+lang[`tile.${ns}.smart_thatch.name`]='Smart Thatch';
+lang[`hint.${ns}.smart_thatch.place`]='Build a stepped roof; nearby sections choose slopes, hips, valleys and ridges.';
+lang[`hint.${ns}.smart_thatch.space`]='Add a row for overhangs; leave half a block below exposed slopes.';
+lang[`hint.${ns}.smart_thatch.craft.auto`]='Three wheat above three sticks make six smart thatch.';
+lang[`hint.${ns}.smart_thatch.craft`]='Craft a thatch slope alone for smart thatch; craft smart thatch alone to recover a slope.';
+lang[`hint.${ns}.smart_thatch.craft.manual`]='Craft alone to recover one original thatch slope.';
 state('smart_cob',{'finish=0':{model:`${ns}:smart_cob_raw_mesh`},'finish=1':{model:`${ns}:smart_cob_limewashed_mesh`}});
 for(const [finish,texture] of ['raw','limewashed'].entries()) {
   model(`smart_cob_${texture}_mesh`,{parent:'minecraft:block/block',textures:{particle:`${ns}:blocks/smart_cob_${texture}`},elements:[]});
@@ -284,7 +293,7 @@ for(const name of obsolete) {
     else fs.unlinkSync(file);
   }
 }
-for(const name of [...woods.map(wood=>`beam_${wood}`),'clay_tile','clay_tile_cap','smart_cob_raw','smart_cob_limewashed']) {
+for(const name of [...woods.map(wood=>`beam_${wood}`),'clay_tile','clay_tile_cap','smart_cob_raw','smart_cob_limewashed','smart_thatch','smart_thatch_edge']) {
   const file=path.join(root,assets,'textures/blocks',`${name}.png`);
   if(!fs.existsSync(file)) failures.push('missing material texture '+name);
   else {const png=fs.readFileSync(file);if(png.readUInt32BE(16)!==32||png.readUInt32BE(20)!==32) failures.push('material texture must be 32x32: '+name);}

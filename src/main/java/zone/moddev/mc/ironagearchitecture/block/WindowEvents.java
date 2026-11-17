@@ -16,7 +16,7 @@ public final class WindowEvents {
     @SubscribeEvent public void loaded(ChunkEvent.Load event) {
         if(!(event.getWorld() instanceof WorldServer)||zone.moddev.mc.ironagearchitecture.ArchitectureBlocks.WINDOW_LEAF==null) return;
         WorldServer world=(WorldServer)event.getWorld();Chunk chunk=event.getChunk();
-        world.addScheduledTask(()->{
+        SmartChunkWork.enqueue(world,chunk,"windows",()->{
             if(!world.isBlockLoaded(new BlockPos(chunk.xPosition*16,64,chunk.zPosition*16))) return;
             scan(world,chunk);
             for(int dx=-1;dx<=1;dx++) for(int dz=-1;dz<=1;dz++) {

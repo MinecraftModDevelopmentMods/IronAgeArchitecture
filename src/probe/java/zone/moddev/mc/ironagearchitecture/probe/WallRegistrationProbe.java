@@ -48,15 +48,17 @@ final class WallRegistrationProbe {
     private static boolean present(String name) {return Block.REGISTRY.containsKey(new ResourceLocation(IronAgeArchitecture.MODID,name));}
     private static void verifyConfigUpgrade() throws Exception {
         boolean cob=ArchitectureConfig.cob,smartCob=ArchitectureConfig.smartCob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,
-            windows=ArchitectureConfig.windows,clay=ArchitectureConfig.clayTiles,fireplaces=ArchitectureConfig.fireplaces,retain=ArchitectureConfig.retainLegacyWallIds;
+            windows=ArchitectureConfig.windows,clay=ArchitectureConfig.clayTiles,fireplaces=ArchitectureConfig.fireplaces,retain=ArchitectureConfig.retainLegacyWallIds,retainThatch=ArchitectureConfig.retainLegacyThatchIds;
         BuildingMode mode=ArchitectureConfig.buildingMode;EraSelection eras=ArchitectureConfig.survivalEras;
         Path directory=Paths.get("wall-config-matrix",UUID.randomUUID().toString());Files.createDirectories(directory);
         try {
             Path fresh=directory.resolve("fresh.cfg");ArchitectureConfig.load(fresh.toFile());
             require(ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC&&!ArchitectureConfig.retainLegacyWallIds&&!ArchitectureConfig.registerManualWalls(),"fresh automatic defaults");
+            require(!ArchitectureConfig.retainLegacyThatchIds&&!ArchitectureConfig.registerManualThatch(),"fresh thatch IDs omitted");
             ArchitectureConfig.load(fresh.toFile());require(!ArchitectureConfig.retainLegacyWallIds,"fresh config reload stays compact");
             Path old=directory.resolve("old-alpha.cfg");Files.write(old,"blocks {\n B:timberFrames=true\n}\n".getBytes(StandardCharsets.UTF_8));
             ArchitectureConfig.load(old.toFile());require(ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC&&ArchitectureConfig.retainLegacyWallIds,"old config keeps IDs");
+            require(ArchitectureConfig.retainLegacyThatchIds&&ArchitectureConfig.registerManualThatch(),"old config keeps thatch IDs");
             for(BuildingMode selected:BuildingMode.values()) {
                 Path explicit=directory.resolve(selected.name()+".cfg");
                 Files.write(explicit,("building {\n S:mode="+selected.name()+"\n B:retainLegacyWallIds=false\n}\n").getBytes(StandardCharsets.UTF_8));
@@ -66,7 +68,7 @@ final class WallRegistrationProbe {
         } finally {
             ArchitectureConfig.cob=cob;ArchitectureConfig.smartCob=smartCob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;
             ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clay;ArchitectureConfig.fireplaces=fireplaces;
-            ArchitectureConfig.retainLegacyWallIds=retain;ArchitectureConfig.buildingMode=mode;ArchitectureConfig.survivalEras=eras;
+            ArchitectureConfig.retainLegacyWallIds=retain;ArchitectureConfig.retainLegacyThatchIds=retainThatch;ArchitectureConfig.buildingMode=mode;ArchitectureConfig.survivalEras=eras;
         }
     }
 }

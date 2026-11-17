@@ -16,7 +16,7 @@ import zone.moddev.mc.ironagearchitecture.block.*;
 /** Cached chunk meshes with smooth side normals and contour-distance texture coordinates. */
 public final class SmartCobBakedModel implements IBakedModel {
     private final IBakedModel base;private final TextureAtlasSprite texture;
-    private final Map<SmartCobView,List<BakedQuad>> cache=new ConcurrentHashMap<>();
+    private final MeshCache<SmartCobView,List<BakedQuad>> cache=new MeshCache<>(65536,List::size);
     private static final SmartCobProfile ITEM=SmartCobGeometry.solve(Collections.singleton(SmartCobGeometry.key(0,0)),new java.awt.geom.Area()).profiles.get(SmartCobGeometry.key(0,0));
     public SmartCobBakedModel(IBakedModel base,int finish){this.base=base;texture=Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("ironagearchitecture:blocks/smart_cob_"+(finish==0?"raw":"limewashed"));}
     @Override public List<BakedQuad> getQuads(@Nullable IBlockState state,@Nullable EnumFacing side,long seed) {
@@ -25,7 +25,7 @@ public final class SmartCobBakedModel implements IBakedModel {
         if(view==null)view=new SmartCobView(ITEM,null,null,false,false);
         List<BakedQuad> found=cache.get(view);if(found!=null)return found;List<BakedQuad> result=new ArrayList<>();
         for(SmartCobMesh.Face face:SmartCobMesh.faces(view))add(result,face);
-        found=Collections.unmodifiableList(result);if(cache.size()>256)cache.clear();cache.put(view,found);return found;
+        found=Collections.unmodifiableList(result);cache.put(view,found);return found;
     }
     private void add(List<BakedQuad> result,SmartCobMesh.Face face) {
         double total=0;

@@ -1,6 +1,12 @@
 itemGroup.ironagearchitecture=Iron Age Architecture
 itemGroup.ironagearchitecture.iron_age=Iron Age
 itemGroup.ironagearchitecture.late_medieval_tudor=Late Medieval & Tudor
+tile.ironagearchitecture.smart_thatch.name=Smart Thatch
+hint.ironagearchitecture.smart_thatch.place=Build a stepped roof; nearby sections choose slopes, hips, valleys and ridges.
+hint.ironagearchitecture.smart_thatch.space=Add a row for overhangs; leave half a block below exposed slopes.
+hint.ironagearchitecture.smart_thatch.craft.auto=Three wheat above three sticks make six smart thatch.
+hint.ironagearchitecture.smart_thatch.craft=Craft a thatch slope alone for smart thatch; craft smart thatch alone to recover a slope.
+hint.ironagearchitecture.smart_thatch.craft.manual=Craft alone to recover one original thatch slope.
 tile.ironagearchitecture.smart_cob.0.name=Smart Cob
 tile.ironagearchitecture.smart_cob.1.name=Limewashed Smart Cob
 hint.ironagearchitecture.smart_cob.place=Build a wall outline; cob rounds its corners and stepped curves within the blocks you place.

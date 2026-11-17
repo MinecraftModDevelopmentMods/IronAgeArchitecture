@@ -13,6 +13,10 @@ public class CommonProxy {
     }
     public void smartSnapshot(SmartWallNetwork.Packet packet) { }
     public void preInit() {
+        net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register(new LegacyHandshakeGuard());
+        zone.moddev.mc.ironagearchitecture.block.SmartChunkWork chunkWork=new zone.moddev.mc.ironagearchitecture.block.SmartChunkWork();net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register(chunkWork);net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(chunkWork);
+        zone.moddev.mc.ironagearchitecture.block.ThatchGeometry.mesh(zone.moddev.mc.ironagearchitecture.block.ThatchShape.of(zone.moddev.mc.ironagearchitecture.block.ThatchForm.FLAT,net.minecraft.util.EnumFacing.NORTH));
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new zone.moddev.mc.ironagearchitecture.block.SmartThatchEvents());
         SmartCobNetwork.register();
         zone.moddev.mc.ironagearchitecture.block.SmartCobEvents cob=new zone.moddev.mc.ironagearchitecture.block.SmartCobEvents();
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(cob);

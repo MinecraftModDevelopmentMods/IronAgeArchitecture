@@ -28,13 +28,7 @@ public final class SmartCobBlock extends Block {
     @Override public int damageDropped(IBlockState state){return state.getValue(FINISH);}
     @Override public boolean isOpaqueCube(IBlockState state){return false;}
     @Override public boolean isFullCube(IBlockState state){return false;}
-    @Override public int getPackedLightmapCoords(IBlockState state,IBlockAccess world,BlockPos pos) {
-        int light=world.getCombinedLight(pos,0),sky=(light>>16)&255,block=light&255;
-        // A curved face can sit in a neighbouring cob cell's cut-away space. Voxel-only
-        // light sampling there otherwise produces pitch-black strips along the contour.
-        for(EnumFacing side:EnumFacing.values()) {int next=world.getCombinedLight(pos.offset(side),0);sky=Math.max(sky,(next>>16)&255);block=Math.max(block,next&255);}
-        return sky<<16|block;
-    }
+    @Override public int getPackedLightmapCoords(IBlockState state,IBlockAccess world,BlockPos pos){return SmartLighting.cob(world,pos);}
     public SmartCobView view(IBlockAccess world,BlockPos pos) {
         IBlockState up=world.getBlockState(pos.up()),down=world.getBlockState(pos.down());
         return new SmartCobView(IronAgeArchitecture.proxy.cobProfile(world,pos),
@@ -53,7 +47,7 @@ public final class SmartCobBlock extends Block {
     @Override public void addCollisionBoxToList(IBlockState state,World world,BlockPos pos,AxisAlignedBB query,List<AxisAlignedBB> boxes,@Nullable Entity entity){for(AxisAlignedBB box:IronAgeArchitecture.proxy.cobProfile(world,pos).boxes())addCollisionBoxToList(pos,query,boxes,box);}
     @Override public RayTraceResult collisionRayTrace(IBlockState state,World world,BlockPos pos,Vec3d start,Vec3d end){return SmartCobMesh.trace(view(world,pos),pos,start,end);}
     @Override public void onBlockAdded(World world,BlockPos pos,IBlockState state){SmartCobEvents.changed(world,pos);}
-    @Override public void neighborChanged(IBlockState state,World world,BlockPos pos,Block changed){SmartCobEvents.changed(world,pos);}
+    @Override public void neighborChanged(IBlockState state,World world,BlockPos pos,Block changed){if(!SmartThatchBlock.roof(changed.getDefaultState()))SmartCobEvents.changed(world,pos);}
     @Override public void breakBlock(World world,BlockPos pos,IBlockState state){SmartCobEvents.changed(world,pos);super.breakBlock(world,pos,state);}
     @Override public ItemStack getPickBlock(IBlockState state,RayTraceResult hit,World world,BlockPos pos,net.minecraft.entity.player.EntityPlayer player){return new ItemStack(this,1,damageDropped(state));}
 }

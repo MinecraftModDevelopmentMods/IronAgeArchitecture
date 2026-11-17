@@ -9,11 +9,12 @@ public final class SmartCobProfile {
     public static final int Q=4096, EDGE=1<<26;
     public static final SmartCobProfile SQUARE=new SmartCobProfile(new int[]{EDGE,0,EDGE|(Q<<13),0,EDGE|(Q<<13)|Q,0,EDGE|Q,0,-1,0});
     private final int[] code;
-    private transient Area area;
-    private transient List<AxisAlignedBB> boxes;
+    private final int hash;
+    private transient volatile Area area;
+    private transient volatile List<AxisAlignedBB> boxes;
     public SmartCobProfile(int[] code) {
         if(code.length<8||code.length>4096||(code.length&1)!=0) throw new IllegalArgumentException("Invalid cob profile length");
-        this.code=code.clone();int count=0;
+        this.code=code.clone();hash=Arrays.hashCode(this.code);int count=0;
         for(int i=0;i<code.length;i+=2) {
             int p=code[i];
             if(p==-1) {if(count<3) throw new IllegalArgumentException("Incomplete cob contour");count=0;continue;}
@@ -23,6 +24,7 @@ public final class SmartCobProfile {
         if(count!=0) throw new IllegalArgumentException("Unclosed cob contour");
     }
     public int[] encode(){return code.clone();}
+    public int encodedLength(){return code.length;}
     public List<List<double[]>> loops() {
         List<List<double[]>> result=new ArrayList<>();List<double[]> loop=new ArrayList<>();
         for(int i=0;i<code.length;i+=2) {
@@ -58,5 +60,5 @@ public final class SmartCobProfile {
         return boxes;
     }
     @Override public boolean equals(Object other){return other instanceof SmartCobProfile&&Arrays.equals(code,((SmartCobProfile)other).code);}
-    @Override public int hashCode(){return Arrays.hashCode(code);}
+    @Override public int hashCode(){return hash;}
 }

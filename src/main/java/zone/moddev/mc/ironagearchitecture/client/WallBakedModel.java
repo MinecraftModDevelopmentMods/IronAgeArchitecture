@@ -34,7 +34,7 @@ public final class WallBakedModel implements IBakedModel {
     private final FrameBlock block;
     private final IBlockState state;
     private final TextureAtlasSprite daub,wood,end,boards;
-    private final Map<Long,List<BakedQuad>> cache=new ConcurrentHashMap<>();
+    private final zone.moddev.mc.ironagearchitecture.block.MeshCache<Long,List<BakedQuad>> cache=new zone.moddev.mc.ironagearchitecture.block.MeshCache<>(16384,List::size);
     public WallBakedModel(IBakedModel base,FrameBlock block,IBlockState state) {
         this.base=base;this.block=block;this.state=state;
         daub=sprite("ironagearchitecture:blocks/"+(block.finish(state.getValue(FrameBlock.PANEL))==0?"cob":"limewashed_cob"));
@@ -61,7 +61,6 @@ public final class WallBakedModel implements IBakedModel {
             else for(int i=1;i<p.length-1;i++) add(quads,face.part,new double[][]{p[0],p[i],p[i+1],p[i+1]});
         }
         found=Collections.unmodifiableList(quads);
-        if(cache.size()>128) cache.clear();
         cache.put(key,found);
         return found;
     }

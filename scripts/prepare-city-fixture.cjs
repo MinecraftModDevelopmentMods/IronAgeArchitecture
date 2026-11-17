@@ -1,0 +1,39 @@
+// Copies complete qualified houses into a larger disposable loading fixture; never runs shaping.
+const fs=require('fs'),path=require('path'),crypto=require('crypto'),nbt=require('./fixture-nbt.cjs');
+const [source,destination,countText]=process.argv.slice(2),count=Number(countText),across=Math.ceil(Math.sqrt(count));
+if(!source||!destination||!Number.isInteger(count)||count<1||count>1000)throw Error('Usage: source-world new-destination houses (1..1000)');
+if(fs.existsSync(destination))throw Error('Use a fresh fixture destination');
+fs.mkdirSync(destination,{recursive:true});fs.mkdirSync(path.join(destination,'data'));fs.mkdirSync(path.join(destination,'region'));
+const tile=nbt.read(path.join(source,'data/ironagearchitecture_smart_thatch_v1.dat')),roof=tile.v.data.v;
+const cobRoot=nbt.read(path.join(source,'data/ironagearchitecture_smart_cob_v1.dat')),cob=cobRoot.v.data.v;
+const list=items=>nbt.tag(9,{of:10,items});
+const rotate=process.argv[5]==='rotate',zlib=require('zlib'),dictionary=roof.templates.v.items,outputTemplates=[],templateIds=new Map();
+function vector(x,z,r){while(r--){[x,z]=[-z,x];}return [x,z];}
+function point(x,z,r){while(r--){[x,z]=[4096-z,x];}return [x,z];}
+function templateId(id,r){let key=id+':'+r;if(templateIds.has(key))return templateIds.get(key);let source=dictionary[id],raw=source.z?zlib.inflateSync(source.z.v):null,values=raw?Array.from({length:raw.readInt32BE()},(_,i)=>raw.readInt32BE(4+i*4)):source.v.v.slice(),at=1;
+ for(let f=0;f<values[0];f++){let owner=nbt.pos(BigInt.asIntN(64,(BigInt(values[at])<<32n)|BigInt(values[at+1]>>>0))),[x,z]=vector(owner.x,owner.z,r),packed=nbt.packed(x,owner.y,z);values[at]=Number(BigInt.asIntN(32,packed>>32n));values[at+1]=Number(BigInt.asIntN(32,packed));let n=values[at+3];for(let i=0;i<n;i++){let k=at+4+i*8;[values[k],values[k+2]]=point(values[k],values[k+2],r);[values[k+3],values[k+5]]=vector(values[k+3],values[k+5],r);}at+=4+n*8;}
+ let boxes=values[at++];for(let i=0;i<boxes;i++){let k=at+i*6;for(let j=0;j<r;j++){let [x,y,z,X,Y,Z]=values.slice(k,k+6);values.splice(k,6,4096-Z,y,x,4096-z,Y,X);}}
+ let bytes=Buffer.alloc(4+values.length*4);bytes.writeInt32BE(values.length);values.forEach((v,i)=>bytes.writeInt32BE(v,4+i*4));let target=outputTemplates.length;outputTemplates.push({z:nbt.tag(7,zlib.deflateSync(bytes,{level:1}))});templateIds.set(key,target);return target;}
+function cobCode(code,r){let result=code.slice();for(let i=0;i<result.length;i+=2){let p=result[i],n=result[i+1];if(p===-1)continue;let [x,z]=point((p>>>13)&8191,p&8191,r);result[i]=(p&(1<<26))|(x<<13)|z;if(n!==0){let [nx,nz]=vector(((n>>>10)&1023)-511,(n&1023)-511,r);result[i+1]=(n&~1048575)|((nx+511)<<10)|(nz+511);}}return result;}
+const chunks=new Map();for(let file of fs.readdirSync(path.join(source,'region')).filter(n=>n.endsWith('.mca')))for(let root of nbt.region(path.join(source,'region',file))){let l=root.v.Level.v;chunks.set(l.xPos.v+','+l.zPos.v,root);}
+const template=chunks.values().next().value;
+function section(level,y){return level.Sections.v.items.find(s=>s.Y.v===y);}
+function nibble(bytes,i){return (bytes[i>>1]>>((i&1)*4))&15;}
+function putNibble(bytes,i,n){bytes[i>>1]=(bytes[i>>1]&~(15<<((i&1)*4)))|((n&15)<<((i&1)*4));}
+function getBlock(x,y,z){let root=chunks.get((x>>4)+','+(z>>4));if(!root)throw Error('Source chunk missing');let s=section(root.v.Level.v,y>>4);if(!s)return [0,0];let i=((y&15)<<8)|((z&15)<<4)|(x&15);return [s.Blocks.v[i]+(s.Add?nibble(s.Add.v,i)*256:0),nibble(s.Data.v,i)];}
+const out=new Map();function chunk(x,z){let key=(x>>4)+','+(z>>4),root=out.get(key);if(!root){root=nbt.decode(nbt.encode(template));let l=root.v.Level.v;l.xPos=nbt.tag(3,x>>4);l.zPos=nbt.tag(3,z>>4);l.Entities=list([]);l.TileEntities=list([]);l.TileTicks=list([]);l.Sections=list(l.Sections.v.items.filter(s=>s.Y.v===0));l.HeightMap=nbt.tag(11,Array(256).fill(70));l.LightPopulated=nbt.tag(1,1);l.TerrainPopulated=nbt.tag(1,1);out.set(key,root);}return root.v.Level.v;}
+function setBlock(x,y,z,id,meta){let l=chunk(x,z),s=section(l,y>>4);if(!s){s={Y:nbt.tag(1,y>>4),Blocks:nbt.tag(7,Buffer.alloc(4096)),Data:nbt.tag(7,Buffer.alloc(2048)),SkyLight:nbt.tag(7,Buffer.alloc(2048,255)),BlockLight:nbt.tag(7,Buffer.alloc(2048))};l.Sections.v.items.push(s);}let i=((y&15)<<8)|((z&15)<<4)|(x&15);s.Blocks.v[i]=id&255;putNibble(s.Data.v,i,meta);if(id>255||s.Add){if(!s.Add)s.Add=nbt.tag(7,Buffer.alloc(2048));putNibble(s.Add.v,i,id>>8);}l.HeightMap.v[((z&15)<<4)|(x&15)]=Math.max(l.HeightMap.v[((z&15)<<4)|(x&15)],y+1);}
+const groups=roof.groups.v.items,sourceCob=cob.cells.v.items;let outputGroups=[],outputCob=[],material=0;
+const shift=(p,dx,dz)=>{let q=nbt.pos(p);return nbt.packed(q.x+dx,q.y,q.z+dz);};
+for(let i=0;i<count;i++){let sourceGroup=groups[i%groups.length],owners=sourceGroup.owners.v.items.map(o=>nbt.pos(o.p.v)),sx=Math.min(...owners.map(p=>p.x))+1,sz=Math.min(...owners.map(p=>p.z))+1,dx=32+(i%across)*16-sx,dz=32+Math.floor(i/across)*16-sz;
+let sourceCells=sourceCob.filter(c=>{let p=nbt.pos(c.p.v);return p.x>=sx&&p.x<=sx+8&&p.z>=sz&&p.z<=sz+6&&p.y>=70&&p.y<=74;});if(sourceCells.length!==136||owners.length!==99)throw Error('Source house count differs');
+let r=rotate?i%4:0,moved=position=>{let p=nbt.pos(position),x=p.x-sx,z=p.z-sz,[rx,rz]=r===0?[x,z]:r===1?[6-z,x]:r===2?[8-x,6-z]:[z,8-x];return nbt.packed(sx+dx+rx,p.y,sz+dz+rz);};
+let cells=sourceGroup.cells.v.items.map(c=>{let p=nbt.pos(c.p.v),[id,meta]=getBlock(p.x,p.y,p.z),target=moved(c.p.v),q=nbt.pos(target);setBlock(q.x,q.y,q.z,id,meta);return {...c,p:nbt.tag(4,target),t:nbt.tag(3,templateId(c.t.v,r)),f:nbt.tag(3,0)};});
+outputGroups.push({owners:list(sourceGroup.owners.v.items.map(o=>({p:nbt.tag(4,moved(o.p.v))}))),cells:list(cells)});
+for(let c of sourceCells){let p=nbt.pos(c.p.v),[id,meta]=getBlock(p.x,p.y,p.z),target=moved(c.p.v),q=nbt.pos(target),code=c.v?c.v.v:cob.profiles.v.items[c.t.v].v.v;setBlock(q.x,q.y,q.z,id,meta);outputCob.push({p:nbt.tag(4,target),v:nbt.tag(11,cobCode(code,r))});material++;}}
+for(let x=24;x<40+across*16;x++)for(let z=24;z<40+Math.ceil(count/across)*16;z++)setBlock(x,69,z,98,0);
+roof.groups=list(outputGroups);roof.templates=list(outputTemplates);roof.format=nbt.tag(3,4);cob.cells=list(outputCob);delete cob.profiles;cob.format=nbt.tag(3,1);nbt.write(path.join(destination,'data/ironagearchitecture_smart_thatch_v1.dat'),tile);nbt.write(path.join(destination,'data/ironagearchitecture_smart_cob_v1.dat'),cobRoot);
+let regions=new Map();for(let root of out.values()){let l=root.v.Level.v,key=(l.xPos.v>>5)+','+(l.zPos.v>>5);if(!regions.has(key))regions.set(key,[]);regions.get(key).push(root);}for(let [key,values]of regions){let [x,z]=key.split(',');nbt.writeRegion(path.join(destination,'region',`r.${x}.${z}.mca`),values);}
+let level=nbt.read(path.join(source,'level.dat')),data=level.v.Data.v,px=32+Math.floor(across/2)*16+12,pz=32+Math.floor(Math.ceil(count/across)/2)*16+12;data.LevelName=nbt.tag(8,'Smart City '+count);data.SpawnX=nbt.tag(3,px);data.SpawnY=nbt.tag(3,70);data.SpawnZ=nbt.tag(3,pz);data.GameType=nbt.tag(3,1);if(data.Player){let p=data.Player.v;p.Pos=nbt.tag(9,{of:6,items:[px+.5,70,pz+.5]});p.Dimension=nbt.tag(3,0);if(p.abilities){p.abilities.v.flying=nbt.tag(1,1);p.abilities.v.mayfly=nbt.tag(1,1);}}
+nbt.write(path.join(destination,'level.dat'),level);
+let receipt={prepared:true,houses:count,cobOwners:material,roofOwners:count*99,roofCells:outputGroups.reduce((n,g)=>n+g.cells.v.items.length,0),chunks:out.size,rotations:rotate?4:1,templates:outputTemplates.length,method:'Translated/rotated copies of completed 64-house profiles and block states; loading fixture, not a construction benchmark',source,sourceRoofSha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(source,'data/ironagearchitecture_smart_thatch_v1.dat'))).digest('hex')};fs.writeFileSync(path.join(destination,'fixture.json'),JSON.stringify(receipt,null,2));console.log(JSON.stringify(receipt));

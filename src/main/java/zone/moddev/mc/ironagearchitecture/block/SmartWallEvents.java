@@ -15,56 +15,44 @@ import zone.moddev.mc.ironagearchitecture.SmartWallNetwork;
 
 /** Coalesced server work, bounded per tick. Idle walls are read directly from their saved layout. */
 public final class SmartWallEvents {
-    private static final Map<World,LinkedHashSet<BlockPos>> DIRTY=new WeakHashMap<>();
+    private static final Map<World,LinkedHashSet<FaceSeed>> DIRTY=new WeakHashMap<>();
+    private static final Map<World,LinkedHashSet<BlockPos>> CHANGES=new WeakHashMap<>(),DEFERRED=new WeakHashMap<>();
+    private static final Map<World,Work> ACTIVE=new WeakHashMap<>();
     private static final Map<World,Map<Long,Set<EntityPlayerMP>>> WATCHERS=new WeakHashMap<>();
 
+    private static final class FaceSeed {
+        final BlockPos pos;final EnumFacing side;
+        FaceSeed(BlockPos pos,EnumFacing side){this.pos=pos;this.side=side;}
+        @Override public int hashCode(){return 31*pos.hashCode()+side.ordinal();}
+        @Override public boolean equals(Object value){return value instanceof FaceSeed&&pos.equals(((FaceSeed)value).pos)&&side==((FaceSeed)value).side;}
+    }
+    private static final class Work {
+        final SmartWallPlanner.Snapshot input;final java.util.concurrent.Future<SmartWallPlanner.Plan> result;boolean stale;
+        Work(SmartWallPlanner.Snapshot input,java.util.concurrent.Future<SmartWallPlanner.Plan> result){this.input=input;this.result=result;}
+    }
     public static void changed(World world,BlockPos pos) {
-        if(world.isRemote) return;
-        SmartWallData data=SmartWallData.get(world);
-        LinkedHashSet<BlockPos> queue=DIRTY.computeIfAbsent(world,w->new LinkedHashSet<>());
-        if(world.getBlockState(pos).getBlock() instanceof SmartWallBlock) {
-            if(data.code(pos)==0) data.put(pos,SmartWallGeometry.FALLBACK);
-            queue.add(pos.toImmutable());
-        } else if(data.put(pos,0)) send(world,pos,Collections.singletonMap(pos.toLong(),0),false);
-        for(int x=-2;x<=2;x++) for(int y=-2;y<=2;y++) for(int z=-2;z<=2;z++) {
-            BlockPos at=pos.add(x,y,z);
-            if(data.code(at)!=0||(Math.abs(x)<=1&&Math.abs(y)<=1&&Math.abs(z)<=1&&world.isBlockLoaded(at)
-                &&world.getBlockState(at).getBlock() instanceof SmartWallBlock)) queue.add(at);
-        }
+        if(world.isRemote)return;SmartWallData data=SmartWallData.get(world);boolean relevant=world.isBlockLoaded(pos)&&world.getBlockState(pos).getBlock() instanceof SmartWallBlock;
+        if(relevant&&data.code(pos)==0)data.put(pos,SmartWallGeometry.FALLBACK);
+        for(int x=-1;x<=1&&!relevant;x++)for(int z=-1;z<=1&&!relevant;z++)relevant=!data.chunk((pos.getX()>>4)+x,(pos.getZ()>>4)+z).isEmpty();
+        if(relevant){CHANGES.computeIfAbsent(world,w->new LinkedHashSet<>()).add(pos.toImmutable());SmartShapeDirtyData.get(world).add(SmartShapeDirtyData.TIMBER,pos,15);}
     }
-
-    public static boolean pending(World world){return DIRTY.containsKey(world)&&!DIRTY.get(world).isEmpty();}
+    public static boolean pending(World world){return ACTIVE.containsKey(world)||!CHANGES.getOrDefault(world,new LinkedHashSet<>()).isEmpty()||!DIRTY.getOrDefault(world,new LinkedHashSet<>()).isEmpty();}
     public static int flush(World world) {
-        LinkedHashSet<BlockPos> queue=DIRTY.get(world);
-        if(queue==null||queue.isEmpty()) return 0;
-        SmartWallData data=SmartWallData.get(world);
-        Set<String> visited=new HashSet<>();
-        Map<Long,Map<Long,Integer>> changed=new HashMap<>();
-        int work=0, seeds=0;
-        while(!queue.isEmpty()&&work<2048&&seeds++<512) {
-            Iterator<BlockPos> iterator=queue.iterator();BlockPos seed=iterator.next();iterator.remove();
-            if(!world.isBlockLoaded(seed)||!(world.getBlockState(seed).getBlock() instanceof SmartWallBlock)) continue;
-            for(EnumFacing side:EnumFacing.HORIZONTALS) {
-                if(visited.contains(seed.toLong()+"/"+side)) continue;
-                SmartWallPlanner.Plan plan=SmartWallPlanner.survey(world,seed,side);
-                if(plan==null) continue;
-                work+=plan.cells.size();
-                for(Map.Entry<BlockPos,Integer> entry:plan.cells.entrySet()) {
-                    BlockPos at=entry.getKey();
-                    visited.add(at.toLong()+"/"+side);
-                    int shift=side.getHorizontalIndex()*8;
-                    int next=(data.code(at)&~(255<<shift))|(entry.getValue()<<shift);
-                    if(data.put(at,next)) changed.computeIfAbsent(SmartWallData.chunkKey(at.getX()>>4,at.getZ()>>4),k->new HashMap<>()).put(at.toLong(),next);
-                }
-            }
+        long deadline=System.nanoTime()+1500000L;SmartWallData data=SmartWallData.get(world);LinkedHashSet<FaceSeed> queue=DIRTY.computeIfAbsent(world,w->new LinkedHashSet<>());LinkedHashSet<BlockPos> edits=CHANGES.get(world);Work active=ACTIVE.get(world);
+        while(edits!=null&&!edits.isEmpty()&&System.nanoTime()<deadline){Iterator<BlockPos> i=edits.iterator();BlockPos pos=i.next();i.remove();if(world.isBlockLoaded(pos)&&!(world.getBlockState(pos).getBlock() instanceof SmartWallBlock)&&data.put(pos,0))send(world,pos,Collections.singletonMap(pos.toLong(),0),false);if(data.code(pos)==0)SmartShapeDirtyData.get(world).clear(SmartShapeDirtyData.TIMBER,pos,15);
+            for(int x=-2;x<=2;x++)for(int y=-2;y<=2;y++)for(int z=-2;z<=2;z++){BlockPos at=pos.add(x,y,z);if(active!=null&&active.input.members.contains(at))active.stale=true;if(data.code(at)!=0){SmartShapeDirtyData.get(world).add(SmartShapeDirtyData.TIMBER,at,15);for(EnumFacing side:EnumFacing.HORIZONTALS)queue.add(new FaceSeed(at,side));}}}
+        if(edits!=null&&!edits.isEmpty())return 0;
+        int changed=0;
+        if(active!=null){if(!active.result.isDone())return 0;ACTIVE.remove(world);SmartWallPlanner.Plan plan=SmartShapeWorker.completed(active.result);if(active.stale||plan==null){for(BlockPos p:active.input.members)queue.add(new FaceSeed(p,active.input.normal));return 0;}
+            for(BlockPos p:active.input.members)if(!world.isBlockLoaded(p)){DEFERRED.computeIfAbsent(world,w->new LinkedHashSet<>()).addAll(active.input.members);return 0;}
+            Map<Long,Map<Long,Integer>> updates=new HashMap<>();int shift=plan.normal.getHorizontalIndex()*8;
+            for(Map.Entry<BlockPos,Integer> e:plan.cells.entrySet()){BlockPos at=e.getKey();int next=(data.code(at)&~(255<<shift))|(e.getValue()<<shift);SmartShapeDirtyData.get(world).clear(SmartShapeDirtyData.TIMBER,at,1<<plan.normal.getHorizontalIndex());if(data.put(at,next)){updates.computeIfAbsent(SmartWallData.chunkKey(at.getX()>>4,at.getZ()>>4),k->new HashMap<>()).put(at.toLong(),next);changed++;}}
+            for(Map.Entry<Long,Map<Long,Integer>> e:updates.entrySet())send(world,new BlockPos((int)(e.getKey()>>32)*16,0,(int)(long)e.getKey()*16),e.getValue(),false);
         }
-        for(Map.Entry<Long,Map<Long,Integer>> entry:changed.entrySet()) {
-            int x=(int)(entry.getKey()>>32),z=(int)(long)entry.getKey();
-            send(world,new BlockPos(x*16,0,z*16),entry.getValue(),false);
-        }
-        return work;
+        while(!queue.isEmpty()&&System.nanoTime()<deadline){Iterator<FaceSeed> i=queue.iterator();FaceSeed seed=i.next();i.remove();if(!world.isBlockLoaded(seed.pos)||!(world.getBlockState(seed.pos).getBlock() instanceof SmartWallBlock))continue;
+            SmartWallPlanner.Snapshot input=SmartWallPlanner.capture(world,seed.pos,seed.side);if(input==null){DEFERRED.computeIfAbsent(world,w->new LinkedHashSet<>()).add(seed.pos);continue;}for(BlockPos p:input.members)queue.remove(new FaceSeed(p,seed.side));java.util.concurrent.Future<SmartWallPlanner.Plan> result=SmartShapeWorker.submit(()->SmartWallPlanner.solve(input));if(result==null){for(BlockPos p:input.members)queue.add(new FaceSeed(p,seed.side));return changed;}ACTIVE.put(world,new Work(input,result));return changed;
+        }return changed;
     }
-
     private static void send(World world,BlockPos at,Map<Long,Integer> values,boolean replace) {
         int x=at.getX()>>4,z=at.getZ()>>4;
         Set<EntityPlayerMP> players=WATCHERS.getOrDefault(world,Collections.emptyMap()).get(SmartWallData.chunkKey(x,z));
@@ -82,16 +70,14 @@ public final class SmartWallEvents {
     @SubscribeEvent public void chunkLoaded(ChunkEvent.Load event) {
         if(!(event.getWorld() instanceof WorldServer)) return;
         WorldServer world=(WorldServer)event.getWorld();Chunk chunk=event.getChunk();
-        world.addScheduledTask(()->{
+        SmartChunkWork.enqueue(world,chunk,"timber",()->{
             if(!world.isBlockLoaded(new BlockPos(chunk.xPosition*16,64,chunk.zPosition*16))) return;
             for(ExtendedBlockStorage section:chunk.getBlockStorageArray()) if(section!=null&&!section.isEmpty())
                 for(int x=0;x<16;x++) for(int z=0;z<16;z++) for(int y=0;y<16;y++)
                     if(section.get(x,y,z).getBlock() instanceof SmartWallBlock)
-                        changed(world,new BlockPos(chunk.xPosition*16+x,section.getYLocation()+y,chunk.zPosition*16+z));
-            SmartWallData data=SmartWallData.get(world);
-            for(int dx=-1;dx<=1;dx++) for(int dz=-1;dz<=1;dz++)
-                for(long pos:data.chunk(chunk.xPosition+dx,chunk.zPosition+dz).keySet())
-                    DIRTY.computeIfAbsent(world,w->new LinkedHashSet<>()).add(BlockPos.fromLong(pos));
+                        {BlockPos at=new BlockPos(chunk.xPosition*16+x,section.getYLocation()+y,chunk.zPosition*16+z);if(SmartWallData.get(world).code(at)==0)changed(world,at);}
+            for(long pos:new HashSet<>(SmartShapeDirtyData.get(world).chunk(SmartShapeDirtyData.TIMBER,chunk.xPosition,chunk.zPosition).keySet()))changed(world,BlockPos.fromLong(pos));
+            LinkedHashSet<BlockPos> deferred=DEFERRED.get(world);if(deferred!=null)for(Iterator<BlockPos> i=deferred.iterator();i.hasNext();){BlockPos at=i.next();if(Math.abs((at.getX()>>4)-chunk.xPosition)<=4&&Math.abs((at.getZ()>>4)-chunk.zPosition)<=4){changed(world,at);i.remove();}}
         });
     }
     @SubscribeEvent public void watch(ChunkWatchEvent.Watch event) {
@@ -107,7 +93,7 @@ public final class SmartWallEvents {
         Set<EntityPlayerMP> players=chunks.get(key);
         if(players!=null){players.remove(event.getPlayer());if(players.isEmpty())chunks.remove(key);}
     }
-    @SubscribeEvent public void unloaded(WorldEvent.Unload event){DIRTY.remove(event.getWorld());WATCHERS.remove(event.getWorld());}
+    @SubscribeEvent public void unloaded(WorldEvent.Unload event){DIRTY.remove(event.getWorld());WATCHERS.remove(event.getWorld());CHANGES.remove(event.getWorld());DEFERRED.remove(event.getWorld());Work active=ACTIVE.remove(event.getWorld());if(active!=null)active.result.cancel(true);}
 
     private static final class Listener implements IWorldEventListener {
         public void notifyBlockUpdate(World w,BlockPos p,IBlockState old,IBlockState next,int flags){changed(w,p);}

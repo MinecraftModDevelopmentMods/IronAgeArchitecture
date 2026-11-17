@@ -3,11 +3,11 @@
 Permanent building components for the Iron Age series, starting on Minecraft 1.10.2 Forge.
 Architecture runs independently of Iron Age Furniture.
 
-Version 0.1.15.110021 contains raw and limewashed cob blocks,
+Version 0.1.16.110021 contains raw and limewashed cob blocks,
 stairs and slabs; modular wattle-and-daub walls in all six vanilla woods; and smooth
 thatch, slate and clay tile roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
 timber floors, support brackets, hanging clay tiles, openable leaded windows, and brick and
-stone fireplaces, plus rounded smart cob walls. There are 160 visible variants in Automatic, or 568 in Hybrid,
+stone fireplaces, rounded smart cob walls and smart thatch. There are 159 visible variants in Automatic, or 569 in Hybrid,
 including the wood and finish choices.
 
 ## Rounded smart cob
@@ -30,11 +30,59 @@ frame; its soft earthen surface continues around the corners and into the reveal
 Smart cob is available in Automatic and Hybrid. It stays registered in Manual so
 existing smart-cob buildings remain readable. `blocks.smartCob` enables the family
 and requires `blocks.cob`; timber framing and windows can be disabled independently.
-It belongs to both era palettes. With default Automatic settings, the kit has 348
-recipes; selecting Iron Age alone leaves 42.
+It belongs to both era palettes. With fresh Automatic settings, the kit has 346
+recipes; selecting Iron Age alone leaves 40.
 
-The Rounded Cob Preview uses the existing roof pieces. Rounded eaves, flowing roofs,
-new window styles and half-depth cob pieces are outside this first wall preview.
+The Smart Thatch Preview puts joined, faceted roofs over the three cob cottages.
+New window styles and half-depth cob pieces remain later work.
+
+## Smart thatch
+
+In Automatic, three wheat across a row above three sticks make six smart thatch.
+Build a roof in steps: raise each row by one block for a pitched roof, bring slopes
+together for a ridge, or step the outline inward on all sides for hips. A single
+rising course at the perimeter gives an angled eave. Two level courses make a
+wider, flatter apron, so leave those for a roof that needs one.
+
+The block chooses from a fixed set of slopes, hips, valleys and transitions using
+its immediate neighbours. The covering has thick cut edges and an underside that
+follows the pitch. The shapes use ordinary chunk rebuilding, without a roof-wide
+smoothing queue.
+
+Place an extra row beyond the walls for an overhang. For a gable, carry the roof
+past both end walls and fill the triangle below with cob or another wall material.
+The cottage in the preview shows this alongside two hipped roofs.
+
+The covering is half a block deep. At low parts of a slope it uses the upper half
+of the cell below, so leave clearance under exposed edges. Walls and supports
+trim that lower part. Mining or picking either part addresses the same section;
+holding smart thatch lets you extend from its cut edge. It costs and drops one item.
+Stack pieces where you want a solid mass underneath. Leave holes for chimneys and
+windows. Slate and clay remain separate materials.
+
+Earlier smart roofs keep their placed material and adopt the new covering.
+Earlier rounded helpers are replaced locally as chunks load. The old mesh files
+are left in the save and are no longer read. Test a copy before updating a world.
+
+| Mode | Thatch crafting |
+| --- | --- |
+| Automatic | Wheat and sticks make smart thatch; original pieces are hidden |
+| Hybrid | Original recipes stay; craft a slope alone into smart thatch or back again |
+| Manual | Original recipes stay; an existing smart item can recover one slope |
+
+Both smart IDs stay registered in every mode. `blocks.thatch` controls the whole family,
+independently of cob and timber. Thatch belongs to both era palettes.
+
+`building.retainLegacyThatchIds` defaults to true when upgrading an existing config.
+Keep it enabled for worlds with original golden roofs. Fresh Automatic configurations
+default to false, saving the two old IDs; Hybrid and Manual always register them.
+In Automatic with the old IDs retained, craft one old slope or two ridge caps into
+one smart thatch. This conversion changes their appearance, so apply it deliberately.
+Client and server need matching registration settings and a restart.
+
+The supplied preview retains the old IDs for its unchanged golden-roof comparison.
+Use its accompanying configuration when loading that save. The original golden
+thatch and its textures are unchanged. Automatic dormers remain later work.
 
 ## Manual wattle and daub
 
@@ -293,7 +341,7 @@ or six from L-shaped corners. Either inside/outside pattern can be recovered thi
 - Three quarter floors in an L: one L-shaped floor. Craft an L-shaped floor alone to recover three quarters.
 - One full timber floor plus one stick, shapeless: two full-reach brackets in that wood.
   One full-reach bracket alone makes two half-reach brackets; two halves side by side make one full bracket.
-- Three wheat above three sticks: six thatch roof slopes. Use stone for slate or bricks for clay tile.
+- Three wheat above three sticks: six smart thatch in Automatic, or six original slopes in Hybrid/Manual. Use stone for slate or bricks for clay tile.
 - Two matching slopes vertically: four ridge caps. Two ridge caps side by side: one slope.
 - Craft a clay tile slope alone to turn it into a full hanging panel, or craft the full panel
   alone to get the slope back. Two full panels vertically make four thin panels.

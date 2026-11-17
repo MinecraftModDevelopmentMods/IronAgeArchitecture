@@ -15,8 +15,12 @@ final class RoundedCobPreview {
     static final BlockPos SPAWN=new BlockPos(-39,10,-14);
     static final List<BlockPos> ROOF=new ArrayList<>();
     static final Map<BlockPos,IBlockState> ROOF_STATES=new HashMap<>();
+    static boolean skipRoofs;
+    static final List<House> HOUSES=new ArrayList<>();
+    static final class House {final int x,z,height;final Set<Long> footprint;House(int x,int z,int height,Set<Long> footprint){this.x=x;this.z=z;this.height=height;this.footprint=new HashSet<>(footprint);}}
     private RoundedCobPreview() { }
     static void build(WorldServer world) {
+        HOUSES.clear();ROOF.clear();ROOF_STATES.clear();
         for(int x=-77;x<=9;x++)for(int z=-25;z<=29;z++) {
             world.setBlockState(new BlockPos(x,8,z),Blocks.DIRT.getDefaultState(),2);
             world.setBlockState(new BlockPos(x,9,z),(z<0?Blocks.GRAVEL:Blocks.GRASS).getDefaultState(),2);
@@ -35,7 +39,7 @@ final class RoundedCobPreview {
             world.setBlockState(new BlockPos(-58+i,y,-12),ArchitectureBlocks.SMART_COB.getStateFromMeta(1),2);
             world.setBlockState(new BlockPos(-58,y,-12+i),ArchitectureBlocks.SMART_COB.getStateFromMeta(1),2);
         }
-        for(int i=0;i<30&&SmartCobEvents.pending(world);i++)SmartCobEvents.flush(world);
+        ProbeShapes.flush(world);
         if(!(world.getBlockState(new BlockPos(-65,10,0)).getBlock() instanceof BlockDoor))throw new IllegalStateException("Preview cottage door is missing");
         if(SmartCobData.get(world).profile(new BlockPos(-61,11,0)).area().contains(.92,.08))throw new IllegalStateException("Preview front corner did not soften");
     }
@@ -65,12 +69,12 @@ final class RoundedCobPreview {
         if(height>6) {
             for(int y=10;y<=15;y++){BlockPos at=new BlockPos(sx+thickness,y,sz+depth-3);world.setBlockState(at.west(),Blocks.PLANKS.getDefaultState(),2);world.setBlockState(at,Blocks.LADDER.getDefaultState().withProperty(BlockLadder.FACING,EnumFacing.EAST),2);}
         }
-        roof(world,sx,sz,width,depth,10+height);
+        House house=new House(sx,sz,height,footprint);HOUSES.add(house);
+        if(!skipRoofs) {Block legacy=Block.getBlockFromName("ironagearchitecture:thatch_roof");if(legacy instanceof RoofBlock)roof(world,sx,sz,width,depth,10+height);else if(ArchitectureBlocks.SMART_THATCH!=null)SmartThatchPreview.roof(world,house);}
     }
     private static void roof(WorldServer world,int sx,int sz,int width,int depth,int base) {
-        RoofBlock slope=(RoofBlock)Block.getBlockFromName("ironagearchitecture:thatch_roof");
-        RoofBlock ridge=(RoofBlock)Block.getBlockFromName("ironagearchitecture:thatch_ridge");
-        if(slope==null||ridge==null)return;
+        Block slopeBlock=Block.getBlockFromName("ironagearchitecture:thatch_roof"),ridgeBlock=Block.getBlockFromName("ironagearchitecture:thatch_ridge");
+        if(!(slopeBlock instanceof RoofBlock)||!(ridgeBlock instanceof RoofBlock))return;RoofBlock slope=(RoofBlock)slopeBlock,ridge=(RoofBlock)ridgeBlock;
         if((width&1)==0)width++;
         for(int x=-1;x<=width;x++)for(int z=-1;z<=depth;z++) {
             int dx=Math.min(x,width-1-x),dz=Math.min(z,depth-1-z),rise=Math.min(dx,dz);boolean apex=dx==width/2&&dz>=dx||dz==depth/2&&dx>=dz;

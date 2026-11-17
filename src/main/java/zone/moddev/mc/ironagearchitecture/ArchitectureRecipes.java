@@ -16,6 +16,15 @@ public final class ArchitectureRecipes {
     private static ItemStack count(ItemStack stack,int count) {ItemStack result=stack.copy();result.stackSize=count;return result;}
     public static void register() {
         if(ArchitectureConfig.cob) registerCob();
+        if(ArchitectureConfig.thatch) {
+            ItemStack smart=new ItemStack(ArchitectureBlocks.SMART_THATCH);Block slope=Block.getBlockFromName(IronAgeArchitecture.MODID+":thatch_roof"),ridge=Block.getBlockFromName(IronAgeArchitecture.MODID+":thatch_ridge");
+            if(ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC)shaped(count(smart,6),"WWW","SSS",'W',Items.WHEAT,'S',Items.STICK);
+            if(slope!=null&&slope!=Blocks.AIR) {
+                if(ArchitectureConfig.buildingMode.automatic())shapeless(smart,new ItemStack(slope));
+                if(ArchitectureConfig.buildingMode.manual())shapeless(new ItemStack(slope),smart);
+                if(ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC&&ridge!=null&&ridge!=Blocks.AIR)shapeless(smart,new ItemStack(ridge),new ItemStack(ridge));
+            }
+        }
         if(ArchitectureConfig.smartCob&&ArchitectureConfig.buildingMode.automatic()) {
             for(int finish=0;finish<2;finish++) {
                 ItemStack smart=new ItemStack(ArchitectureBlocks.SMART_COB,1,finish),cob=new ItemStack(ArchitectureBlocks.COB.get(finish));

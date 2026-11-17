@@ -1,6 +1,6 @@
 param(
-    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only','manual','hybrid','automatic','legacy-fireplaces','legacy-smart','cob-disabled','cob-only')][string]$Mode='core',
-    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\rounded-smart-cob-0.1.15',
+    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only','manual','hybrid','automatic','legacy-fireplaces','legacy-smart','cob-disabled','cob-only','thatch-disabled','thatch-only','legacy-cob','automatic-retained','pending-save','pending-reload')][string]$Mode='core',
+    [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\smart-thatch-0.1.16',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$FurnitureJar='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\furniture\mods\iron-age-furniture-0.3.0.110021.jar',
     [string]$Java8='C:\Users\johnb\.gradle\jdks\temurin-8-amd64-windows.2\bin\java.exe'
@@ -9,7 +9,7 @@ $ErrorActionPreference='Stop'
 $repo=Split-Path $PSScriptRoot -Parent
 $version=((Select-String -LiteralPath (Join-Path $repo 'gradle.properties') -Pattern '^mod_version=').Line -split '=',2)[1]
 $runtimeJar='iron-age-architecture-'+$version+'.jar'
-$folder=Join-Path $RuntimeRoot $(if($Mode -eq 'reload'){'core'}else{$Mode})
+$folder=Join-Path $RuntimeRoot $(if($Mode -eq 'reload'){'core'}elseif($Mode -eq 'pending-reload'){'pending-save'}else{$Mode})
 New-Item -ItemType Directory -Force -Path $folder,(Join-Path $folder 'mods') | Out-Null
 $forge='forge-1.10.2-12.18.3.2511-universal.jar'
 foreach($name in @($forge,'minecraft_server.1.10.2.jar','libraries')) {
@@ -59,6 +59,15 @@ if($Mode -eq 'legacy-smart') {
     # An existing alpha config without the new setting must retain every old identity.
     "building {`n S:mode=automatic`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }
+if($Mode -eq 'legacy-cob') {
+    if(Test-Path -LiteralPath (Join-Path $folder 'world')) {throw 'Legacy cob probe requires a fresh destination'}
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $staging=Join-Path $folder 'cob-preview-source'
+    [System.IO.Compression.ZipFile]::ExtractToDirectory('D:/IronAgeArchitecture/manual-testing/rounded-smart-cob-0.1.15/Rounded Cob Preview.zip',$staging)
+    Copy-Item -LiteralPath (Join-Path $staging 'Rounded Cob Preview') -Destination (Join-Path $folder 'world') -Recurse
+    New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
+    "building {`n S:mode=automatic`n B:retainLegacyWallIds=false`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+}
 if($Mode -eq 'legacy-fascia') {
     if(Test-Path -LiteralPath (Join-Path $folder 'world')) {throw 'Legacy fascia probe requires a fresh disposable destination'}
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -71,11 +80,14 @@ if($eraModes.ContainsKey($Mode)) {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
     ("recipes {`n S:survivalEras <`n"+($eraModes[$Mode] -join "`n")+"`n >`n}`n") | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }
-if($Mode -in @('manual','hybrid','automatic','legacy','legacy-daub','legacy-jetties','legacy-fascia','legacy-fireplaces')) {
+if($Mode -in @('manual','hybrid','automatic','automatic-retained','legacy','legacy-daub','legacy-jetties','legacy-fascia','legacy-fireplaces')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
-    $wallMode=if($Mode -like 'legacy*') {'manual'} else {$Mode}
+    $wallMode=if($Mode -like 'legacy*') {'manual'} elseif($Mode -eq 'automatic-retained'){'automatic'} else {$Mode}
     $legacy=($Mode -like 'legacy*').ToString().ToLowerInvariant()
-    ("building {`n S:mode="+$wallMode+"`n B:retainLegacyWallIds="+$legacy+"`n}") | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+    ("building {`n S:mode="+$wallMode+"`n B:retainLegacyWallIds="+$legacy+"`n B:retainLegacyThatchIds="+$legacy+"`n}") | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+}
+if($Mode -eq 'automatic-retained') {
+    "building {`n S:mode=automatic`n B:retainLegacyWallIds=false`n B:retainLegacyThatchIds=true`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }
 if($Mode -eq 'windows-disabled') {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
@@ -88,6 +100,24 @@ if($Mode -eq 'clay-disabled') {
 if($Mode -eq 'cob-disabled') {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
     "blocks {`n B:smartCob=false`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+}
+if($Mode -eq 'thatch-disabled') {
+    New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
+    "blocks {`n B:thatch=false`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
+}
+if($Mode -eq 'thatch-only') {
+    New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
+    @'
+blocks {
+ B:cob=false
+ B:timberFrames=false
+ B:leadedWindows=false
+ B:thatch=true
+ B:slate=false
+ B:clayTiles=false
+ B:fireplaces=false
+}
+'@ | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }
 if($Mode -eq 'cob-only') {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
@@ -118,9 +148,9 @@ blocks {
 }
 "@ | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii
 }
-if($Mode -notin @('core','reload','manual','hybrid','automatic','legacy','legacy-daub','legacy-jetties','legacy-fascia','legacy-fireplaces','legacy-smart')) {
+if($Mode -notin @('core','reload','manual','hybrid','automatic','automatic-retained','legacy','legacy-daub','legacy-jetties','legacy-fascia','legacy-fireplaces','legacy-smart','legacy-cob')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
-    Add-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Value "building {`n S:mode=automatic`n B:retainLegacyWallIds=false`n}" -Encoding ascii
+    Add-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Value "building {`n S:mode=automatic`n B:retainLegacyWallIds=false`n B:retainLegacyThatchIds=false`n}" -Encoding ascii
 }
 'eula=true' | Set-Content -LiteralPath (Join-Path $folder 'eula.txt') -Encoding ascii
 @'
@@ -142,16 +172,21 @@ $receipt=Join-Path $folder ($Mode+'-receipt.json')
 $args=@('-Xmx2G','-Diaa.probe=true',('-Diaa.receipt='+$receipt))
 $args+=('-Diaa.runtimeSha256='+(Get-FileHash -LiteralPath (Join-Path $folder ('mods/'+$runtimeJar)) -Algorithm SHA256).Hash.ToLowerInvariant())
 if($Mode -eq 'reload') {$args+='-Diaa.reload=true'}
+if($Mode -eq 'pending-save'){$args+='-Diaa.pendingSave=true'}
+if($Mode -eq 'pending-reload'){$args+='-Diaa.pendingReload=true'}
 if($Mode -eq 'legacy') {$args+='-Diaa.legacy=true'}
 if($Mode -eq 'legacy-daub') {$args+='-Diaa.legacyDaub=true'}
 if($Mode -eq 'legacy-jetties') {$args+='-Diaa.legacyJetties=true'}
 if($Mode -eq 'legacy-fascia') {$args+='-Diaa.legacyFascia=true'}
 if($Mode -eq 'legacy-fireplaces') {$args+='-Diaa.legacyFireplaces=true'}
 if($Mode -eq 'legacy-smart') {$args+='-Diaa.legacySmart=true'}
-if($Mode -eq 'core') {$args+=@('-Diaa.eraMatrix=true','-Diaa.recipeMatrix=true')}
+if($Mode -eq 'legacy-cob') {$args+='-Diaa.legacyCob=true'}
+if($Mode -eq 'core') {$args+='-Diaa.eraMatrix=true'}
+if($Mode -in @('core','manual','hybrid','automatic-retained')) {$args+='-Diaa.recipeMatrix=true'}
 if($Mode -eq 'disabled') {$args+='-Diaa.expectedVariants=0'}
 if($Mode -eq 'clay-only') {$args+=@('-Diaa.expectedVariants=16','-Diaa.clayOnly=true','-Diaa.recipeMatrix=true')}
 if($Mode -eq 'cob-only') {$args+=@('-Diaa.expectedVariants=8','-Diaa.cobOnly=true','-Diaa.recipeMatrix=true')}
+if($Mode -eq 'thatch-only') {$args+=@('-Diaa.expectedVariants=1','-Diaa.thatchOnly=true','-Diaa.recipeMatrix=true')}
 $args+=@('-jar',$forge,'nogui')
 Push-Location $folder
 try {

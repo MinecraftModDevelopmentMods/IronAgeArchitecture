@@ -10,6 +10,7 @@ import zone.moddev.mc.ironagearchitecture.Era;
 import zone.moddev.mc.ironagearchitecture.EraTabs;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.block.BlockDoor;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.math.BlockPos;
@@ -39,7 +40,8 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 /** Opt-in native client capture. No registration or launch path in the player mod. */
 public final class ClientProbe extends ProbeProxy {
     private int phase, ticks, paletteRetries;
-    @Override public void init() { if(Boolean.getBoolean("iaa.clientProbe")) FMLCommonHandler.instance().bus().register(this); }
+    @Override public void mpCommand(MPNetwork.Command packet){MPClientProbe.command(packet);}
+    @Override public void init() { if(Boolean.getBoolean("iaa.thatchInteraction")){FMLCommonHandler.instance().bus().register(new ThatchInteractionProbe());return;} if(Boolean.getBoolean("iaa.mpClient")){FMLCommonHandler.instance().bus().register(new MPClientProbe());return;} if(Boolean.getBoolean("iaa.clientProbe")) FMLCommonHandler.instance().bus().register(Boolean.getBoolean("iaa.cityCold")?new CityColdClientProbe():Boolean.getBoolean("iaa.cityClient")?new CityColdClientProbe():this); }
     @SubscribeEvent public void tick(TickEvent.ClientTickEvent event) {
         if(event.phase!=TickEvent.Phase.END) return;
         Minecraft mc=Minecraft.getMinecraft();
@@ -108,14 +110,14 @@ public final class ClientProbe extends ProbeProxy {
                 IBakedModel soffit = mc.getRenderItem().getItemModelMesher().getItemModel(new ItemStack(ArchitectureBlocks.SOFFIT));
                 if (soffit.getParticleTexture().getIconName().contains("missingno"))
                     throw new IllegalStateException("Missing soffit item model");
-                phase=ArchitectureConfig.smartCob?90:80;ticks=0;
+                phase=ArchitectureConfig.smartCob?(ArchitectureConfig.thatch?100:90):80;ticks=0;
                 if (phase == 70) {
                     setPreviewGameType(mc, GameType.SPECTATOR);
                     setPreviewDoor(mc, true);
                 }
                 return;
             }
-            if(ArchitectureConfig.smartCob){phase=90;ticks=0;return;}
+            if(ArchitectureConfig.smartCob){phase=ArchitectureConfig.thatch?100:90;ticks=0;return;}
             capture(mc,"jettied-street-overview.png");
             lookAt(mc,-5,74,-7,3,69.5,2);phase=3;ticks=0;
         } else if(phase==3&&ticks>120) {
@@ -163,6 +165,8 @@ public final class ClientProbe extends ProbeProxy {
             setPreviewRain(mc, false);
             checkPalettes(mc);
             mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
+        } else if(phase>=100&&phase<=110) {
+            captureSmartThatch(mc);
         } else if(phase>=90&&phase<=96) {
             captureRoundedCob(mc);
         } else if (phase >= 80 && phase <= 87) {
@@ -209,6 +213,23 @@ public final class ClientProbe extends ProbeProxy {
                 player.inventory.setInventorySlotContents(6,new ItemStack(net.minecraft.init.Blocks.PLANKS,64,1));
             }
         });
+        checkPalettes(mc);mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
+    }
+    private void captureSmartThatch(Minecraft mc) {
+        double[][] cameras={{-39,10,-45,-39,15,4},{-72,10.3,-6,-65,15,1},{-49,10.5,-7,-39.5,16,3},
+            {-6.5,11,16,-13,19,7},{-39.5,28,-11,-39.5,19,4},{-25,22,15,-20,23,9},
+            {-39.5,10.2,7,-40.5,15.2,2},{-77,10,-20,-81,14,-9},{-36,35,16,-36,14,5},{-55,12,-4,-61,16,3},{-65,10.2,3,-65,17,3}};
+        String[] names={"smart-thatch-street.png","smart-thatch-eaves.png","smart-thatch-oval.png","smart-thatch-bay-and-valley.png","smart-thatch-ridge.png","smart-thatch-chimney.png","smart-thatch-underside.png","smart-thatch-manual-comparison.png","smart-thatch-overhead.png","smart-thatch-gable.png","smart-thatch-gabled-interior.png"};
+        double[] c=cameras[phase-100];lookAt(mc,c[0],c[1],c[2],c[3],c[4],c[5]);if(ticks<=150)return;
+        if(phase==100) {
+            net.minecraft.world.World server=mc.getIntegratedServer().worldServerForDimension(0);
+            for(BlockPos at:SmartThatchPreview.MATERIAL)if(zone.moddev.mc.ironagearchitecture.block.ThatchShape.at(server,at,server.getBlockState(at))!=zone.moddev.mc.ironagearchitecture.block.ThatchShape.at(mc.world,at,mc.world.getBlockState(at)))throw new IllegalStateException("Roof states did not match at "+at);
+            IBakedModel model=mc.getBlockRendererDispatcher().getModelForState(ArchitectureBlocks.SMART_THATCH.getDefaultState());if(!(model instanceof zone.moddev.mc.ironagearchitecture.client.SmartThatchBakedModel)||model.getQuads(null,null,0).isEmpty()||model.getParticleTexture().getIconName().contains("missingno"))throw new IllegalStateException("Smart thatch model is missing");
+            for(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock roof:new zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock[]{ArchitectureBlocks.SMART_THATCH,ArchitectureBlocks.SMART_THATCH_PART})for(IBlockState variant:roof.getBlockState().getValidStates()){IBakedModel baked=mc.getBlockRendererDispatcher().getModelForState(variant);zone.moddev.mc.ironagearchitecture.block.ThatchShape shape=zone.moddev.mc.ironagearchitecture.block.ThatchShape.of(variant.getValue(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock.PROFILE),variant.getValue(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock.FACING));int expected=roof.helper?(variant.getValue(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock.LINKED)?zone.moddev.mc.ironagearchitecture.block.ThatchGeometry.underside(shape).faces.size():0):zone.moddev.mc.ironagearchitecture.block.ThatchGeometry.mesh(shape).faces.size();if(!(baked instanceof zone.moddev.mc.ironagearchitecture.client.SmartThatchBakedModel)||baked.getQuads(variant,null,0).size()!=expected)throw new IllegalStateException("Wrong fixed roof mesh "+variant);}
+            System.out.println("IAA_THATCH_CLIENT_PASS finiteStates=true localUndersides=true matchingShapes=true");
+        }
+        capture(mc,names[phase-100]);if(phase<110){phase++;ticks=0;return;}
+        mc.getIntegratedServer().addScheduledTask(()->{WorldServer world=mc.getIntegratedServer().worldServerForDimension(0);for(EntityPlayer player:world.playerEntities){BlockPos spawn=SmartThatchPreview.SPAWN;player.setPositionAndUpdate(spawn.getX()+.5,spawn.getY(),spawn.getZ()+.5);player.inventory.setInventorySlotContents(0,new ItemStack(ArchitectureBlocks.SMART_THATCH,64));player.inventory.setInventorySlotContents(1,new ItemStack(ArchitectureBlocks.SMART_COB,64,0));player.inventory.setInventorySlotContents(2,new ItemStack(ArchitectureBlocks.SMART_COB,64,1));player.inventory.setInventorySlotContents(3,new ItemStack(net.minecraft.init.Items.WHEAT,64));player.inventory.setInventorySlotContents(4,new ItemStack(net.minecraft.init.Items.STICK,64));Block old=Block.getBlockFromName("ironagearchitecture:thatch_roof");if(old!=null&&old!=net.minecraft.init.Blocks.AIR)player.inventory.setInventorySlotContents(5,new ItemStack(old,32));}});
         checkPalettes(mc);mc.displayGuiScreen(new PaletteGui(mc,Era.IRON_AGE,true));phase=8;ticks=0;
     }
     private void captureSmartWalls(Minecraft mc) {
