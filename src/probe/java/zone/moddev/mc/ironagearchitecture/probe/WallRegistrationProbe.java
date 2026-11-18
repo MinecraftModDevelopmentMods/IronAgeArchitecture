@@ -47,6 +47,7 @@ final class WallRegistrationProbe {
     }
     private static boolean present(String name) {return Block.REGISTRY.containsKey(new ResourceLocation(IronAgeArchitecture.MODID,name));}
     private static void verifyConfigUpgrade() throws Exception {
+        boolean workbench=ArchitectureConfig.architectsWorkbench;
         boolean cob=ArchitectureConfig.cob,smartCob=ArchitectureConfig.smartCob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,
             windows=ArchitectureConfig.windows,clay=ArchitectureConfig.clayTiles,fireplaces=ArchitectureConfig.fireplaces,retain=ArchitectureConfig.retainLegacyWallIds,retainThatch=ArchitectureConfig.retainLegacyThatchIds;
         BuildingMode mode=ArchitectureConfig.buildingMode;EraSelection eras=ArchitectureConfig.survivalEras;
@@ -66,7 +67,7 @@ final class WallRegistrationProbe {
                 require(ArchitectureConfig.buildingMode==selected&&!ArchitectureConfig.retainLegacyWallIds&&ArchitectureConfig.registerManualWalls()==selected.manual(),"explicit mode "+selected);
             }
         } finally {
-            ArchitectureConfig.cob=cob;ArchitectureConfig.smartCob=smartCob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;
+            ArchitectureConfig.architectsWorkbench=workbench;ArchitectureConfig.cob=cob;ArchitectureConfig.smartCob=smartCob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;
             ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clay;ArchitectureConfig.fireplaces=fireplaces;
             ArchitectureConfig.retainLegacyWallIds=retain;ArchitectureConfig.retainLegacyThatchIds=retainThatch;ArchitectureConfig.buildingMode=mode;ArchitectureConfig.survivalEras=eras;
         }

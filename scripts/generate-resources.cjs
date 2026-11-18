@@ -18,6 +18,25 @@ const shapes = ['straight','inner_left','inner_right','outer_left','outer_right'
 const lang = {'itemGroup.ironagearchitecture':'Iron Age Architecture',
   'itemGroup.ironagearchitecture.iron_age':'Iron Age',
   'itemGroup.ironagearchitecture.late_medieval_tudor':'Late Medieval & Tudor'};
+for(const name of ['roof_frame','roof_frame_covered'])state(name,Object.fromEntries(Array.from({length:6},(_,wood)=>[false,true].map(second=>[`second=${second},wood=${wood}`,{model:`${ns}:roof_frame_mesh`}])).flat()));
+model('roof_frame_mesh',{parent:'minecraft:block/block',textures:{particle:`${ns}:blocks/beam_oak`,timber:`${ns}:blocks/beam_oak`,thatch:`${ns}:blocks/smart_thatch`,thatch_edge:`${ns}:blocks/smart_thatch_edge`,slate:`${ns}:blocks/slate`,clay:`${ns}:blocks/clay_tile`},elements:[]});
+state('architects_workbench',{'normal':{model:`${ns}:architects_workbench`}});
+const benchFace=texture=>Object.fromEntries(['up','down','north','south','east','west'].map(face=>[face,{texture}]));
+model('architects_workbench',{parent:'minecraft:block/block',textures:{particle:'minecraft:blocks/planks_oak',wood:'minecraft:blocks/planks_oak',top:'minecraft:blocks/crafting_table_top',paper:'minecraft:blocks/wool_colored_white'},elements:[
+  {from:[0,12,0],to:[16,16,16],faces:{...benchFace('#wood'),up:{texture:'#top'}}},
+  ...[[1,1],[12,1],[1,12],[12,12]].map(([x,z])=>({from:[x,0,z],to:[x+3,12,z+3],faces:benchFace('#wood')})),
+  {from:[2,16,3],to:[12,16.03125,12],faces:benchFace('#paper')}
+]});
+item('architects_workbench','architects_workbench');
+lang[`tile.${ns}.architects_workbench.name`]=`Architect's Workbench`;
+lang[`hint.${ns}.workbench.place`]='Place on a full timber attic floor to draw and preview a gabled roof.';
+lang[`hint.${ns}.workbench.materials`]='Supply timber, or matching planks and sticks, then build the bare frame.';
+lang[`hint.${ns}.roof_timber.use`]=`Supply an architect's workbench to build or repair a roof frame.`;
+lang[`hint.${ns}.roof_timber.craft`]='One matching plank above one stick makes two timber units.';
+for(let wood=0;wood<6;wood++){
+  model(`roof_timber_${wood}`,{parent:'minecraft:block/block',textures:{particle:`${ns}:blocks/beam_${woods[wood]}`,timber:`${ns}:blocks/beam_${woods[wood]}`},elements:[{from:[5,0,5],to:[11,16,11],faces:benchFace('#timber')}]});
+  item(`roof_timber_${wood}`,`roof_timber_${wood}`);lang[`item.${ns}.roof_timber.${wood}.name`]=`${names[wood]} Roof Timber`;
+}
 for(const name of ['smart_thatch','smart_thatch_part'])state(name,Object.fromEntries(['north','east','south','west'].flatMap(facing=>[false,true].flatMap(linked=>Array.from({length:56},(_,profile)=>[`facing=${facing},linked=${linked},profile=${profile}`,{model:`${ns}:smart_thatch_mesh`}])))));
 model('smart_thatch_mesh',{parent:'minecraft:block/block',textures:{particle:`${ns}:blocks/smart_thatch`,surface:`${ns}:blocks/smart_thatch`,edge:`${ns}:blocks/smart_thatch_edge`},elements:[]});
 item('smart_thatch','smart_thatch_mesh');

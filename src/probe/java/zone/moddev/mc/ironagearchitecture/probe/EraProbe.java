@@ -15,13 +15,14 @@ import zone.moddev.mc.ironagearchitecture.block.FrameBlock;
 final class EraProbe {
     private static void require(boolean condition,String message) {if(!condition) throw new IllegalStateException(message);}
     static int expectedRecipes() {
-        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?(ArchitectureConfig.windows?306:159):(ArchitectureConfig.windows?2010:1863))+(ArchitectureConfig.clayTiles?20:0)+fireplaceParts()+smartRecipes()+cobRecipes()+thatchRecipes():
-            ArchitectureConfig.survivalEras.allowed.contains(Era.IRON_AGE)?36+cobRecipes()+thatchRecipes():0;
+        return ArchitectureConfig.survivalEras.allowed.contains(Era.LATE_MEDIEVAL_TUDOR)?(ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?(ArchitectureConfig.windows?306:159):(ArchitectureConfig.windows?2010:1863))+(ArchitectureConfig.clayTiles?20:0)+fireplaceParts()+smartRecipes()+cobRecipes()+thatchRecipes()+deskVisible():
+            ArchitectureConfig.survivalEras.allowed.contains(Era.IRON_AGE)?36+cobRecipes()+thatchRecipes()+deskVisible()+(ArchitectureConfig.architectsWorkbench?12:0):0;
     }
     static int expectedVariants() {
-        return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 16 : 0) + fireplaceParts() - (ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?408:0) + (ArchitectureConfig.frames && ArchitectureConfig.buildingMode.automatic() ? 24 : 0)+(cobRecipes()>0?2:0)+thatchVariants();
+        return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 16 : 0) + fireplaceParts() - (ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?408:0) + (ArchitectureConfig.frames && ArchitectureConfig.buildingMode.automatic() ? 24 : 0)+(cobRecipes()>0?2:0)+thatchVariants()+deskVisible();
     }
-    static int sharedVariants(){return 14+(cobRecipes()>0?2:0)+thatchVariants();}
+    static int sharedVariants(){return (ArchitectureConfig.architectsWorkbench?20:14)+(cobRecipes()>0?2:0)+thatchVariants()+deskVisible();}
+    private static int deskVisible(){return ArchitectureConfig.architectsWorkbench&&ArchitectureConfig.buildingMode.automatic()?7:0;}
     private static int thatchVariants(){return !ArchitectureConfig.thatch?-2:ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?-1:ArchitectureConfig.buildingMode==BuildingMode.HYBRID?1:0;}
     private static int thatchRecipes(){return !ArchitectureConfig.thatch?-3:ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?-2+(ArchitectureConfig.retainLegacyThatchIds?2:0):ArchitectureConfig.buildingMode==BuildingMode.HYBRID?2:1;}
     private static int cobRecipes(){return ArchitectureConfig.smartCob&&ArchitectureConfig.buildingMode.automatic()?6:0;}

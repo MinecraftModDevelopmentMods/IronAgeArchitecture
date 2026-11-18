@@ -56,7 +56,7 @@ Roof blocks save facing. Clay verges also save which half overhangs the gable.
 Inner/outer corners and ridge caps derive from same-material neighbours.
 Slopes rise one block per block; ridge caps rise half a block and belong one row above the adjacent slopes.
 Roof collision is a conservative approximation within 1/16 of the surface.
-No architectural block needs a tile entity. Smart wall edits are coalesced into bounded end-of-tick work.
+Only the architect's inventory workbench needs a tile entity; it does not tick. Smart wall edits are coalesced into bounded end-of-tick work.
 
 WindowBlock is a separate light-transmitting family. Metadata is horizontal facing in
 bits 0-1, open in bit 2 and cached power in bit 3. Wood, finish, depth and leading live
@@ -196,7 +196,7 @@ Interior cut faces are hidden and neighbouring courses subtract shared caps. Chu
 meshes use smooth vertex lighting; atlas wraps are split before baking to avoid stretched
 horizontal texture stripes. Vanilla light blocking remains cell-based on this legacy engine.
 
-Fresh Automatic totals are 321 registered IDs, 159 visible variants and 346 recipes.
+Before the workbench addition, fresh Automatic totals were 321 registered IDs, 159 visible variants and 346 recipes.
 Iron Age survival in Automatic has 40 recipes. Hybrid has 569 visible variants;
 Manual retains the smart IDs for saved buildings without exposing smart acquisition.
 
@@ -449,3 +449,35 @@ scripts/invoke-client-preview.ps1 launches the actual obfuscated client and Forg
 the packaged mod and probe. It reuses verified Mojang libraries and existing assets/native binaries;
 the ordinary client launch does not use this harness. Do not place server classes ahead of the vanilla
 client in the native classpath, because Forge's client binary patches require the exact client bytes.
+
+## Architect's workbench preview
+
+The save point before this experiment is 8721173. The roof planner is separate from
+smart thatch: it runs on explicit bench actions and emits immutable local prism
+descriptors, stored with their chunks. The small per-roof archive holds settings,
+not a city-wide mesh. Finished cells have no controller dependency or ticking work.
+
+Two frame identities store six woods and four covering states within four metadata
+bits. The non-ticking workbench is the third new block ID. All families enabled in
+fresh Automatic therefore have 324 IDs, 166 visible variants and 353 grid recipes.
+The full floor starter and its recovery recipe also become shared between eras.
+
+RoofMeshes caches a bounded reusable prism kit without positions or plan IDs in
+its key. Model quads share the same position-free keys. Collision uses at most
+1/32-width slices across the steepest plane and targeting uses the exact triangles.
+Coverage fragments remain in their own cells and forward harvesting to their timber
+section. A section consumes and returns one covering, regardless of fragment count.
+
+The server validates container access, plan bounds, ownership, material stock,
+loaded chunks, edit permissions and entity clearance. Construction reserves stock
+first, persists its operation index and shares a 16-cell / two-millisecond budget
+across all active benches. Incomplete jobs can resume after normal save/reload.
+Purely visual previews are personal; floor refreshes preserve user settings and
+ignore unrelated neighbour notifications. Chunk snapshots are queued with a shared
+64 KiB-per-tick estimate, split into at most 64 cells per packet.
+
+The production artifact excludes WorkbenchProbe, WorkbenchClientProbe and RoofCityProbe.
+The latter deliberately seeds a disposable 500-house fixture in bulk; its preparation
+time is not a measurement of player construction throughput. Multiplayer roof jobs
+are server-scheduled alongside native player edits; the separate native GUI probe
+checks the actual container, shift-click material transfer and request path.

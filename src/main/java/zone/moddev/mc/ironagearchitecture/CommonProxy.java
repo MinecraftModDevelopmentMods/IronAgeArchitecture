@@ -2,6 +2,10 @@ package zone.moddev.mc.ironagearchitecture;
 
 /** Keeps client model classes off dedicated servers. */
 public class CommonProxy {
+    public zone.moddev.mc.ironagearchitecture.roof.RoofCell roofCell(net.minecraft.world.IBlockAccess access,net.minecraft.util.math.BlockPos pos){return access instanceof net.minecraft.world.World?zone.moddev.mc.ironagearchitecture.roof.RoofData.get((net.minecraft.world.World)access).at((net.minecraft.world.World)access,pos):null;}
+    public Object roofGui(net.minecraft.entity.player.EntityPlayer player,zone.moddev.mc.ironagearchitecture.roof.ArchitectWorkbench.Desk desk){return null;}
+    public void roofReply(zone.moddev.mc.ironagearchitecture.roof.RoofNetwork.Reply r){}
+    public void roofSnapshot(zone.moddev.mc.ironagearchitecture.roof.RoofNetwork.Snapshot r){}
     public zone.moddev.mc.ironagearchitecture.block.SmartCobProfile cobProfile(net.minecraft.world.IBlockAccess access,net.minecraft.util.math.BlockPos pos) {
         return access instanceof net.minecraft.world.World?zone.moddev.mc.ironagearchitecture.block.SmartCobData.get((net.minecraft.world.World)access).profile(pos):zone.moddev.mc.ironagearchitecture.block.SmartCobProfile.SQUARE;
     }
@@ -13,6 +17,7 @@ public class CommonProxy {
     }
     public void smartSnapshot(SmartWallNetwork.Packet packet) { }
     public void preInit() {
+        if(ArchitectureConfig.architectsWorkbench){zone.moddev.mc.ironagearchitecture.roof.RoofNetwork.register();net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new zone.moddev.mc.ironagearchitecture.roof.RoofData.Events());net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new zone.moddev.mc.ironagearchitecture.roof.RoofConstruction.Events());}
         net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register(new LegacyHandshakeGuard());
         zone.moddev.mc.ironagearchitecture.block.SmartChunkWork chunkWork=new zone.moddev.mc.ironagearchitecture.block.SmartChunkWork();net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register(chunkWork);net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(chunkWork);
         zone.moddev.mc.ironagearchitecture.block.ThatchGeometry.mesh(zone.moddev.mc.ironagearchitecture.block.ThatchShape.of(zone.moddev.mc.ironagearchitecture.block.ThatchForm.FLAT,net.minecraft.util.EnumFacing.NORTH));

@@ -30,6 +30,10 @@ import net.minecraft.util.ResourceLocation;
 
 /** Models are registered before baking and never referenced by common classes. */
 public final class ClientProxy extends CommonProxy {
+    @Override public zone.moddev.mc.ironagearchitecture.roof.RoofCell roofCell(net.minecraft.world.IBlockAccess access,net.minecraft.util.math.BlockPos pos){net.minecraft.world.World world=access instanceof net.minecraft.world.World?(net.minecraft.world.World)access:Minecraft.getMinecraft().world;return world==null?null:zone.moddev.mc.ironagearchitecture.roof.RoofData.get(world).at(world,pos);}
+    @Override public Object roofGui(net.minecraft.entity.player.EntityPlayer p,zone.moddev.mc.ironagearchitecture.roof.ArchitectWorkbench.Desk d){return new WorkbenchClient.Screen(p,d);}
+    @Override public void roofReply(zone.moddev.mc.ironagearchitecture.roof.RoofNetwork.Reply r){Minecraft.getMinecraft().addScheduledTask(()->WorkbenchClient.reply(r));}
+    @Override public void roofSnapshot(zone.moddev.mc.ironagearchitecture.roof.RoofNetwork.Snapshot r){Minecraft.getMinecraft().addScheduledTask(()->{net.minecraft.world.World w=Minecraft.getMinecraft().world;if(w==null||w.provider.getDimension()!=r.dimension)return;zone.moddev.mc.ironagearchitecture.roof.RoofData data=zone.moddev.mc.ironagearchitecture.roof.RoofData.get(w);java.util.Set<Long> affected=new java.util.HashSet<>(r.cells.keySet());if(r.first)affected.addAll(data.chunk(w,r.x,r.z).keySet());data.snapshot(r.x,r.z,r.first,r.cells);if(!affected.isEmpty()){int lo=255,hi=0;for(long key:affected){int y=net.minecraft.util.math.BlockPos.fromLong(key).getY();lo=Math.min(lo,y);hi=Math.max(hi,y);}w.markBlockRangeForRenderUpdate(r.x*16,Math.max(0,lo-1),r.z*16,r.x*16+15,Math.min(255,hi+1),r.z*16+15);}});}
     @Override public zone.moddev.mc.ironagearchitecture.block.SmartCobProfile cobProfile(net.minecraft.world.IBlockAccess access,net.minecraft.util.math.BlockPos pos) {
         if(access instanceof net.minecraft.world.World)return super.cobProfile(access,pos);
         net.minecraft.world.World world=Minecraft.getMinecraft().world;
@@ -95,6 +99,8 @@ public final class ClientProxy extends CommonProxy {
         net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register(this);
         super.preInit();
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new WorkbenchClient());
+        if(ArchitectureBlocks.ROOF_TIMBER!=null)for(int wood=0;wood<6;wood++)ModelLoader.setCustomModelResourceLocation(ArchitectureBlocks.ROOF_TIMBER,wood,new ModelResourceLocation("ironagearchitecture:roof_timber_"+wood,"inventory"));
         for (Block block : ArchitectureBlocks.VISIBLE) {
             int count = ArchitectureBlocks.variants(block);
             for (int meta = 0; meta < count; meta++) {
@@ -111,6 +117,7 @@ public final class ClientProxy extends CommonProxy {
         if(ArchitectureBlocks.LEADED_PANE!=null) for(int meta=0;meta<2;meta++) ModelLoader.setCustomModelResourceLocation(ArchitectureBlocks.LEADED_PANE,meta,new ModelResourceLocation("ironagearchitecture:leaded_pane_"+meta,"inventory"));
     }
     @SubscribeEvent public void bake(ModelBakeEvent event) {
+        RoofFrameBakedModel.clear();if(ArchitectureBlocks.ROOF_FRAME!=null)for(zone.moddev.mc.ironagearchitecture.roof.RoofFrameBlock b:new zone.moddev.mc.ironagearchitecture.roof.RoofFrameBlock[]{ArchitectureBlocks.ROOF_FRAME,ArchitectureBlocks.ROOF_FRAME_COVERED})for(IBlockState s:b.getBlockState().getValidStates()){ModelResourceLocation key=new ModelResourceLocation(b.getRegistryName(),variant(s));event.getModelRegistry().putObject(key,new RoofFrameBakedModel(event.getModelRegistry().getObject(key)));}
         if(ArchitectureBlocks.SMART_THATCH!=null){
             for(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock block:new zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock[]{ArchitectureBlocks.SMART_THATCH,ArchitectureBlocks.SMART_THATCH_PART}){java.util.Map<Integer,IBakedModel> shared=new java.util.HashMap<>();for(IBlockState state:block.getBlockState().getValidStates()){ModelResourceLocation key=new ModelResourceLocation(block.getRegistryName(),variant(state));int code=block.helper&&!state.getValue(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock.LINKED)?-1:state.getValue(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock.PROFILE)*4+state.getValue(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock.FACING).getHorizontalIndex();IBakedModel model=shared.get(code);if(model==null){model=new SmartThatchBakedModel(event.getModelRegistry().getObject(key),state,block.helper);shared.put(code,model);}event.getModelRegistry().putObject(key,model);}}
             ModelResourceLocation key=new ModelResourceLocation(ArchitectureBlocks.SMART_THATCH.getRegistryName(),"inventory");IBlockState state=ArchitectureBlocks.SMART_THATCH.getDefaultState().withProperty(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock.PROFILE,zone.moddev.mc.ironagearchitecture.block.ThatchShape.of(zone.moddev.mc.ironagearchitecture.block.ThatchForm.SLOPE,net.minecraft.util.EnumFacing.NORTH).profile).withProperty(zone.moddev.mc.ironagearchitecture.block.SmartThatchBlock.FACING,zone.moddev.mc.ironagearchitecture.block.ThatchShape.of(zone.moddev.mc.ironagearchitecture.block.ThatchForm.SLOPE,net.minecraft.util.EnumFacing.NORTH).facing);event.getModelRegistry().putObject(key,new SmartThatchBakedModel(event.getModelRegistry().getObject(key),state,false));

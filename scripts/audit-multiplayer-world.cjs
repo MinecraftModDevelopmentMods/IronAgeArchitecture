@@ -1,7 +1,7 @@
 // Read-only post-run check: preserve all original architecture blocks/profiles and count new material.
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),nbt=require('./fixture-nbt.cjs');
-const root=process.argv[2],cfg=JSON.parse(fs.readFileSync(path.join(root,'case.json'),'utf8').replace(/^\uFEFF/,'')),source=cfg.SourceWorld,world=process.argv[3]||path.join(root,'server/world');
-function chunks(folder){const map=new Map();for(let file of fs.readdirSync(path.join(folder,'region')).filter(x=>x.endsWith('.mca')))for(let r of nbt.region(path.join(folder,'region',file))){let l=r.v.Level.v;map.set(l.xPos.v+','+l.zPos.v,l);}return map;}
+const root=process.argv[2],cfg=JSON.parse(fs.readFileSync(path.join(root,'case.json'),'utf8').replace(/^\uFEFF/,'')),source=cfg.SourceWorld,world=process.argv.slice(3).find(x=>!x.startsWith('--'))||path.join(root,'server/world'),roofJobs=cfg.RoofJobs===true||process.argv.includes('--roof-jobs');
+function chunks(folder){const map=new Map();for(let file of fs.readdirSync(path.join(folder,'region')).filter(x=>x.endsWith('.mca')))for(let r of nbt.region(path.join(folder,'region',file))){let l=r.v.Level.v;l.roofFrames=r.v.ironagearchitecture_roof_cells_v1?.v.items||[];map.set(l.xPos.v+','+l.zPos.v,l);}return map;}
 const base=chunks(source),after=chunks(world),level=nbt.read(path.join(source,'level.dat')),registry=new Map(level.v.FML.v.Registries.v['minecraft:blocks'].v.ids.v.items.map(x=>[x.V.v,x.K.v]));
 const nibble=(v,i)=>(v[i>>1]>>((i&1)*4))&15;
 function state(l,s,i){return [s.Blocks.v[i]+(s.Add?nibble(s.Add.v,i)*256:0),nibble(s.Data.v,i)];}
@@ -14,6 +14,12 @@ for(let player=0;player<cfg.Players;player++){
   if(y<4&&x!==1&&x!==5&&z!==1&&z!==5)continue;if(y<3&&x===3&&z===1)continue;
   let name=y===4?'smart_thatch':player%3===2?'smart_daub_full_oak':'smart_cob',meta=y<4&&player%3===1?1:0;
   expected.set([px+x,100+y,pz+z].join(','),['ironagearchitecture:'+name,meta]);
+ }
+ if(roofJobs){
+  // Independent envelope for the fixture's 4x4, standard-pitch oak roof at Y=120.
+  for(let x=1;x<=4;x++)for(let z=1;z<=4;z++)expected.set([px+x,120,pz+z].join(','),['ironagearchitecture:jetty_floor_full_oak',10]);
+  expected.set([px+3,121,pz+3].join(','),['ironagearchitecture:architects_workbench',0]);
+  for(let x=-1;x<=4;x++)for(let z=-1;z<=4;z++)for(let dy=0;dy<2;dy++)expected.set([px+1+x,120+Math.min(z+1,4-z)+dy,pz+1+z].join(','),['ironagearchitecture:roof_frame',0]);
  }
 }
 // Full timber walls can inherit any of the four horizontal facings on placement.
@@ -30,6 +36,11 @@ const shapes=require('./shape-save.cjs');
 function roof(folder){const r=shapes.roof(folder),templates=r.templates.map(t=>crypto.createHash('sha256').update(t.z).digest('hex')),cells=new Map(),owners=new Set();for(const g of r.groups){for(const o of g.owners)owners.add(o.p.toString());for(const c of g.cells){const k=c.p.toString(),h=templates[c.t];if(cells.has(k)&&cells.get(k)!==h)throw Error('Unexpected overlapping saved groups in this fixture');cells.set(k,h);}}return {cells,owners};}
 function cob(folder){return new Map([...shapes.cob(folder)].map(([k,v])=>[k,JSON.stringify(v)]));}
 let oldRoof=roof(source),newRoof=roof(world),oldCob=cob(source),newCob=cob(world),changedRoof=0,changedCob=0;for(let [p,v] of oldRoof.cells)if(newRoof.cells.get(p)!==v)changedRoof++;for(let [p,v]of oldCob)if(newCob.get(p)!==v)changedCob++;
+function frameProfiles(chunkMap){const cells=new Map();for(const l of chunkMap.values())for(const c of l.roofFrames){const k=c.pos.v.toString();if(cells.has(k))throw Error('Duplicate frame descriptor');cells.set(k,c);}return cells;}
+function frameSignature(c){return JSON.stringify([c.planMost.v.toString(),c.planLeast.v.toString(),c.owner.v.toString(),c.timber.v,c.skin.v]);}
+const oldFrames=frameProfiles(base),newFrames=frameProfiles(after);let changedFrames=0,newFrameCount=0,invalidFrames=0;
+for(const [k,c] of oldFrames)if(!newFrames.has(k)||frameSignature(newFrames.get(k))!==frameSignature(c))changedFrames++;
+for(const [k,c] of newFrames){if(oldFrames.has(k))continue;newFrameCount++;const p=nbt.pos(BigInt(k)),wanted=expected.get([p.x,p.y,p.z].join(',')),owner=nbt.pos(c.owner.v),link=newFrames.get(c.owner.v.toString());if(!wanted||wanted[0]!=='ironagearchitecture:roof_frame'||!link||owner.x!==p.x||owner.z!==p.z||link.timber.v.length===0||link.planMost.v!==c.planMost.v||link.planLeast.v!==c.planLeast.v||!c.timber.v.length||c.timber.v.length%8||!c.skin.v.length||c.skin.v.length%8)invalidFrames++;}
 const n=cfg.Players,timber=Math.floor(n/3),cobPlayers=n-timber,newOwners=added['ironagearchitecture:smart_thatch']||0;
-const countsOk=(added['ironagearchitecture:smart_cob']||0)===46*cobPlayers&&(added['ironagearchitecture:smart_daub_full_oak']||0)===46*timber&&(added['ironagearchitecture:smart_thatch']||0)===25*n&&newOwners===25*n;
-const result={passed:blockChanges===0&&changedRoof===0&&changedCob===0&&countsOk&&unexpected.length===0&&missing.length===0,players:n,layout:cfg.Layout,existingArchitectureBlocksChecked:checked,legacyHelperBlocks:legacyHelpers,removedLegacyHelpers,reusedUndersides,changedExistingBlocks:blockChanges,existingRoofCellsChecked:oldRoof.cells.size,changedExistingRoofProfiles:changedRoof,existingCobProfilesChecked:oldCob.size,changedExistingCobProfiles:changedCob,additionalMaterials:added,newRoofOwners:newOwners,expectedOperations:91*n,unexpectedPlacedBlocks:unexpected,missingExpectedBlocks:missing};console.log(JSON.stringify(result,null,2));if(!result.passed)process.exitCode=1;
+const countsOk=(added['ironagearchitecture:smart_cob']||0)===46*cobPlayers&&(added['ironagearchitecture:smart_daub_full_oak']||0)===46*timber&&(added['ironagearchitecture:smart_thatch']||0)===25*n&&newOwners===25*n&&(!roofJobs||added['ironagearchitecture:roof_frame']===72*n&&added['ironagearchitecture:jetty_floor_full_oak']===16*n&&added['ironagearchitecture:architects_workbench']===n&&newFrameCount===72*n);
+const result={passed:blockChanges===0&&changedRoof===0&&changedCob===0&&changedFrames===0&&invalidFrames===0&&countsOk&&unexpected.length===0&&missing.length===0,players:n,layout:cfg.Layout,roofJobs,existingFrameProfilesChecked:oldFrames.size,changedExistingFrameProfiles:changedFrames,newFrameProfiles:newFrameCount,invalidFrameProfiles:invalidFrames,existingArchitectureBlocksChecked:checked,legacyHelperBlocks:legacyHelpers,removedLegacyHelpers,reusedUndersides,changedExistingBlocks:blockChanges,existingRoofCellsChecked:oldRoof.cells.size,changedExistingRoofProfiles:changedRoof,existingCobProfilesChecked:oldCob.size,changedExistingCobProfiles:changedCob,additionalMaterials:added,newRoofOwners:newOwners,expectedOperations:91*n,unexpectedPlacedBlocks:unexpected,missingExpectedBlocks:missing};console.log(JSON.stringify(result,null,2));if(!result.passed)process.exitCode=1;

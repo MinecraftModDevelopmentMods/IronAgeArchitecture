@@ -1,5 +1,16 @@
 0.1.16.110021 - Local preview
 
+I've added an architect's workbench to try a different way of making roofs.
+Lay the attic floor, draw the roof at the bench and walk around its preview before
+building. Supply timber when you're happy, then fit the covering onto the frame.
+
+- Choose a shallow, standard or steep pitch, turn the ridge and adjust the overhangs.
+- Thatch, slate and clay tiles can be fitted and taken off without rebuilding the timber.
+- Strip the covering before changing the frame. Unchanged sections are reused.
+- The bench can be moved afterwards. The roof keeps its shape without it.
+- Construction runs in small batches, with materials held safely while it works.
+- The first version makes gabled roofs over rectangular attic floors.
+
 I've added smart thatch so a rough stepped roof can choose its own slopes,
 hips, valleys and ridges. It has a weathered straw finish and a thicker profile.
 

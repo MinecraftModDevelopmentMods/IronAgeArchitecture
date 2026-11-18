@@ -7,7 +7,7 @@ Version 0.1.16.110021 contains raw and limewashed cob blocks,
 stairs and slabs; modular wattle-and-daub walls in all six vanilla woods; and smooth
 thatch, slate and clay tile roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
 timber floors, support brackets, hanging clay tiles, openable leaded windows, and brick and
-stone fireplaces, rounded smart cob walls and smart thatch. There are 159 visible variants in Automatic, or 569 in Hybrid,
+stone fireplaces, rounded smart cob walls and smart thatch. There are 166 visible variants in Automatic, or 576 in Hybrid,
 including the wood and finish choices.
 
 ## Rounded smart cob
@@ -30,11 +30,57 @@ frame; its soft earthen surface continues around the corners and into the reveal
 Smart cob is available in Automatic and Hybrid. It stays registered in Manual so
 existing smart-cob buildings remain readable. `blocks.smartCob` enables the family
 and requires `blocks.cob`; timber framing and windows can be disabled independently.
-It belongs to both era palettes. With fresh Automatic settings, the kit has 346
-recipes; selecting Iron Age alone leaves 40.
+It belongs to both era palettes. With fresh Automatic settings, the kit has 353
+recipes; selecting Iron Age alone leaves 59, including the shared workbench and full floors.
 
 The Smart Thatch Preview puts joined, faceted roofs over the three cob cottages.
 New window styles and half-depth cob pieces remain later work.
+
+## Drawing a roof at the workbench
+
+Start with full timber floor pieces across the top of the walls. This first version
+needs a complete rectangular perimeter, between 4 and 32 blocks along each side.
+A stairwell inside the floor does not cut a hole in the roof. Put the architect's
+workbench inside the rectangle, directly on one of its floor pieces.
+
+Craft the bench with paper, a feather and paper across the top, three planks beneath,
+and a crafting table at the bottom centre. One matching plank above one stick makes
+two roof timber units. The bench also accepts these ingredients directly.
+
+Open the bench to detect the floor. Drag on the map to trim the rectangle when floors
+of adjoining houses touch. Rotate the ridge and choose shallow (1:2), standard (1:1)
+or steep (2:1). Base height moves in half blocks, up to four blocks above the floor.
+Eaves and gable overhangs can each be zero, half a block or one block.
+
+Toggle the preview and close the screen to inspect the ghost frame. Only you see it.
+The bench shows anything in the way. Your chosen settings survive floor edits; the
+finished roof changes only when you deliberately build or revise its drawing.
+
+Put timber, or matching planks and sticks, in the material slots. The Build button
+becomes available when the plan is clear and enough timber is supplied. Each occupied
+timber cell costs one unit. Empty cells reserved for the thicker covering cost none.
+The frame is built in small batches. If someone moves into the way, or a chunk unloads,
+work pauses until it is clear. Cancel to recover the unspent timber; completed parts
+stay in place. Breaking the bench also cancels the remaining work and drops its stock.
+
+Click a sloping rafter with smart thatch, a slate slope or a clay tile slope to fit a
+section. It costs one roofing piece even where its thickness crosses a cell boundary.
+Sneak-use an empty hand to take it off. The space reserved above the rafters is part
+of the roof, including small invisible portions needed by thick thatch.
+
+Strip all coverings before revising the frame. A bench placed within the same attic
+can reopen the drawing, repair missing parts or change its pitch and overhangs.
+Unchanged timber is reused; additions need stock and removed timber is returned.
+Mining a timber section returns its timber unit and any covering once.
+
+The bench leaves the wall infill to you. Raising the roof adds timber posts, rather
+than plaster walls. Hips, L-shaped roofs, dormers and automatic gable infill are later
+work. Plans are limited to 1,024 cells and 48 blocks in height; a large footprint and
+steep pitch may exceed that limit. The preview explains when a roof needs splitting.
+
+The workbench and its basic full floors belong to both palettes. Automatic and Hybrid
+offer the bench and timber recipes. Manual keeps existing frames readable. The new
+family uses blocks.architectsWorkbench and works without cob or timber walls.
 
 ## Smart thatch
 

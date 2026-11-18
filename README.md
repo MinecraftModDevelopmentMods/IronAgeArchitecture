@@ -45,6 +45,20 @@ Cob-specific windows remain a later addition.
 
 ## Smart thatch
 
+The local workbench preview adds another way to build a roof. Lay a rectangular attic
+floor from full timber floor pieces and put an architect's workbench on it. Choose the
+ridge direction, pitch, base height and overhangs, then turn on the personal preview
+and walk around it before spending any timber.
+
+Supply matching planks and sticks, or roof timber, and build the bare frame. Fit
+thatch, slate or clay tiles by clicking its rafters. Sneak-use an empty hand to take
+the covering off. Strip a roof before using the bench to change its frame; unchanged
+timbers are reused and removed ones come back. The bench can be moved after building.
+
+This first workbench makes gabled roofs over rectangular areas. Roof openings are
+marked separately from stairwell holes in the floor. Gable infill and walls around a
+raised frame are still separate building work.
+
 Place a rough roof in steps, choosing its height and overhang. Smart thatch chooses
 slopes, corners and ridges from the blocks beside it. Three wheat above three sticks
 make six pieces. Leave holes for chimneys and roof openings.

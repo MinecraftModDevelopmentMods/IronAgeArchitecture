@@ -1,6 +1,17 @@
 itemGroup.ironagearchitecture=Iron Age Architecture
 itemGroup.ironagearchitecture.iron_age=Iron Age
 itemGroup.ironagearchitecture.late_medieval_tudor=Late Medieval & Tudor
+tile.ironagearchitecture.architects_workbench.name=Architect's Workbench
+hint.ironagearchitecture.workbench.place=Place on a full timber attic floor to draw and preview a gabled roof.
+hint.ironagearchitecture.workbench.materials=Supply timber, or matching planks and sticks, then build the bare frame.
+hint.ironagearchitecture.roof_timber.use=Supply an architect's workbench to build or repair a roof frame.
+hint.ironagearchitecture.roof_timber.craft=One matching plank above one stick makes two timber units.
+item.ironagearchitecture.roof_timber.0.name=Oak Roof Timber
+item.ironagearchitecture.roof_timber.1.name=Spruce Roof Timber
+item.ironagearchitecture.roof_timber.2.name=Birch Roof Timber
+item.ironagearchitecture.roof_timber.3.name=Jungle Roof Timber
+item.ironagearchitecture.roof_timber.4.name=Acacia Roof Timber
+item.ironagearchitecture.roof_timber.5.name=Dark Oak Roof Timber
 tile.ironagearchitecture.smart_thatch.name=Smart Thatch
 hint.ironagearchitecture.smart_thatch.place=Build a stepped roof; nearby sections choose slopes, hips, valleys and ridges.
 hint.ironagearchitecture.smart_thatch.space=Add a row for overhangs; leave half a block below exposed slopes.

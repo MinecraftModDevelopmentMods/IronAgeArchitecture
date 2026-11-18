@@ -3,12 +3,14 @@ param(
     [string]$PreviewName='Smart Thatch Preview',
     [switch]$SurfaceCheck,
     [switch]$ThatchInteraction,
+    [switch]$Workbench,
     [string]$PlayerJar,
     [string]$CitySource,
     [int]$CityHouses=64,
     [switch]$ColdCity,
     [int]$CpuCount=4,
     [int]$CityViewDistance=6,
+    [int]$CityTimeoutSeconds=300,
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$GradleHome='D:\GradleCaches\minecraft-mods-shared',
     [string]$AssetsDirectory='',
@@ -80,8 +82,9 @@ $args=@('-Xmx2G',('-Djava.library.path='+(Join-Path $slime 'natives')),'-Diaa.pr
     '--username','ArchitecturePreview','--version','1.10.2','--gameDir',$Runtime,'--assetsDir',$AssetsDirectory,
     '--assetIndex','1.10','--uuid','00000000000000000000000000000001','--accessToken','0','--userType','legacy','--versionType','release','--width','1280','--height','800')
 if($CitySource){$args=@('-Diaa.cityClient=true',('-Diaa.performanceHouses='+$CityHouses))+$args}
-if($ColdCity){$args=@('-Diaa.cityCold=true',('-XX:ActiveProcessorCount='+$CpuCount),('-Diaa.cityViewDistance='+$CityViewDistance))+$args}
+if($ColdCity){$args=@('-Diaa.cityCold=true',('-Diaa.cityTimeoutSeconds='+$CityTimeoutSeconds),('-XX:ActiveProcessorCount='+$CpuCount),('-Diaa.cityViewDistance='+$CityViewDistance))+$args}
 if($SurfaceCheck) {$args=@('-Diaa.surfacePreview=true')+$args}
+if($Workbench){$args=@('-Diaa.workbenchPreview=true')+$args}
 if($ThatchInteraction){$args=@('-Diaa.thatchInteraction=true')+$args}
 Push-Location $Runtime
 try {
@@ -93,5 +96,5 @@ try {
     }else{& $Java8 @args *> 'native-client-console.log'}
     if($LASTEXITCODE -ne 0) {throw "Client exited $LASTEXITCODE"}
     if(!(Select-String -LiteralPath 'native-client-console.log' -SimpleMatch 'IAA_CLIENT_PROBE_PASS')) {throw 'Client probe did not finish'}
-    if($ThatchInteraction){Get-Content -LiteralPath 'thatch-interaction.json'}elseif($CitySource){Get-Content -LiteralPath 'city-client.json'}else{Get-Content -LiteralPath 'architecture-probe.json'}
+    if($Workbench){Get-Content -LiteralPath 'workbench-client.json'}elseif($ThatchInteraction){Get-Content -LiteralPath 'thatch-interaction.json'}elseif($CitySource){Get-Content -LiteralPath 'city-client.json'}else{Get-Content -LiteralPath 'architecture-probe.json'}
 } finally {Pop-Location}

@@ -15,6 +15,13 @@ public final class ArchitectureRecipes {
     private static ItemStack stack(Block block,int count,int meta) {return new ItemStack(block,count,meta);}
     private static ItemStack count(ItemStack stack,int count) {ItemStack result=stack.copy();result.stackSize=count;return result;}
     public static void register() {
+        if(ArchitectureConfig.architectsWorkbench){
+            shaped(new ItemStack(ArchitectureBlocks.ARCHITECTS_WORKBENCH),"PFP","WWW"," C ",'P',Items.PAPER,'F',Items.FEATHER,'W',new ItemStack(Blocks.PLANKS,1,net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE),'C',Blocks.CRAFTING_TABLE);
+            for(int wood=0;wood<6;wood++){
+                shaped(new ItemStack(ArchitectureBlocks.ROOF_TIMBER,2,wood),"P","S",'P',new ItemStack(Blocks.PLANKS,1,wood),'S',Items.STICK);
+                if(!ArchitectureConfig.frames)shaped(new ItemStack(ArchitectureBlocks.findFloor(ArchitectureBlocks.WOODS[wood],FloorShape.FULL,null),6),"PPP","SSS",'P',new ItemStack(Blocks.PLANKS,1,wood),'S',Items.STICK);
+            }
+        }
         if(ArchitectureConfig.cob) registerCob();
         if(ArchitectureConfig.thatch) {
             ItemStack smart=new ItemStack(ArchitectureBlocks.SMART_THATCH);Block slope=Block.getBlockFromName(IronAgeArchitecture.MODID+":thatch_roof"),ridge=Block.getBlockFromName(IronAgeArchitecture.MODID+":thatch_ridge");

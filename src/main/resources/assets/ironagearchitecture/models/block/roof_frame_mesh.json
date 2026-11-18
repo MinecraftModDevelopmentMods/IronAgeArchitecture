@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "ironagearchitecture:blocks/beam_oak",
+    "timber": "ironagearchitecture:blocks/beam_oak",
+    "thatch": "ironagearchitecture:blocks/smart_thatch",
+    "thatch_edge": "ironagearchitecture:blocks/smart_thatch_edge",
+    "slate": "ironagearchitecture:blocks/slate",
+    "clay": "ironagearchitecture:blocks/clay_tile"
+  },
+  "elements": []
+}

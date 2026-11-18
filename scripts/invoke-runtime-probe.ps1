@@ -1,5 +1,6 @@
 param(
-    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only','manual','hybrid','automatic','legacy-fireplaces','legacy-smart','cob-disabled','cob-only','thatch-disabled','thatch-only','legacy-cob','automatic-retained','pending-save','pending-reload')][string]$Mode='core',
+    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only','manual','hybrid','automatic','legacy-fireplaces','legacy-smart','cob-disabled','cob-only','thatch-disabled','thatch-only','legacy-cob','automatic-retained','pending-save','pending-reload','workbench','workbench-reload','roof-city-prepare','workbench-disabled','workbench-only')][string]$Mode='core',
+    [int]$CpuCount=4,
     [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\smart-thatch-0.1.16',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
     [string]$FurnitureJar='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\furniture\mods\iron-age-furniture-0.3.0.110021.jar',
@@ -9,7 +10,7 @@ $ErrorActionPreference='Stop'
 $repo=Split-Path $PSScriptRoot -Parent
 $version=((Select-String -LiteralPath (Join-Path $repo 'gradle.properties') -Pattern '^mod_version=').Line -split '=',2)[1]
 $runtimeJar='iron-age-architecture-'+$version+'.jar'
-$folder=Join-Path $RuntimeRoot $(if($Mode -eq 'reload'){'core'}elseif($Mode -eq 'pending-reload'){'pending-save'}else{$Mode})
+$folder=Join-Path $RuntimeRoot $(if($Mode -eq 'reload'){'core'}elseif($Mode -eq 'pending-reload'){'pending-save'}elseif($Mode -eq 'workbench-reload'){'workbench'}else{$Mode})
 New-Item -ItemType Directory -Force -Path $folder,(Join-Path $folder 'mods') | Out-Null
 $forge='forge-1.10.2-12.18.3.2511-universal.jar'
 foreach($name in @($forge,'minecraft_server.1.10.2.jar','libraries')) {
@@ -109,6 +110,7 @@ if($Mode -eq 'thatch-only') {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
     @'
 blocks {
+ B:architectsWorkbench=false
  B:cob=false
  B:timberFrames=false
  B:leadedWindows=false
@@ -123,6 +125,7 @@ if($Mode -eq 'cob-only') {
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
     @'
 blocks {
+ B:architectsWorkbench=false
  B:cob=true
  B:smartCob=true
  B:timberFrames=false
@@ -139,6 +142,7 @@ if($Mode -in @('disabled','clay-only')) {
     $clayTiles=($Mode -eq 'clay-only').ToString().ToLowerInvariant()
     @"
 blocks {
+    B:architectsWorkbench=false
     B:cob=false
     B:timberFrames=false
     B:thatch=false
@@ -152,6 +156,8 @@ if($Mode -notin @('core','reload','manual','hybrid','automatic','automatic-retai
     New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null
     Add-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Value "building {`n S:mode=automatic`n B:retainLegacyWallIds=false`n B:retainLegacyThatchIds=false`n}" -Encoding ascii
 }
+if($Mode -eq 'workbench-disabled') {New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null; "blocks {`n B:architectsWorkbench=false`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii}
+if($Mode -eq 'workbench-only') {New-Item -ItemType Directory -Force -Path (Join-Path $folder 'config') | Out-Null; "blocks {`n B:cob=false`n B:timberFrames=false`n B:thatch=false`n B:slate=false`n B:clayTiles=false`n B:fireplaces=false`n B:architectsWorkbench=true`n}`nbuilding {`n S:mode=automatic`n B:retainLegacyWallIds=false`n B:retainLegacyThatchIds=false`n}" | Set-Content -LiteralPath (Join-Path $folder 'config/ironagearchitecture.cfg') -Encoding ascii}
 'eula=true' | Set-Content -LiteralPath (Join-Path $folder 'eula.txt') -Encoding ascii
 @'
 level-type=FLAT
@@ -169,9 +175,12 @@ server-port=25671
 max-tick-time=120000
 '@ | Set-Content -LiteralPath (Join-Path $folder 'server.properties') -Encoding ascii
 $receipt=Join-Path $folder ($Mode+'-receipt.json')
-$args=@('-Xmx2G','-Diaa.probe=true',('-Diaa.receipt='+$receipt))
+$args=@('-Xmx2G',('-XX:ActiveProcessorCount='+$CpuCount),'-Diaa.probe=true',('-Diaa.receipt='+$receipt))
 $args+=('-Diaa.runtimeSha256='+(Get-FileHash -LiteralPath (Join-Path $folder ('mods/'+$runtimeJar)) -Algorithm SHA256).Hash.ToLowerInvariant())
 if($Mode -eq 'reload') {$args+='-Diaa.reload=true'}
+if($Mode -in @('workbench','workbench-reload','workbench-only')){$args+='-Diaa.workbenchProbe=true'}
+if($Mode -eq 'workbench-reload'){$args+='-Diaa.workbenchReload=true'}
+if($Mode -eq 'roof-city-prepare'){$args+='-Diaa.roofCityPrepare=true'}
 if($Mode -eq 'pending-save'){$args+='-Diaa.pendingSave=true'}
 if($Mode -eq 'pending-reload'){$args+='-Diaa.pendingReload=true'}
 if($Mode -eq 'legacy') {$args+='-Diaa.legacy=true'}
@@ -195,5 +204,7 @@ try {
     if($LASTEXITCODE -ne 0) {throw "Forge exited $LASTEXITCODE; inspect $folder\$Mode-console.log"}
     if(!(Test-Path -LiteralPath $receipt)) {throw "No probe receipt; inspect $folder\$Mode-console.log"}
     if((Get-Item -LiteralPath $receipt).LastWriteTime -lt $started) {throw 'Stale probe receipt'}
+    $taskReceipt=Get-Content -LiteralPath $receipt -Raw | ConvertFrom-Json
+    if($taskReceipt.passed -ne $true){throw "Probe reported failure; inspect $receipt"}
     Get-Content -LiteralPath $receipt
 } finally {Pop-Location}

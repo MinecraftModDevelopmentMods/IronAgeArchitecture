@@ -4,6 +4,7 @@ param(
  [ValidateSet(1,5,10)][int]$Clients=1,
  [ValidateSet('together','spread')][string]$Layout='together',
  [switch]$Prepare,
+ [switch]$RoofJobs,
  [int]$Port=25676,
  [ValidateRange(0,16)][int]$NetworkThreads=0,
  [string]$PlayerJar,
@@ -58,9 +59,11 @@ function Client-Environment {
 $case=[ordered]@{Started=(Get-Date).ToUniversalTime().ToString('o');Players=$Clients;Layout=$Layout;Prepare=[bool]$Prepare;PlayerSha256=$digest;ProbeSha256=$probeDigest;ServerHeapMiB=2048;ServerProcessors=4;ServerCpuMask='0x55';ClientHeapMiB=1536;ClientProcessors=2;ClientCpuMask='0xffff00';ViewDistance=6;Transport='TCP loopback; separate native Forge processes';SourceWorld=$SourceWorld}
 $case | ConvertTo-Json | Set-Content "$Root/case.json"
 $case['ServerNetworkThreads']=if($NetworkThreads){$NetworkThreads}else{'Netty default'}
+$case['RoofJobs']=[bool]$RoofJobs
 $case['ViewDistance']=$ViewDistance;$case['ReconnectRounds']=$Reconnects;$case['FlightRecording']=[bool]$Profile;$case['GCLogging']=[bool]($Profile -or $GcLog)
 $case | ConvertTo-Json | Set-Content "$Root/case.json"
 $serverArgs=@('-Xmx2G','-XX:ActiveProcessorCount=4','-Djava.awt.headless=true','-Diaa.probe=true','-Diaa.mpServer=true',('-Diaa.mpRoot='+$Root),('-Diaa.runtimeSha256='+$digest),('-Diaa.mpClients='+$Clients),('-Diaa.mpSpread='+($Layout -eq 'spread').ToString().ToLowerInvariant()),'-jar','forge-1.10.2-12.18.3.2511-universal.jar','nogui')
+if($RoofJobs){$serverArgs=@('-Diaa.mpRoofJobs=true')+$serverArgs}
 if($Prepare){$serverArgs=@('-Diaa.mpPrepare=true')+$serverArgs}
 if($NetworkThreads){$serverArgs=@("-Dio.netty.eventLoopThreads=$NetworkThreads")+$serverArgs}
 $serverArgs=@("-Diaa.mpReconnects=$Reconnects")+$serverArgs
@@ -93,7 +96,11 @@ try{
   $audit=& node (Join-Path $PSScriptRoot 'audit-multiplayer-world.cjs') $Root
   $auditCode=$LASTEXITCODE;$audit | Set-Content "$Root/world-audit.json"
   if($auditCode -ne 0){throw 'Saved-world material or preservation audit failed'}
-  $roof=& node (Join-Path $PSScriptRoot 'audit-simple-thatch.cjs') "$Root/server/world" (49500+25*$Clients)
+  $baseline=& node (Join-Path $PSScriptRoot 'audit-simple-thatch.cjs') $SourceWorld
+  if($LASTEXITCODE -ne 0){throw 'Source-world roof audit failed'}
+  $baseline | Set-Content "$Root/source-roof-audit.json"
+  $baseOwners=($baseline | ConvertFrom-Json).materialOwners
+  $roof=& node (Join-Path $PSScriptRoot 'audit-simple-thatch.cjs') "$Root/server/world" ($baseOwners+25*$Clients)
   $roofCode=$LASTEXITCODE;$roof | Set-Content "$Root/roof-audit.json"
   if($roofCode -ne 0){throw 'Saved roof material or legacy helper cleanup failed'}
  }
