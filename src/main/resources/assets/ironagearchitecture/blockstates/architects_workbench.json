@@ -1,7 +1,10 @@
 {
   "variants": {
-    "normal": {
+    "clipboard=false": {
       "model": "ironagearchitecture:architects_workbench"
+    },
+    "clipboard=true": {
+      "model": "ironagearchitecture:architects_workbench_clipboard"
     }
   }
 }

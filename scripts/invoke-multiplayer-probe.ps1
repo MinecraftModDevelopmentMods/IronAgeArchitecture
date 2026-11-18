@@ -5,6 +5,7 @@ param(
  [ValidateSet('together','spread')][string]$Layout='together',
  [switch]$Prepare,
  [switch]$RoofJobs,
+ [switch]$RoofDesign,
  [int]$Port=25676,
  [ValidateRange(0,16)][int]$NetworkThreads=0,
  [string]$PlayerJar,
@@ -59,10 +60,11 @@ function Client-Environment {
 $case=[ordered]@{Started=(Get-Date).ToUniversalTime().ToString('o');Players=$Clients;Layout=$Layout;Prepare=[bool]$Prepare;PlayerSha256=$digest;ProbeSha256=$probeDigest;ServerHeapMiB=2048;ServerProcessors=4;ServerCpuMask='0x55';ClientHeapMiB=1536;ClientProcessors=2;ClientCpuMask='0xffff00';ViewDistance=6;Transport='TCP loopback; separate native Forge processes';SourceWorld=$SourceWorld}
 $case | ConvertTo-Json | Set-Content "$Root/case.json"
 $case['ServerNetworkThreads']=if($NetworkThreads){$NetworkThreads}else{'Netty default'}
-$case['RoofJobs']=[bool]$RoofJobs
+$case['RoofJobs']=[bool]($RoofJobs -or $RoofDesign);$case['RoofDesign']=[bool]$RoofDesign
 $case['ViewDistance']=$ViewDistance;$case['ReconnectRounds']=$Reconnects;$case['FlightRecording']=[bool]$Profile;$case['GCLogging']=[bool]($Profile -or $GcLog)
 $case | ConvertTo-Json | Set-Content "$Root/case.json"
 $serverArgs=@('-Xmx2G','-XX:ActiveProcessorCount=4','-Djava.awt.headless=true','-Diaa.probe=true','-Diaa.mpServer=true',('-Diaa.mpRoot='+$Root),('-Diaa.runtimeSha256='+$digest),('-Diaa.mpClients='+$Clients),('-Diaa.mpSpread='+($Layout -eq 'spread').ToString().ToLowerInvariant()),'-jar','forge-1.10.2-12.18.3.2511-universal.jar','nogui')
+if($RoofDesign){$serverArgs=@('-Diaa.mpRoofDesign=true','-Diaa.mpRoofJobs=true')+$serverArgs}
 if($RoofJobs){$serverArgs=@('-Diaa.mpRoofJobs=true')+$serverArgs}
 if($Prepare){$serverArgs=@('-Diaa.mpPrepare=true')+$serverArgs}
 if($NetworkThreads){$serverArgs=@("-Dio.netty.eventLoopThreads=$NetworkThreads")+$serverArgs}

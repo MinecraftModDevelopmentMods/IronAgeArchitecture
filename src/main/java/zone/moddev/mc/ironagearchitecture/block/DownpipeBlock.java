@@ -72,9 +72,9 @@ public final class DownpipeBlock extends BlockHorizontal {
         IBlockState against = world.getBlockState(clicked);
         if (!placer.isSneaking()) {
             for (boolean upstream : new boolean[]{true, false}) {
-                DrainRun.Port port = DrainRun.port(against, upstream);
+                DrainRun.Port port = DrainRun.port(against,world,clicked,upstream);
                 if (port == null || port.side != side) continue;
-                EnumFacing aligned = against.getValue(FACING);
+                EnumFacing aligned = port.facing;
                 int candidate = isOffset() ? profile : port.lane();
                 if (candidate < 0) continue;
                 IBlockState chosen = state(aligned, candidate);

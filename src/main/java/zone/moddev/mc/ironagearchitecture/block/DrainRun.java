@@ -57,6 +57,7 @@ public final class DrainRun {
         return new Port(side, state.getValue(BlockHorizontal.FACING), end[0], end[1]);
     }
 
+    static Port port(IBlockState state,World world,BlockPos pos,boolean output){zone.moddev.mc.ironagearchitecture.roof.RoofPart part=output?zone.moddev.mc.ironagearchitecture.roof.RoofGutters.outlet(world,pos):null;if(part!=null){double depth=part.data[4]==0?DrainGeometry.WALL:part.data[4]==1?DrainGeometry.HALF:DrainGeometry.OUTER;return new Port(EnumFacing.DOWN,part.facing,0,depth);}return port(state,output);}
     public static boolean canDrip(IBlockState state, World world, BlockPos pos) {
         if (!world.isRaining()) return false;
         BlockPos inlet = exposedInletForDrip(state, world, pos);
@@ -69,12 +70,13 @@ public final class DrainRun {
         for (int count = 0; count < 32; count++) {
             if (state.getBlock() instanceof FasciaBlock)
                 return world.isBlockLoaded(pos.up()) && world.canSeeSky(pos.up()) ? pos : null;
-            Port inlet = port(state, false);
+            BlockPos roofInlet=zone.moddev.mc.ironagearchitecture.roof.RoofGutters.inlet(world,pos);if(roofInlet!=null)return world.isBlockLoaded(roofInlet.up())&&world.canSeeSky(roofInlet.up())?roofInlet:null;
+            Port inlet = port(state,world,pos,false);
             if (inlet == null) return null;
             pos = pos.offset(inlet.side);
             if (!world.isBlockLoaded(pos)) return null;
             state = world.getBlockState(pos);
-            Port previous = port(state, true);
+            Port previous = port(state,world,pos,true);
             if (previous == null || !inlet.matches(previous)) return null;
         }
         return null;
@@ -87,14 +89,14 @@ public final class DrainRun {
             double[] mouth = path[path.length - 1];
             return DrainGeometry.point(mouth[0] - .65, mouth[1] + .3, state.getValue(BlockHorizontal.FACING));
         }
-        Port end = port(state, true);
+        Port end = port(state,world,pos,true);
         if (end == null || end.side != EnumFacing.DOWN || !world.isBlockLoaded(pos.down()) || !world.isAirBlock(pos.down()))
             return null;
         return DrainGeometry.point(-.48, end.depth, end.facing);
     }
 
     @SideOnly(Side.CLIENT)
-    static void showDrip(IBlockState state, World world, BlockPos pos) {
+    public static void showDrip(IBlockState state, World world, BlockPos pos) {
         if (!canDrip(state, world, pos)) return;
         Vec3d point = dripPoint(state, world, pos);
         if (point == null) return;

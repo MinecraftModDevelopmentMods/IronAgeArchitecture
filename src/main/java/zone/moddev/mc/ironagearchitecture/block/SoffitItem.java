@@ -21,6 +21,7 @@ public final class SoffitItem extends Item {
     @Override public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
             EnumHand hand, EnumFacing side, float x, float y, float z) {
         IBlockState state = world.getBlockState(pos);
+        if(zone.moddev.mc.ironagearchitecture.roof.RoofDesignInteraction.host(state))return zone.moddev.mc.ironagearchitecture.roof.RoofGutters.line(world,pos,player,stack,side)?EnumActionResult.SUCCESS:EnumActionResult.FAIL;
         if (side != EnumFacing.DOWN || !(state.getBlock() instanceof FasciaBlock)
                 || !FasciaBlock.onUnderside(state, x, y, z)) return EnumActionResult.PASS;
         if (((FasciaBlock)state.getBlock()).lined || stack.stackSize <= 0 || !world.isBlockModifiable(player, pos)

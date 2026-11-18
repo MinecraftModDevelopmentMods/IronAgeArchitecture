@@ -11,9 +11,11 @@ public final class WindowGeometry {
     public enum Material { WOOD,DAUB,LEAD,GLASS }
     public static final class Face {
         public final Material material;
+        public final boolean moving;
         /** x,y,z,u,v; positions relative to the cell being rendered. */
         public final double[][] vertices;
-        Face(Material material,double[][] vertices) {this.material=material;this.vertices=vertices;}
+        Face(Material material,double[][] vertices) {this(material,vertices,false);}
+        Face(Material material,double[][] vertices,boolean moving) {this.material=material;this.vertices=vertices;this.moving=moving;}
     }
     private WindowGeometry() { }
     private static void box(List<Part> out,double x,double y,double z,double xx,double yy,double zz,Grain grain) {WallGeometry.box(out,x,y,z,xx,yy,zz,grain);}
@@ -68,7 +70,7 @@ public final class WindowGeometry {
                 polygon[i]=new double[]{v[0]-(proxy?facing.getFrontOffsetX()*16:0),v[1],v[2]-(proxy?facing.getFrontOffsetZ()*16:0),u,vv};
             }
             for(int axis=0;axis<3;axis++) {polygon=clip(polygon,axis,0,true);polygon=clip(polygon,axis,16,false);}
-            if(SurfaceGeometry.area(polygon)>1e-7) out.add(new Face(material==Material.WOOD&&face.part.grain==Grain.DAUB?Material.DAUB:material,polygon));
+            if(SurfaceGeometry.area(polygon)>1e-7) out.add(new Face(material==Material.WOOD&&face.part.grain==Grain.DAUB?Material.DAUB:material,polygon,moving));
         }
     }
     private static List<Part> glass(int joins,boolean pane) {
@@ -107,6 +109,7 @@ public final class WindowGeometry {
         List<Face> out=new ArrayList<>();emit(out,glass(0,true),Material.GLASS,false,false,false,EnumFacing.NORTH,false,false);
         emit(out,leading(diamond,0,true),Material.LEAD,false,false,false,EnumFacing.NORTH,false,false);return out;
     }
+    public static List<Face> roofFaces(boolean diamond){List<Face> out=new ArrayList<>();emit(out,fixed(false,0),Material.WOOD,false,false,false,EnumFacing.NORTH,false,false);emit(out,sash(0),Material.WOOD,true,false,false,EnumFacing.NORTH,false,false);emit(out,glass(0,false),Material.GLASS,true,false,false,EnumFacing.NORTH,false,false);emit(out,leading(diamond,0,false),Material.LEAD,true,false,false,EnumFacing.NORTH,false,false);return out;}
     private static AxisAlignedBB transform(AxisAlignedBB box,boolean open,boolean right,EnumFacing facing,boolean back) {
         double[] bounds={Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY,Double.NEGATIVE_INFINITY,Double.NEGATIVE_INFINITY,Double.NEGATIVE_INFINITY};
         for(double x:new double[]{box.minX,box.maxX}) for(double y:new double[]{box.minY,box.maxY}) for(double z:new double[]{box.minZ,box.maxZ}) {
@@ -128,4 +131,5 @@ public final class WindowGeometry {
         AxisAlignedBB closed=transform(new AxisAlignedBB(1.5/16,0,1.7/16,14.5/16,1,2.4/16),false,right,facing,back);
         return closed.union(transform(new AxisAlignedBB(1.5/16,0,1.7/16,14.5/16,1,2.4/16),true,right,facing,back));
     }
+    public static List<AxisAlignedBB> movingBoxes(boolean right,boolean open,EnumFacing facing,int joins,boolean proxy){List<AxisAlignedBB> out=new ArrayList<>();double b=(joins&DOWN)!=0?0:1.5,t=(joins&UP)!=0?16:14.5;AxisAlignedBB leaf=transform(new AxisAlignedBB(1.5/16,b/16,1.7/16,14.5/16,t/16,2.4/16),open,right,facing,false);if(proxy)leaf=leaf.offset(-facing.getFrontOffsetX(),0,-facing.getFrontOffsetZ());double x=Math.max(0,leaf.minX),y=Math.max(0,leaf.minY),z=Math.max(0,leaf.minZ),xx=Math.min(1,leaf.maxX),yy=Math.min(1,leaf.maxY),zz=Math.min(1,leaf.maxZ);if(xx>x+1e-8&&yy>y+1e-8&&zz>z+1e-8)out.add(new AxisAlignedBB(x,y,z,xx,yy,zz));return out;}
 }

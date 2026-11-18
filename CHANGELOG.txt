@@ -1,15 +1,23 @@
 0.1.16.110021 - Local preview
 
-I've added an architect's workbench to try a different way of making roofs.
-Lay the attic floor, draw the roof at the bench and walk around its preview before
-building. Supply timber when you're happy, then fit the covering onto the frame.
+I've added an architect's workbench and clipboard so roofs can be planned on the
+house, rather than worked out a piece at a time.
 
-- Choose a shallow, standard or steep pitch, turn the ridge and adjust the overhangs.
-- Thatch, slate and clay tiles can be fitted and taken off without rebuilding the timber.
-- Strip the covering before changing the frame. Unchanged sections are reused.
-- The bench can be moved afterwards. The roof keeps its shape without it.
-- Construction runs in small batches, with materials held safely while it works.
-- The first version makes gabled roofs over rectangular attic floors.
+- Lay the attic floor inside the walls or over their tops. The roof can sit lower
+  at the eaves and wrap over the wall edge.
+- Adjust the pitch, height and each overhang separately. Choose traditional ties,
+  a usable attic room or an open vault without crossbars.
+- Take the clipboard from the bench and walk around the preview. Add roof windows,
+  gabled dormers, wide shed dormers or a mansard on either side.
+- Choose the timber, leading, cheek walls and covering for each feature. The
+  windows open by hand or redstone.
+- Return to the bench to check the materials and build the changes. It reuses
+  removed materials and leaves unchanged covering and window positions alone.
+- Fit thatch, slate or clay to the main frame. Existing gutters fit the new fascia;
+  soffits can be fitted underneath or included as boxed eaves.
+- The bench can be moved afterwards. The roof and drawing keep their shape.
+- Existing workbench roofs keep their original profiles until you revise them.
+- Roof edits stay tied to the player who sent them when several people build together.
 
 I've added smart thatch so a rough stepped roof can choose its own slopes,
 hips, valleys and ridges. It has a weathered straw finish and a thicker profile.

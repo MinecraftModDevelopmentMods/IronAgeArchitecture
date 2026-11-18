@@ -56,6 +56,8 @@ public final class ArchitectureProbe {
         MinecraftServer server=FMLCommonHandler.instance().getMinecraftServerInstance();
         WorldServer world=server.worldServerForDimension(0);
         if(Boolean.getBoolean("iaa.roofCityPrepare")){RoofCityProbe.start(world,server);return;}
+        if(Boolean.getBoolean("iaa.roofDesignPreview"))return;
+        if(Boolean.getBoolean("iaa.roofDesignProbe")){RoofDesignProbe.start(world,server);return;}
         if(Boolean.getBoolean("iaa.workbenchPreview"))return;
         if(Boolean.getBoolean("iaa.workbenchProbe")){WorkbenchProbe.start(world,server);return;}
         if(Boolean.getBoolean("iaa.thatchInteraction"))return;

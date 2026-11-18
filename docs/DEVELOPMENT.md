@@ -450,34 +450,53 @@ the packaged mod and probe. It reuses verified Mojang libraries and existing ass
 the ordinary client launch does not use this harness. Do not place server classes ahead of the vanilla
 client in the native classpath, because Forge's client binary patches require the exact client bytes.
 
-## Architect's workbench preview
+## Architect's workbench and roof design preview
 
-The save point before this experiment is 8721173. The roof planner is separate from
-smart thatch: it runs on explicit bench actions and emits immutable local prism
-descriptors, stored with their chunks. The small per-roof archive holds settings,
-not a city-wide mesh. Finished cells have no controller dependency or ticking work.
+8721173 preserves the simple smart-thatch kit; 6024135 preserves the first workbench.
+Version-1 plans and prism profiles retain the old solver. New designs use version 2,
+with independent floor seating, four overhangs, eave drop, collar clearance and typed
+parts for covering, timber, cheeks, fascia, lining, fittings and windows. Dormer
+cheeks have independent top and bottom planes; geometry stays clipped to its cell.
+Dormer valleys use clipped planar triangle prisms with the same slice/targeting
+path; ordinary roof sheets retain their rectangle prisms. Roof windows share the existing sash kit with preserved local UVs. Pitched panes
+rotate 45 degrees at the top hinge; dormer casements use the vertical column rules.
 
-Two frame identities store six woods and four covering states within four metadata
-bits. The non-ticking workbench is the third new block ID. All families enabled in
-fresh Automatic therefore have 324 IDs, 166 visible variants and 353 grid recipes.
-The full floor starter and its recovery recipe also become shared between eras.
+The two existing frame IDs retain their metadata. Two hidden window IDs add an
+owner with facing/open/powered metadata and a metadata-0 helper. The clipboard is
+one item. Fresh Automatic has 326 IDs, 167 visible variants and 354 recipes;
+Iron Age has 60 recipes. Hybrid has 577 visible variants and 2,182 recipes.
+The non-ticking bench is the only tile entity; clipboard-presence state changes
+preserve its inventory and jobs. Chunk update tags omit that private inventory.
 
-RoofMeshes caches a bounded reusable prism kit without positions or plan IDs in
-its key. Model quads share the same position-free keys. Collision uses at most
-1/32-width slices across the steepest plane and targeting uses the exact triangles.
-Coverage fragments remain in their own cells and forward harvesting to their timber
-section. A section consumes and returns one covering, regardless of fragment count.
+Typed immutable fragments are stored with their chunks. Paid identities and roots
+are excluded from bounded mesh keys. Render meshes, exact ray triangles and
+conservative collision come from the same prisms. Rebuilds run only on explicit
+design edits. Loaded chunk borders queue one-off window link repair; blocked
+powered windows retry on edits or a short-lived entity queue. Persisted removal records prevent an unloaded helper from restoring a broken
+window; explicit reconstruction clears its record. No idle roof scans.
 
-The server validates container access, plan bounds, ownership, material stock,
-loaded chunks, edit permissions and entity clearance. Construction reserves stock
-first, persists its operation index and shares a 16-cell / two-millisecond budget
-across all active benches. Incomplete jobs can resume after normal save/reload.
-Purely visual previews are personal; floor refreshes preserve user settings and
-ignore unrelated neighbour notifications. Chunk snapshots are queued with a shared
-64 KiB-per-tick estimate, split into at most 64 cells per packet.
+Shared drawings use revisions, a 32-entry undo/redo history and roof UUID plus
+dimension clipboard bindings. Requests validate held tools or containers, range,
+loaded chunks, permissions and bounded settings. The server determines geometry
+and prices. Inbound roof requests take their sender from the raw FMLProxyPacket
+handler, avoiding Forge 1.10's shared NET_HANDLER attribute race under simultaneous
+connections. Replies and snapshots remain on the client-only simple channel.
+The bill compares actual owned parts with the proposed drawing,
+including open window poses and unchanged covering, gutter and lining attachments.
 
-The production artifact excludes WorkbenchProbe, WorkbenchClientProbe and RoofCityProbe.
-The latter deliberately seeds a disposable 500-house fixture in bulk; its preparation
-time is not a measurement of player construction throughput. Multiplayer roof jobs
-are server-scheduled alongside native player edits; the separate native GUI probe
-checks the actual container, shift-click material transfer and request path.
+Construction uses real persisted escrow: changed old fragments are removed first,
+and a unit becomes available only after its final fragment is removed. New units
+are debited once, with additions reserved before work begins. The operation index,
+escrow and spent identities survive save/reload. Cancel returns unspent material;
+completed sections remain. All benches share 16 cells and a two-millisecond budget
+between writes. A single block/light update can exceed that time slice.
+
+Chunk snapshots use the shared 256 KiB-per-tick estimate and two-millisecond between-packet budget, at most 64 cells and a
+16 KiB estimate per packet. Compressed encoded/decoded payload and decoded-cell
+counters support multiplayer qualification. Player JARs exclude every probe.
+RoofDesignProbe exercises survival escrow, cancellation, resumption, local rework,
+window power, obstruction and helper cleanup. RoofDesignClientProbe exercises
+native bench/clipboard traffic and captures the separate five-house scene.
+RoofCityProbe seeds a disposable 500-house typed-profile fixture; bulk preparation
+is not a player-construction throughput result. Multiplayer design cases edit via
+the real clipboard and start construction through the ordinary bench request.

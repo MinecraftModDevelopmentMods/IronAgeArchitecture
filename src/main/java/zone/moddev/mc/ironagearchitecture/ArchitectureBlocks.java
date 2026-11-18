@@ -46,6 +46,8 @@ public final class ArchitectureBlocks {
     public static ArchitectWorkbench ARCHITECTS_WORKBENCH;
     public static RoofFrameBlock ROOF_FRAME,ROOF_FRAME_COVERED;
     public static RoofTimberItem ROOF_TIMBER;
+    public static RoofClipboardItem ROOF_CLIPBOARD;
+    public static RoofWindowBlock ROOF_WINDOW,ROOF_WINDOW_PART;
 
     public static int variants(Block block) {
         if(block instanceof SmartCobBlock)return 2;
@@ -57,6 +59,7 @@ public final class ArchitectureBlocks {
         for(Block block:VISIBLE) if(available(Item.getItemFromBlock(block))) for(int meta=0;meta<variants(block);meta++) result.add(new ItemStack(block,1,meta));
         for(JettyBracketItem item:BRACKETS) result.add(new ItemStack(item));
         if(ROOF_TIMBER!=null&&available(ROOF_TIMBER))for(int wood=0;wood<6;wood++)result.add(new ItemStack(ROOF_TIMBER,1,wood));
+        if(ROOF_CLIPBOARD!=null&&available(ROOF_CLIPBOARD))result.add(new ItemStack(ROOF_CLIPBOARD));
         if(LEADED_PANE!=null) {result.add(new ItemStack(LEADED_PANE,1,0));result.add(new ItemStack(LEADED_PANE,1,1));}
         if (GUTTER != null) {
             result.add(new ItemStack(GUTTER));
@@ -161,6 +164,8 @@ public final class ArchitectureBlocks {
             if(!ArchitectureConfig.frames)for(String wood:WOODS)floor(wood,FloorShape.FULL,null);
             ARCHITECTS_WORKBENCH=block(new ArchitectWorkbench(),"architects_workbench");item(ARCHITECTS_WORKBENCH,new EraItemBlock(ARCHITECTS_WORKBENCH));
             ROOF_FRAME=block(new RoofFrameBlock(false),"roof_frame");ROOF_FRAME_COVERED=block(new RoofFrameBlock(true),"roof_frame_covered");
+            ROOF_WINDOW=block(new RoofWindowBlock(false),"roof_window");ROOF_WINDOW_PART=block(new RoofWindowPartBlock(),"roof_window_part");
+            ROOF_CLIPBOARD=new RoofClipboardItem();ROOF_CLIPBOARD.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID,"roof_clipboard"));ROOF_CLIPBOARD.setUnlocalizedName(IronAgeArchitecture.MODID+".roof_clipboard");GameRegistry.register(ROOF_CLIPBOARD);
             ROOF_TIMBER=new RoofTimberItem();ROOF_TIMBER.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID,"roof_timber"));ROOF_TIMBER.setUnlocalizedName(IronAgeArchitecture.MODID+".roof_timber");GameRegistry.register(ROOF_TIMBER);
             GameRegistry.registerTileEntity(ArchitectWorkbench.Desk.class,IronAgeArchitecture.MODID+":architects_workbench");
         }
@@ -214,7 +219,7 @@ public final class ArchitectureBlocks {
         throw new IllegalArgumentException("Unregistered smart wall");
     }
     public static boolean available(Item item) {
-        if(item instanceof RoofTimberItem||Block.getBlockFromItem(item) instanceof ArchitectWorkbench)return ArchitectureConfig.buildingMode.automatic();
+        if(item instanceof RoofTimberItem||item instanceof RoofClipboardItem||Block.getBlockFromItem(item) instanceof ArchitectWorkbench)return ArchitectureConfig.buildingMode.automatic();
         if(item instanceof SmartThatchItem)return ArchitectureConfig.buildingMode.automatic();
         if(item instanceof SmartCobItem)return ArchitectureConfig.buildingMode.automatic();
         if(item instanceof SmartWallItem) return ArchitectureConfig.buildingMode.automatic();

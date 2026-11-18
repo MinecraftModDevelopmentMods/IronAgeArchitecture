@@ -16,6 +16,7 @@ public final class ArchitectureRecipes {
     private static ItemStack count(ItemStack stack,int count) {ItemStack result=stack.copy();result.stackSize=count;return result;}
     public static void register() {
         if(ArchitectureConfig.architectsWorkbench){
+            shaped(new ItemStack(ArchitectureBlocks.ROOF_CLIPBOARD),"P","W",'P',Items.PAPER,'W',new ItemStack(Blocks.PLANKS,1,net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE));
             shaped(new ItemStack(ArchitectureBlocks.ARCHITECTS_WORKBENCH),"PFP","WWW"," C ",'P',Items.PAPER,'F',Items.FEATHER,'W',new ItemStack(Blocks.PLANKS,1,net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE),'C',Blocks.CRAFTING_TABLE);
             for(int wood=0;wood<6;wood++){
                 shaped(new ItemStack(ArchitectureBlocks.ROOF_TIMBER,2,wood),"P","S",'P',new ItemStack(Blocks.PLANKS,1,wood),'S',Items.STICK);

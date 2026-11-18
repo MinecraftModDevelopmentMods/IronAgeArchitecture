@@ -4,6 +4,7 @@ param(
     [switch]$SurfaceCheck,
     [switch]$ThatchInteraction,
     [switch]$Workbench,
+    [switch]$RoofDesign,
     [string]$PlayerJar,
     [string]$CitySource,
     [int]$CityHouses=64,
@@ -84,6 +85,7 @@ $args=@('-Xmx2G',('-Djava.library.path='+(Join-Path $slime 'natives')),'-Diaa.pr
 if($CitySource){$args=@('-Diaa.cityClient=true',('-Diaa.performanceHouses='+$CityHouses))+$args}
 if($ColdCity){$args=@('-Diaa.cityCold=true',('-Diaa.cityTimeoutSeconds='+$CityTimeoutSeconds),('-XX:ActiveProcessorCount='+$CpuCount),('-Diaa.cityViewDistance='+$CityViewDistance))+$args}
 if($SurfaceCheck) {$args=@('-Diaa.surfacePreview=true')+$args}
+if($RoofDesign){$args=@('-Diaa.roofDesignPreview=true',('-XX:ActiveProcessorCount='+$CpuCount))+$args}
 if($Workbench){$args=@('-Diaa.workbenchPreview=true')+$args}
 if($ThatchInteraction){$args=@('-Diaa.thatchInteraction=true')+$args}
 Push-Location $Runtime
@@ -96,5 +98,5 @@ try {
     }else{& $Java8 @args *> 'native-client-console.log'}
     if($LASTEXITCODE -ne 0) {throw "Client exited $LASTEXITCODE"}
     if(!(Select-String -LiteralPath 'native-client-console.log' -SimpleMatch 'IAA_CLIENT_PROBE_PASS')) {throw 'Client probe did not finish'}
-    if($Workbench){Get-Content -LiteralPath 'workbench-client.json'}elseif($ThatchInteraction){Get-Content -LiteralPath 'thatch-interaction.json'}elseif($CitySource){Get-Content -LiteralPath 'city-client.json'}else{Get-Content -LiteralPath 'architecture-probe.json'}
+    if($RoofDesign){Get-Content -LiteralPath 'roof-design-client.json'}elseif($Workbench){Get-Content -LiteralPath 'workbench-client.json'}elseif($ThatchInteraction){Get-Content -LiteralPath 'thatch-interaction.json'}elseif($CitySource){Get-Content -LiteralPath 'city-client.json'}else{Get-Content -LiteralPath 'architecture-probe.json'}
 } finally {Pop-Location}

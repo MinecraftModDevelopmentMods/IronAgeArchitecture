@@ -12,7 +12,7 @@ public final class EraCatalog {
     public static EnumSet<Era> eras(Item item) {
         if(item==null||item.getRegistryName()==null||!IronAgeArchitecture.MODID.equals(item.getRegistryName().getResourceDomain())) return EnumSet.noneOf(Era.class);
         if(item instanceof JettyBracketItem||item instanceof LeadedPaneItem||item instanceof GutterItem||item instanceof SoffitItem) return EnumSet.of(Era.LATE_MEDIEVAL_TUDOR);
-        if(item instanceof RoofTimberItem)return EnumSet.allOf(Era.class);
+        if(item instanceof RoofTimberItem||item instanceof RoofClipboardItem)return EnumSet.allOf(Era.class);
         if(!(item instanceof ItemBlock)) return EnumSet.noneOf(Era.class);
         Block block=((ItemBlock)item).getBlock();
         boolean shared=block instanceof ArchitectWorkbench||ArchitectureConfig.architectsWorkbench&&block instanceof JettyFloorBlock&&((JettyFloorBlock)block).shape==FloorShape.FULL&&((JettyFloorBlock)block).bracket==null||block instanceof SmartThatchBlock||block instanceof SmartCobBlock||ArchitectureBlocks.COB.contains(block)||ArchitectureBlocks.SLABS.contains(block)||ArchitectureBlocks.STAIRS.contains(block)

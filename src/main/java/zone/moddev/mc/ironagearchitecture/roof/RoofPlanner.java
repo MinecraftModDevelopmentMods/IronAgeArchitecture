@@ -8,6 +8,7 @@ public final class RoofPlanner {
     private RoofPlanner(){}
     private static final class Parts {final List<Integer> wood=new ArrayList<>(),skin=new ArrayList<>();}
     public static RoofPlan solve(RoofPlan p){
+        if(p.version>=2)return RoofDesignPlanner.solve(p);
         p.cells.clear();p.error="";
         if(p.width()<4||p.length()<4||p.width()>32||p.length()>32||p.floorY<0||p.floorY>250||p.pitch<0||p.pitch>2||p.base<0||p.base>8||p.eave<0||p.eave>2||p.gable<0||p.gable>2||p.wood<0||p.wood>5){p.error="Choose a 4 to 32 block rectangle and valid roof settings.";return p;}
         Map<Long,Parts> parts=new TreeMap<>();

@@ -22,7 +22,7 @@ final class EraProbe {
         return (ArchitectureConfig.windows ? 510 : 460) + (ArchitectureConfig.clayTiles ? 16 : 0) + fireplaceParts() - (ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?408:0) + (ArchitectureConfig.frames && ArchitectureConfig.buildingMode.automatic() ? 24 : 0)+(cobRecipes()>0?2:0)+thatchVariants()+deskVisible();
     }
     static int sharedVariants(){return (ArchitectureConfig.architectsWorkbench?20:14)+(cobRecipes()>0?2:0)+thatchVariants()+deskVisible();}
-    private static int deskVisible(){return ArchitectureConfig.architectsWorkbench&&ArchitectureConfig.buildingMode.automatic()?7:0;}
+    private static int deskVisible(){return ArchitectureConfig.architectsWorkbench&&ArchitectureConfig.buildingMode.automatic()?8:0;}
     private static int thatchVariants(){return !ArchitectureConfig.thatch?-2:ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?-1:ArchitectureConfig.buildingMode==BuildingMode.HYBRID?1:0;}
     private static int thatchRecipes(){return !ArchitectureConfig.thatch?-3:ArchitectureConfig.buildingMode==BuildingMode.AUTOMATIC?-2+(ArchitectureConfig.retainLegacyThatchIds?2:0):ArchitectureConfig.buildingMode==BuildingMode.HYBRID?2:1;}
     private static int cobRecipes(){return ArchitectureConfig.smartCob&&ArchitectureConfig.buildingMode.automatic()?6:0;}

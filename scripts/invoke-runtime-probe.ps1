@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only','manual','hybrid','automatic','legacy-fireplaces','legacy-smart','cob-disabled','cob-only','thatch-disabled','thatch-only','legacy-cob','automatic-retained','pending-save','pending-reload','workbench','workbench-reload','roof-city-prepare','workbench-disabled','workbench-only')][string]$Mode='core',
+    [ValidateSet('core','reload','furniture','disabled','legacy','legacy-daub','legacy-jetties','legacy-fascia','iron-age','late-medieval','mixed-eras','no-eras','invalid-era','windows-disabled','clay-disabled','clay-only','manual','hybrid','automatic','legacy-fireplaces','legacy-smart','cob-disabled','cob-only','thatch-disabled','thatch-only','legacy-cob','automatic-retained','pending-save','pending-reload','workbench','workbench-reload','roof-city-prepare','workbench-disabled','workbench-only','roof-design','roof-design-reload')][string]$Mode='core',
     [int]$CpuCount=4,
     [string]$RuntimeRoot='D:\IronAgeArchitecture\manual-testing\smart-thatch-0.1.16',
     [string]$ServerTemplate='D:\IronAgeArchitecture\manual-testing\jetties-0.1.2-final\core',
@@ -10,7 +10,7 @@ $ErrorActionPreference='Stop'
 $repo=Split-Path $PSScriptRoot -Parent
 $version=((Select-String -LiteralPath (Join-Path $repo 'gradle.properties') -Pattern '^mod_version=').Line -split '=',2)[1]
 $runtimeJar='iron-age-architecture-'+$version+'.jar'
-$folder=Join-Path $RuntimeRoot $(if($Mode -eq 'reload'){'core'}elseif($Mode -eq 'pending-reload'){'pending-save'}elseif($Mode -eq 'workbench-reload'){'workbench'}else{$Mode})
+$folder=Join-Path $RuntimeRoot $(if($Mode -eq 'reload'){'core'}elseif($Mode -eq 'pending-reload'){'pending-save'}elseif($Mode -eq 'workbench-reload'){'workbench'}elseif($Mode -eq 'roof-design-reload'){'roof-design'}else{$Mode})
 New-Item -ItemType Directory -Force -Path $folder,(Join-Path $folder 'mods') | Out-Null
 $forge='forge-1.10.2-12.18.3.2511-universal.jar'
 foreach($name in @($forge,'minecraft_server.1.10.2.jar','libraries')) {
@@ -180,6 +180,8 @@ $args+=('-Diaa.runtimeSha256='+(Get-FileHash -LiteralPath (Join-Path $folder ('m
 if($Mode -eq 'reload') {$args+='-Diaa.reload=true'}
 if($Mode -in @('workbench','workbench-reload','workbench-only')){$args+='-Diaa.workbenchProbe=true'}
 if($Mode -eq 'workbench-reload'){$args+='-Diaa.workbenchReload=true'}
+if($Mode -in @('roof-design','roof-design-reload')){$args+='-Diaa.roofDesignProbe=true'}
+if($Mode -eq 'roof-design-reload'){$args+='-Diaa.roofDesignReload=true'}
 if($Mode -eq 'roof-city-prepare'){$args+='-Diaa.roofCityPrepare=true'}
 if($Mode -eq 'pending-save'){$args+='-Diaa.pendingSave=true'}
 if($Mode -eq 'pending-reload'){$args+='-Diaa.pendingReload=true'}

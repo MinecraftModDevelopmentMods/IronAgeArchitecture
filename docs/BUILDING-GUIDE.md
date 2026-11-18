@@ -7,7 +7,7 @@ Version 0.1.16.110021 contains raw and limewashed cob blocks,
 stairs and slabs; modular wattle-and-daub walls in all six vanilla woods; and smooth
 thatch, slate and clay tile roofs with automatic corners and separate ridge caps, plus jettied-storey walls,
 timber floors, support brackets, hanging clay tiles, openable leaded windows, and brick and
-stone fireplaces, rounded smart cob walls and smart thatch. There are 166 visible variants in Automatic, or 576 in Hybrid,
+stone fireplaces, rounded smart cob walls and smart thatch. There are 167 visible variants in Automatic, or 577 in Hybrid,
 including the wood and finish choices.
 
 ## Rounded smart cob
@@ -30,57 +30,105 @@ frame; its soft earthen surface continues around the corners and into the reveal
 Smart cob is available in Automatic and Hybrid. It stays registered in Manual so
 existing smart-cob buildings remain readable. `blocks.smartCob` enables the family
 and requires `blocks.cob`; timber framing and windows can be disabled independently.
-It belongs to both era palettes. With fresh Automatic settings, the kit has 353
-recipes; selecting Iron Age alone leaves 59, including the shared workbench and full floors.
+It belongs to both era palettes. With fresh Automatic settings, the kit has 354
+recipes; selecting Iron Age alone leaves 60, including the shared workbench and full floors.
 
 The Smart Thatch Preview puts joined, faceted roofs over the three cob cottages.
 New window styles and half-depth cob pieces remain later work.
 
 ## Drawing a roof at the workbench
 
-Start with full timber floor pieces across the top of the walls. This first version
-needs a complete rectangular perimeter, between 4 and 32 blocks along each side.
-A stairwell inside the floor does not cut a hole in the roof. Put the architect's
-workbench inside the rectangle, directly on one of its floor pieces.
+Lay a rectangular attic floor from full timber floor pieces and put the bench on
+it. A complete ring of full-depth walls at the same height, immediately outside the floor, lets
+the bench recognise an inset floor. The older floor-over-wall arrangement also
+works. Use **Floor: Inset** or **Wall top** to choose explicitly. Complete the floor
+perimeter or trim the rectangle; stairwells may stay inside.
 
-Craft the bench with paper, a feather and paper across the top, three planks beneath,
-and a crafting table at the bottom centre. One matching plank above one stick makes
-two roof timber units. The bench also accepts these ingredients directly.
+Craft the bench with paper, feather and paper across the top, three planks beneath,
+and a crafting table at the bottom centre. One matching plank above a stick makes
+two roof timber. The bench also accepts those ingredients directly.
 
-Open the bench to detect the floor. Drag on the map to trim the rectangle when floors
-of adjoining houses touch. Rotate the ridge and choose shallow (1:2), standard (1:1)
-or steep (2:1). Base height moves in half blocks, up to four blocks above the floor.
-Eaves and gable overhangs can each be zero, half a block or one block.
+Changing the drawing does not construct a roof. Turn on the personal preview,
+walk around it, then return to build when you are happy.
 
-Toggle the preview and close the screen to inspect the ghost frame. Only you see it.
-The bench shows anything in the way. Your chosen settings survive floor edits; the
-finished roof changes only when you deliberately build or revise its drawing.
+- Choose 1:2, 1:1 or 2:1 pitch. Rotate the ridge before placing features.
+- **Base** raises the roof in half-block steps without moving the floor.
+- **Reach** adjusts the selected eave or gable from zero to two blocks in half-block
+  steps. Select each of the four sides separately.
+- The **roof** page has eave drop, floor position, frame and edge controls.
+  Eave drop lowers the outer edge without lowering the room inside.
+- **Traditional** adds ties. **Attic room** raises collars to the chosen clearance
+  above the floor; the default is 2.5 blocks. **Open vault** leaves them out.
+  Raise the roof or choose a steeper pitch if the selected clearance will not fit.
+- **Fascia** adds the timber eave board; **Boxed** also lines its underside.
+  Existing gutter and outlet items fit the outside board face. Fit a separate
+  soffit from below if you want to line an exposed eave later. Route pipes by hand.
 
-Put timber, or matching planks and sticks, in the material slots. The Build button
-becomes available when the plan is clear and enough timber is supplied. Each occupied
-timber cell costs one unit. Empty cells reserved for the thicker covering cost none.
-The frame is built in small batches. If someone moves into the way, or a chunk unloads,
-work pauses until it is clear. Cancel to recover the unspent timber; completed parts
-stay in place. Breaking the bench also cancels the remaining work and drops its stock.
+### Take the clipboard with you
 
-Click a sloping rafter with smart thatch, a slate slope or a clay tile slope to fit a
-section. It costs one roofing piece even where its thickness crosses a cell boundary.
-Sneak-use an empty hand to take it off. The space reserved above the rafters is part
-of the roof, including small invisible portions needed by thick thatch.
+Paper above any plank makes one reusable clipboard. The bench can make it from
+those same supplies with **Make clipboard**, placing it in the separate tool slot.
+Take it out, or put an existing clipboard into the slot to link it to this roof.
+Using it on a bench also links it. The drawing remains saved with the roof.
 
-Strip all coverings before revising the frame. A bench placed within the same attic
-can reopen the drawing, repair missing parts or change its pitch and overhangs.
-Unchanged timber is reused; additions need stock and removed timber is returned.
-Mining a timber section returns its timber unit and any covering once.
+Use the clipboard in the air to choose a tool; sneak-use in the air always opens
+its controls. Point at the roof or visible ghost and use it to place a feature.
+Sneak-use on a feature selects it. The controls can change the selected feature,
+remove it, or undo and redo the last 32 drawing changes. Edits are shared, while
+the ghost is personal. If another player changes the drawing first, it refreshes
+before your next edit. Keep the whole affected area loaded when building.
 
-The bench leaves the wall infill to you. Raising the roof adds timber posts, rather
-than plaster walls. Hips, L-shaped roofs, dormers and automatic gable infill are later
-work. Plans are limited to 1,024 cells and 48 blocks in height; a large footprint and
-steep pitch may exceed that limit. The preview explains when a roof needs splitting.
+- **Window** places a flush rooflight in one uninterrupted roof plane. It must
+  clear ridges and mansard bends. Match its Roof option to the covering for the
+  correct reveal depth. It opens outward from its top hinge by 45 degrees.
+  Point at a dormer wall to add or replace a vertical casement instead.
+- **Gabled dormer** makes a small projecting gable, one to five blocks wide.
+- **Shed dormer** makes a wider front with a shallow roof. Leave one block at each
+  end of the main roof. Both dormers join back before its ridge; lower or narrow
+  one if it cannot fit. Choose one- or two-high windows and front lift separately.
+- **Mansard side** changes the roof side you point at. The roof controls also let
+  you select either side or both. Its steep lower third and shallow upper part
+  keep the standard roof's ridge height.
+- Choose all six timbers, raw or limewashed surrounds, either leading pattern,
+  cob, daub or tile-hung cheeks, and thatch, slate or clay covering. Materials
+  disabled in your configuration cannot be built.
+- **Remove** on a dormer window fills it back in. Remove the selected dormer in
+  the controls to remove the whole projection. Drawing changes take effect only
+  after construction at the bench.
 
-The workbench and its basic full floors belong to both palettes. Automatic and Hybrid
-offer the bench and timber recipes. Manual keeps existing frames readable. The new
-family uses blocks.architectsWorkbench and works without cob or timber walls.
+Right-click a completed window, including its open pane, to operate it. Matching
+vertical sections open together. Redstone transitions open and close it; a manual
+change persists until the next transition. Leave its full swing clear. Helpers
+reserve the cells crossed by open panes, without independent items or drops.
+
+### Pay for the changes
+
+The **bill** page lists additions, reused materials and returns; scroll to see the
+whole bill. Supply matching roof timber, or matching planks and sticks for timber,
+along with the listed ordinary wall pieces, complete leaded windows and coverings.
+Features include their framing, cheeks, glazing and covering. The main roof is
+initially a bare frame.
+
+**Build / repair** changes only the affected owned sections. Removed materials are
+reused before extra supplies, and leftovers return to the bench. Unchanged roofs
+keep their covering, fittings and window state. Cancel if necessary; completed
+sections remain and unused materials return. A saved job resumes after reload.
+Keep the bench loaded while it works. It never replaces ordinary walls or floors.
+
+Fit the main covering by clicking a sloping rafter with smart thatch, slate slopes
+or clay tile slopes. Sneak-use an empty hand to recover it. Different coverings
+can be swapped without replacing timber. Mining a part recovers that paid part,
+including through a helper, while other parts sharing its cell remain.
+
+Roof drawings are bounded to 32 by 32 blocks and 1,024 occupied cells. Large or
+steep roofs may need separate drawings. Gable infill and walls beneath a raised
+roof remain ordinary building work. Use the bounds map to trim the rectangle and
+mark roof openings separately from floor stairwells. Earlier workbench roofs keep
+the old solver until you explicitly change them through the new design controls.
+
+The workbench, clipboard and basic full floors belong to both palettes. Automatic
+and Hybrid offer their recipes; Manual preserves existing structures and items.
+The family uses blocks.architectsWorkbench independently of cob and timber walls.
 
 ## Smart thatch
 
@@ -128,7 +176,7 @@ Client and server need matching registration settings and a restart.
 
 The supplied preview retains the old IDs for its unchanged golden-roof comparison.
 Use its accompanying configuration when loading that save. The original golden
-thatch and its textures are unchanged. Automatic dormers remain later work.
+thatch and its textures are unchanged. For dormers, use a roof drawing at the workbench.
 
 ## Manual wattle and daub
 
