@@ -15,6 +15,11 @@ house, rather than worked out a piece at a time.
   removed materials and leaves unchanged covering and window positions alone.
 - Fit thatch, slate or clay to the main frame. Existing gutters fit the new fascia;
   soffits can be fitted underneath or included as boxed eaves.
+- The bench can fill the gable ends to meet the roof, including raised and mansard
+  profiles. Match the walls below or choose cob, framed daub or hanging tiles.
+- Each end can stay open. Existing drawings keep their choice until it is changed;
+  existing wall blocks and windows stay in place.
+- Fixed roof targeting on dedicated servers when fitting or mining individual parts.
 - The bench can be moved afterwards. The roof and drawing keep their shape.
 - Existing workbench roofs keep their original profiles until you revise them.
 - Roof edits stay tied to the player who sent them when several people build together.

@@ -34,7 +34,7 @@ model('architects_workbench',{parent:'minecraft:block/block',textures:{particle:
 const bench=expected.get(`${assets}/models/block/architects_workbench.json`);const withClipboard=JSON.parse(bench);withClipboard.elements.push({from:[2,16.0625,3],to:[12,16.5625,12],faces:benchFace('#wood')},{from:[2.5,16.59375,3.5],to:[11.5,16.625,11.5],faces:benchFace('#paper')});model('architects_workbench_clipboard',withClipboard);
 item('architects_workbench','architects_workbench');
 lang[`tile.${ns}.architects_workbench.name`]=`Architect's Workbench`;
-lang[`hint.${ns}.workbench.place`]='Place on a full timber attic floor to plan a roof, dormers and attic space.';
+lang[`hint.${ns}.workbench.place`]='Place on a full timber attic floor to plan a roof, gable infill and dormers.';
 lang[`hint.${ns}.workbench.materials`]='Check the material bill, supply the bench and build or rework the changed sections.';
 lang[`hint.${ns}.roof_timber.use`]=`Supply an architect's workbench to build or repair a roof frame.`;
 lang[`hint.${ns}.roof_timber.craft`]='One matching plank above one stick makes two timber units.';

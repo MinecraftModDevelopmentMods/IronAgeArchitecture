@@ -14,12 +14,13 @@ final class RoofAssembly {
     void slope(String id,int kind,int material,double u0,double u1,double v0,double v1,double h0,double h1,double depth){emit(id,kind,material,u0,u1,v0,v1,h0,h1,depth,plan.alongX,EnumFacing.NORTH);}
     void across(String id,int kind,int material,double u0,double u1,double v0,double v1,double h0,double h1,double depth){emit(id,kind,material,v0,v1,u0,u1,h0,h1,depth,!plan.alongX,EnumFacing.NORTH);}
     void wall(String id,int material,double u0,double u1,double v0,double v1,double bottom0,double bottom1,double top0,double top1,boolean across){
-        if(across)emitWall(id,material,v0,v1,u0,u1,bottom0,bottom1,top0,top1,!plan.alongX);else emitWall(id,material,u0,u1,v0,v1,bottom0,bottom1,top0,top1,plan.alongX);
+        if(across)emitWall(id,RoofPart.WALL,material,v0,v1,u0,u1,bottom0,bottom1,top0,top1,!plan.alongX);else emitWall(id,RoofPart.WALL,material,u0,u1,v0,v1,bottom0,bottom1,top0,top1,plan.alongX);
     }
-    private void emitWall(String id,int material,double a,double b,double c,double d,double l,double r,double h,double j,boolean axis){
+    void gableTimber(String id,int material,double a,double b,double c,double d,double l,double r,double h,double j){emitWall(id,RoofPart.TIMBER,material,a,b,c,d,l,r,h,j,plan.alongX);}
+    private void emitWall(String id,int kind,int material,double a,double b,double c,double d,double l,double r,double h,double j,boolean axis){
         // Two independent planes form a closed cheek, without stair-stepped caps.
         if(b<=a||d<=c||Math.max(h-l,j-r)<1e-8)return;
-        if(h<l||j<r){double t=(h-l)/((h-l)-(j-r)),x=a+(b-a)*t,low=l+(r-l)*t,top=h+(j-h)*t;if(h<l){emitWall(id,material,x,b,c,d,low,r,top,j,axis);}else emitWall(id,material,a,x,c,d,l,low,h,top,axis);return;}
+        if(h<l||j<r){double t=(h-l)/((h-l)-(j-r)),x=a+(b-a)*t,low=l+(r-l)*t,top=h+(j-h)*t;if(h<l){emitWall(id,kind,material,x,b,c,d,low,r,top,j,axis);}else emitWall(id,kind,material,a,x,c,d,l,low,h,top,axis);return;}
         int y0=(int)Math.floor(Math.min(l,r)+1e-8),y1=(int)Math.ceil(Math.max(h,j)-1e-8);
         if(y1-y0>48)throw new IllegalArgumentException("Reduce this dormer's height.");
         for(int u=(int)Math.floor(a+1e-8);u<Math.ceil(b-1e-8);u++)for(int v=(int)Math.floor(c+1e-8);v<Math.ceil(d-1e-8);v++)for(int y=y0;y<y1;y++){
@@ -28,7 +29,7 @@ final class RoofAssembly {
             int wx=axis?v:u,wz=axis?u:v;if(plan.openings.contains(RoofPlan.column(wx,wz)))continue;
             if(y<0||y>255||y<plan.floorY-6||y-plan.floorY>48)throw new IllegalArgumentException("The dormer extends beyond its height limit.");
             BlockPos at=new BlockPos(wx,y,wz);String unit=id+":"+wx+":"+y+":"+wz;int depths=(q(lo-hi)&65535)|(q(rr-jj)<<16);int[] data={q(x-u),q(xx-u),q(z-v),q(zz-v),q(hi-y),q(jj-y),depths,(axis?1:0)|2};
-            List<RoofPart> ps=parts.computeIfAbsent(at.toLong(),k->new ArrayList<>());int found=-1;for(int i=0;i<ps.size();i++)if(ps.get(i).id.equals(unit))found=i;if(found<0)ps.add(new RoofPart(unit,at,RoofPart.WALL,material,data));else{RoofPart old=ps.get(found);int[] all=Arrays.copyOf(old.data,old.data.length+8);System.arraycopy(data,0,all,old.data.length,8);ps.set(found,new RoofPart(unit,at,RoofPart.WALL,material,all));}
+            List<RoofPart> ps=parts.computeIfAbsent(at.toLong(),k->new ArrayList<>());int found=-1;for(int i=0;i<ps.size();i++)if(ps.get(i).id.equals(unit))found=i;if(found<0)ps.add(new RoofPart(unit,at,kind,material,data));else{RoofPart old=ps.get(found);int[] all=Arrays.copyOf(old.data,old.data.length+8);System.arraycopy(data,0,all,old.data.length,8);ps.set(found,new RoofPart(unit,at,RoofPart.WALL,material,all));}
             if(parts.size()>RoofPlan.MAX_CELLS)throw new IllegalArgumentException("This roof needs more than 1,024 cells.");
         }
     }

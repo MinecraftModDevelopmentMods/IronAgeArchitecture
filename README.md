@@ -58,7 +58,9 @@ let you try changes before committing to them.
 
 Return to the bench to check what to add, reuse and recover. Supply the materials
 and build the changed sections. Dormers include their cheeks, windows and covering;
-fit the main roof's thatch, slate or clay tiles by hand. Unchanged sections keep their
+fit the main roof's thatch, slate or clay tiles by hand. The bench can close each gable
+with matching cob, framed daub or hanging tiles, cut to meet the roof slope.
+Choose each end separately on its gables page, or leave it open. Unchanged sections keep their
 covering and window state. Fit existing gutters to the planned fascia, and add a
 soffit underneath or choose boxed eaves. Downpipe routing remains your choice.
 The bench can be moved afterwards; the roof and its drawing remain.

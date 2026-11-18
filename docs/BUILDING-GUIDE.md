@@ -120,9 +120,25 @@ or clay tile slopes. Sneak-use an empty hand to recover it. Different coverings
 can be swapped without replacing timber. Mining a part recovers that paid part,
 including through a helper, while other parts sharing its cell remain.
 
+### Gable infill
+
+Cycle the bench's View button to **gables**. Choose each end separately: **Match
+walls**, cob, limewashed cob, daub, limewashed daub, hanging tiles or **Open**.
+Match samples the wall course beside an inset floor, or below a floor over the
+wall. Framed daub uses that wall's wood; explicit choices use the roof timber.
+The clipboard's roof page has the same controls. If there is no supported wall
+course, Match uses limewashed cob when that material is enabled.
+
+The top follows the actual roof profile, including mansard bends. The bill lists
+ordinary wall materials and any framing timber. Rework reuses or returns them as
+usual. Existing wall blocks and windows remain independent; anything obstructing
+the roof structure still needs clearing. Older drawings stay open until you select
+infill. You can remove an infill panel and fit an ordinary window in its place;
+rebuilding keeps that window.
+
 Roof drawings are bounded to 32 by 32 blocks and 1,024 occupied cells. Large or
-steep roofs may need separate drawings. Gable infill and walls beneath a raised
-roof remain ordinary building work. Use the bounds map to trim the rectangle and
+steep roofs may need separate drawings. Side walls beneath raised eaves remain
+ordinary building work. Use the bounds map to trim the rectangle and
 mark roof openings separately from floor stairwells. Earlier workbench roofs keep
 the old solver until you explicitly change them through the new design controls.
 

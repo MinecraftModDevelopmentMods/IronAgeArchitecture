@@ -500,3 +500,18 @@ native bench/clipboard traffic and captures the separate five-house scene.
 RoofCityProbe seeds a disposable 500-house typed-profile fixture; bulk preparation
 is not a player-construction throughput result. Multiplayer design cases edit via
 the real clipboard and start construction through the ordinary bench request.
+
+### Workbench gable infill
+
+RoofPlan saves optional per-end infill settings and resolved material/wood choices.
+Missing infill settings mean open ends, preserving earlier profiles. New drawings
+default to matching the wall course. RoofGables samples at most two 34-block rows
+when settings change; there is no idle or render-time wall survey.
+
+RoofDesignPlanner emits closed, tapered WALL parts using the same piecewise roof
+height function, with recessed plaster and separate timber for daub. Panels extend
+one thirty-second into the covering so the interface cannot show sky; exposed
+wood sits proud of the plaster. Geometry, collision, targeting, bills, escrow and
+canonical drops use the existing typed-part path. No new registry identities or
+recipes are needed. Ordinary wall/window cells can suppress only generated gable
+parts; other roof geometry still fails obstruction checks.

@@ -35,9 +35,10 @@ a hand operation lasts until the next change in power.
 ## Scope of this preview
 
 The floor outline is rectangular, with a 32 by 32 bound and a 1,024-cell roof limit.
-Separate roof drawings are still needed for larger or irregular buildings. Main
-gable infill and walls beneath a raised roof remain ordinary building work. The
-sample gable ends are partly open so the framing can be inspected. Roof covering
+Separate roof drawings are still needed for larger or irregular buildings. The bench now offers matching gable infill on its gables page, with a separate
+choice for each end. Older drawings keep open ends until you select infill. Side
+walls beneath a raised roof remain ordinary building work. The separate Gable
+Infill Preview shows filled cob, framed daub and tile-hung ends. Roof covering
 is limited to the enabled thatch, slate and clay families. Pipe routing remains
 manual. Match a rooflight's Roof option to its covering for the right reveal depth.
 
