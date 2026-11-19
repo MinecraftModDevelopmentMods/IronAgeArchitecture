@@ -78,7 +78,7 @@ edges can reach half a block into the cell below; walls and other supports trim
 that part of the covering. Point at the top or underside to pick or mine the same
 roof section. It still costs and drops one piece.
 
-This preview changes the appearance of earlier smart roofs while keeping their
+This update changes the appearance of earlier smart roofs while keeping their
 placed material. Earlier rounded helpers are replaced as their chunks load.
 Try the change on a copy before updating a world.
 

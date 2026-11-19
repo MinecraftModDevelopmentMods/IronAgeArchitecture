@@ -1,4 +1,4 @@
-0.1.16.110021 - Local preview
+0.1.16.110021 - Alpha
 
 I've added an architect's workbench and clipboard so roofs can be planned on the
 house, rather than worked out a piece at a time.
@@ -38,8 +38,8 @@ hips, valleys and ridges. It has a weathered straw finish and a thicker profile.
 - Cob and timber updates and saves are spread out to keep busy towns responsive.
 - Fixed a multiplayer login race, so servers can keep their usual Java settings.
 
-This is a local preview. Please try an existing world on a copy: smart roofs will
-look different, while original golden thatch keeps its appearance.
+Please try an existing world on a copy. Smart roofs will look different, while
+original golden thatch keeps its appearance.
 
 0.1.15.110021 - Alpha
 
