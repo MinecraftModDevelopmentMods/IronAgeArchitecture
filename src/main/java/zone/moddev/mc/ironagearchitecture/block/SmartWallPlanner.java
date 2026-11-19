@@ -18,8 +18,14 @@ public final class SmartWallPlanner {
         public final EnumFacing normal;
         Plan(Map<BlockPos,Integer> cells,EnumFacing normal){this.cells=cells;this.normal=normal;}
     }
+    public static final class Snapshot {
+        final int[][] grid;final int minU,minY;final EnumFacing normal;
+        public final Set<BlockPos> members;
+        Snapshot(int[][] grid,int minU,int minY,EnumFacing normal,Set<BlockPos> members){this.grid=grid;this.minU=minU;this.minY=minY;this.normal=normal;this.members=Collections.unmodifiableSet(members);}
+    }
 
-    public static Plan survey(World world,BlockPos seed,EnumFacing normal) {
+    public static Plan survey(World world,BlockPos seed,EnumFacing normal){Snapshot input=capture(world,seed,normal);return input==null?null:solve(input);}
+    public static Snapshot capture(World world,BlockPos seed,EnumFacing normal) {
         if(!world.isBlockLoaded(seed)) return null;
         IBlockState source=world.getBlockState(seed);
         if(!(source.getBlock() instanceof SmartWallBlock)) return null;
@@ -47,21 +53,22 @@ public final class SmartWallPlanner {
         int[][] grid=new int[maxY-minY+1][maxU-minU+1];
         for(Map.Entry<BlockPos,Integer> entry:kinds.entrySet())
             grid[entry.getKey().getY()-minY][coordinate(entry.getKey(),normal)-minU]=entry.getValue();
-        int[][] framing=SmartFacade.arrange(grid);
-        Map<BlockPos,Integer> result=new HashMap<>();
+        Set<BlockPos> members=new HashSet<>();
         for(BlockPos pos:kinds.keySet()) {
             IBlockState state=world.getBlockState(pos);
             if(!(state.getBlock() instanceof SmartWallBlock)) continue;
-            int code=framing[pos.getY()-minY][coordinate(pos,normal)-minU];
-            if(normal==EnumFacing.SOUTH||normal==EnumFacing.WEST)
-                code=(code&~(SmartFacade.LEFT|SmartFacade.RIGHT|SmartFacade.RISE|SmartFacade.FALL))
-                    |((code&SmartFacade.LEFT)<<1)|((code&SmartFacade.RIGHT)>>1)
-                    |((code&SmartFacade.RISE)<<1)|((code&SmartFacade.FALL)>>1);
             BlockPos outside=pos.offset(normal);
             if(!world.isBlockLoaded(outside)) return null;
-            result.put(pos,code);
+            members.add(pos);
         }
-        return new Plan(result,normal);
+        return new Snapshot(grid,minU,minY,normal,members);
+    }
+    public static Plan solve(Snapshot input) {
+        int[][] framing=SmartFacade.arrange(input.grid);Map<BlockPos,Integer> result=new HashMap<>();EnumFacing normal=input.normal;
+        for(BlockPos pos:input.members){int code=framing[pos.getY()-input.minY][coordinate(pos,normal)-input.minU];
+            if(normal==EnumFacing.SOUTH||normal==EnumFacing.WEST)code=(code&~(SmartFacade.LEFT|SmartFacade.RIGHT|SmartFacade.RISE|SmartFacade.FALL))|((code&SmartFacade.LEFT)<<1)|((code&SmartFacade.RIGHT)>>1)|((code&SmartFacade.RISE)<<1)|((code&SmartFacade.FALL)>>1);
+            result.put(pos,code);
+        }return new Plan(result,normal);
     }
 
     private static int coordinate(BlockPos pos,EnumFacing side){return side.getAxis()==EnumFacing.Axis.Z?pos.getX():pos.getZ();}

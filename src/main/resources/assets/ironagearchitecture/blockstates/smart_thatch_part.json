@@ -1,0 +1,1348 @@
+{
+  "variants": {
+    "facing=north,linked=false,profile=0": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=1": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=2": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=3": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=4": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=5": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=6": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=7": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=8": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=9": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=10": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=11": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=12": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=13": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=14": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=15": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=16": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=17": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=18": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=19": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=20": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=21": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=22": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=23": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=24": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=25": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=26": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=27": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=28": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=29": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=30": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=31": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=32": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=33": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=34": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=35": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=36": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=37": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=38": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=39": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=40": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=41": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=42": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=43": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=44": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=45": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=46": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=47": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=48": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=49": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=50": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=51": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=52": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=53": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=54": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=false,profile=55": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=0": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=1": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=2": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=3": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=4": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=5": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=6": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=7": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=8": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=9": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=10": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=11": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=12": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=13": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=14": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=15": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=16": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=17": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=18": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=19": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=20": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=21": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=22": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=23": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=24": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=25": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=26": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=27": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=28": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=29": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=30": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=31": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=32": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=33": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=34": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=35": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=36": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=37": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=38": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=39": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=40": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=41": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=42": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=43": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=44": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=45": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=46": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=47": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=48": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=49": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=50": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=51": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=52": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=53": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=54": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=north,linked=true,profile=55": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=0": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=1": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=2": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=3": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=4": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=5": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=6": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=7": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=8": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=9": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=10": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=11": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=12": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=13": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=14": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=15": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=16": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=17": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=18": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=19": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=20": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=21": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=22": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=23": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=24": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=25": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=26": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=27": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=28": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=29": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=30": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=31": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=32": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=33": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=34": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=35": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=36": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=37": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=38": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=39": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=40": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=41": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=42": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=43": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=44": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=45": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=46": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=47": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=48": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=49": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=50": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=51": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=52": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=53": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=54": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=false,profile=55": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=0": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=1": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=2": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=3": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=4": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=5": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=6": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=7": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=8": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=9": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=10": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=11": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=12": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=13": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=14": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=15": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=16": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=17": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=18": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=19": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=20": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=21": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=22": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=23": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=24": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=25": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=26": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=27": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=28": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=29": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=30": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=31": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=32": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=33": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=34": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=35": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=36": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=37": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=38": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=39": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=40": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=41": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=42": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=43": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=44": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=45": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=46": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=47": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=48": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=49": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=50": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=51": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=52": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=53": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=54": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=east,linked=true,profile=55": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=0": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=1": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=2": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=3": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=4": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=5": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=6": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=7": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=8": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=9": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=10": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=11": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=12": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=13": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=14": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=15": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=16": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=17": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=18": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=19": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=20": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=21": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=22": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=23": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=24": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=25": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=26": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=27": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=28": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=29": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=30": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=31": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=32": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=33": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=34": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=35": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=36": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=37": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=38": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=39": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=40": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=41": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=42": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=43": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=44": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=45": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=46": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=47": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=48": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=49": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=50": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=51": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=52": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=53": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=54": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=false,profile=55": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=0": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=1": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=2": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=3": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=4": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=5": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=6": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=7": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=8": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=9": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=10": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=11": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=12": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=13": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=14": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=15": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=16": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=17": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=18": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=19": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=20": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=21": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=22": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=23": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=24": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=25": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=26": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=27": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=28": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=29": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=30": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=31": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=32": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=33": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=34": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=35": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=36": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=37": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=38": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=39": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=40": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=41": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=42": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=43": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=44": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=45": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=46": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=47": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=48": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=49": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=50": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=51": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=52": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=53": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=54": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=south,linked=true,profile=55": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=0": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=1": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=2": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=3": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=4": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=5": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=6": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=7": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=8": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=9": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=10": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=11": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=12": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=13": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=14": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=15": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=16": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=17": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=18": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=19": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=20": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=21": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=22": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=23": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=24": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=25": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=26": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=27": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=28": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=29": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=30": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=31": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=32": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=33": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=34": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=35": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=36": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=37": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=38": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=39": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=40": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=41": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=42": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=43": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=44": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=45": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=46": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=47": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=48": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=49": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=50": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=51": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=52": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=53": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=54": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=false,profile=55": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=0": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=1": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=2": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=3": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=4": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=5": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=6": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=7": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=8": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=9": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=10": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=11": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=12": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=13": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=14": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=15": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=16": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=17": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=18": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=19": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=20": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=21": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=22": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=23": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=24": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=25": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=26": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=27": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=28": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=29": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=30": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=31": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=32": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=33": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=34": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=35": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=36": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=37": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=38": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=39": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=40": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=41": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=42": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=43": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=44": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=45": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=46": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=47": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=48": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=49": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=50": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=51": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=52": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=53": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=54": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    },
+    "facing=west,linked=true,profile=55": {
+      "model": "ironagearchitecture:smart_thatch_mesh"
+    }
+  }
+}

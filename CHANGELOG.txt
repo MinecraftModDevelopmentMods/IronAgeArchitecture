@@ -1,3 +1,46 @@
+0.1.16.110021 - Alpha
+
+I've added an architect's workbench and clipboard so roofs can be planned on the
+house, rather than worked out a piece at a time.
+
+- Lay the attic floor inside the walls or over their tops. The roof can sit lower
+  at the eaves and wrap over the wall edge.
+- Adjust the pitch, height and each overhang separately. Choose traditional ties,
+  a usable attic room or an open vault without crossbars.
+- Take the clipboard from the bench and walk around the preview. Add roof windows,
+  gabled dormers, wide shed dormers or a mansard on either side.
+- Choose the timber, leading, cheek walls and covering for each feature. The
+  windows open by hand or redstone.
+- Return to the bench to check the materials and build the changes. It reuses
+  removed materials and leaves unchanged covering and window positions alone.
+- Fit thatch, slate or clay to the main frame. Existing gutters fit the new fascia;
+  soffits can be fitted underneath or included as boxed eaves.
+- The bench can fill the gable ends to meet the roof, including raised and mansard
+  profiles. Match the walls below or choose cob, framed daub or hanging tiles.
+- Each end can stay open. Existing drawings keep their choice until it is changed;
+  existing wall blocks and windows stay in place.
+- Fixed roof targeting on dedicated servers when fitting or mining individual parts.
+- The bench can be moved afterwards. The roof and drawing keep their shape.
+- Existing workbench roofs keep their original profiles until you revise them.
+- Roof edits stay tied to the player who sent them when several people build together.
+
+I've added smart thatch so a rough stepped roof can choose its own slopes,
+hips, valleys and ridges. It has a weathered straw finish and a thicker profile.
+
+- The cut edges have some proper depth, with the underside following the roof pitch.
+- A row beyond the wall makes an angled overhang. Carry it past a gable for a raking edge.
+- Shapes come from a small shared kit and follow nearby blocks without a roof-wide smoothing job.
+- The lower edge can use the cell below. Point at either part to mine or pick one roof section.
+- Existing walls and supports trim the covering, and placing it checks space around players.
+- Automatic uses smart thatch. Hybrid keeps both kits, and Manual keeps the original pieces.
+- Three wheat above three sticks make six pieces. Hybrid lets slopes swap one-for-one.
+- Existing configs retain the old golden roofs. Fresh Automatic setups save their block IDs.
+- Cob and timber updates and saves are spread out to keep busy towns responsive.
+- Fixed a multiplayer login race, so servers can keep their usual Java settings.
+
+Please try an existing world on a copy. Smart roofs will look different, while
+original golden thatch keeps its appearance.
+
 0.1.15.110021 - Alpha
 
 I've added smart cob for houses with softer corners and rounded wall outlines.

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "ironagearchitecture:blocks/smart_thatch",
+    "surface": "ironagearchitecture:blocks/smart_thatch",
+    "edge": "ironagearchitecture:blocks/smart_thatch_edge"
+  },
+  "elements": []
+}

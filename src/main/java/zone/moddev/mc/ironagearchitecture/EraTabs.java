@@ -22,6 +22,7 @@ public final class EraTabs {
                     return Item.getItemFromBlock(ArchitectureBlocks.findSmart("oak",0));
                 if(era==Era.LATE_MEDIEVAL_TUDOR&&!ArchitectureBlocks.FRAMES.isEmpty()) return Item.getItemFromBlock(ArchitectureBlocks.FRAMES.get(0));
                 if(!ArchitectureBlocks.COB.isEmpty()) return Item.getItemFromBlock(ArchitectureBlocks.COB.get(0));
+                if(ArchitectureBlocks.SMART_THATCH!=null&&ArchitectureConfig.buildingMode.automatic())return Item.getItemFromBlock(ArchitectureBlocks.SMART_THATCH);
                 return Item.getItemFromBlock(Blocks.BRICK_BLOCK);
             }
         });

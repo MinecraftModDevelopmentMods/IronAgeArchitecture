@@ -21,6 +21,7 @@ import zone.moddev.mc.ironagearchitecture.block.FrameFamily;
 import zone.moddev.mc.ironagearchitecture.block.RoofBlock;
 import zone.moddev.mc.ironagearchitecture.block.RidgeBlock;
 import zone.moddev.mc.ironagearchitecture.block.*;
+import zone.moddev.mc.ironagearchitecture.roof.*;
 
 /** Explicit small catalog; no dependency on Furniture registrations. */
 public final class ArchitectureBlocks {
@@ -42,6 +43,11 @@ public final class ArchitectureBlocks {
     public static GutterItem GUTTER, GUTTER_OUTLET;
     public static SoffitItem SOFFIT;
     public static DownpipeBlock DOWNPIPE, DOWNPIPE_OFFSET, DOWNPIPE_SHOE;
+    public static ArchitectWorkbench ARCHITECTS_WORKBENCH;
+    public static RoofFrameBlock ROOF_FRAME,ROOF_FRAME_COVERED;
+    public static RoofTimberItem ROOF_TIMBER;
+    public static RoofClipboardItem ROOF_CLIPBOARD;
+    public static RoofWindowBlock ROOF_WINDOW,ROOF_WINDOW_PART;
 
     public static int variants(Block block) {
         if(block instanceof SmartCobBlock)return 2;
@@ -52,6 +58,8 @@ public final class ArchitectureBlocks {
         List<ItemStack> result=new ArrayList<>();
         for(Block block:VISIBLE) if(available(Item.getItemFromBlock(block))) for(int meta=0;meta<variants(block);meta++) result.add(new ItemStack(block,1,meta));
         for(JettyBracketItem item:BRACKETS) result.add(new ItemStack(item));
+        if(ROOF_TIMBER!=null&&available(ROOF_TIMBER))for(int wood=0;wood<6;wood++)result.add(new ItemStack(ROOF_TIMBER,1,wood));
+        if(ROOF_CLIPBOARD!=null&&available(ROOF_CLIPBOARD))result.add(new ItemStack(ROOF_CLIPBOARD));
         if(LEADED_PANE!=null) {result.add(new ItemStack(LEADED_PANE,1,0));result.add(new ItemStack(LEADED_PANE,1,1));}
         if (GUTTER != null) {
             result.add(new ItemStack(GUTTER));
@@ -65,6 +73,7 @@ public final class ArchitectureBlocks {
     }
     public static FrameBlock DAUB;
     public static SmartCobBlock SMART_COB;
+    public static SmartThatchBlock SMART_THATCH,SMART_THATCH_PART;
     public static final List<SmartWallBlock> SMART_WALLS = new ArrayList<>();
     public static final List<FireplaceBlock> FIREPLACES = new ArrayList<>();
     public static final List<RoofBlock> ROOFS = new ArrayList<>();
@@ -117,7 +126,11 @@ public final class ArchitectureBlocks {
             }
             if(ArchitectureConfig.windows) registerWindows();
         }
-        if (ArchitectureConfig.thatch) roofFamily("thatch", true);
+        if (ArchitectureConfig.thatch) {
+            SMART_THATCH=block(new SmartThatchBlock(false),"smart_thatch");item(SMART_THATCH,new SmartThatchItem(SMART_THATCH));
+            SMART_THATCH_PART=block(new SmartThatchBlock(true),"smart_thatch_part");Blocks.FIRE.setFireInfo(SMART_THATCH,60,20);Blocks.FIRE.setFireInfo(SMART_THATCH_PART,60,20);
+            if(ArchitectureConfig.registerManualThatch())roofFamily("thatch",true);
+        }
         if (ArchitectureConfig.slate) roofFamily("slate", false);
         if (ArchitectureConfig.clayTiles) {
             roofFamily("clay_tile", false);
@@ -147,6 +160,15 @@ public final class ArchitectureBlocks {
             GameRegistry.register(SOFFIT);
         }
         if (ArchitectureConfig.fireplaces) registerFireplaces();
+        if(ArchitectureConfig.architectsWorkbench){
+            if(!ArchitectureConfig.frames)for(String wood:WOODS)floor(wood,FloorShape.FULL,null);
+            ARCHITECTS_WORKBENCH=block(new ArchitectWorkbench(),"architects_workbench");item(ARCHITECTS_WORKBENCH,new EraItemBlock(ARCHITECTS_WORKBENCH));
+            ROOF_FRAME=block(new RoofFrameBlock(false),"roof_frame");ROOF_FRAME_COVERED=block(new RoofFrameBlock(true),"roof_frame_covered");
+            ROOF_WINDOW=block(new RoofWindowBlock(false),"roof_window");ROOF_WINDOW_PART=block(new RoofWindowPartBlock(),"roof_window_part");
+            ROOF_CLIPBOARD=new RoofClipboardItem();ROOF_CLIPBOARD.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID,"roof_clipboard"));ROOF_CLIPBOARD.setUnlocalizedName(IronAgeArchitecture.MODID+".roof_clipboard");GameRegistry.register(ROOF_CLIPBOARD);
+            ROOF_TIMBER=new RoofTimberItem();ROOF_TIMBER.setRegistryName(new ResourceLocation(IronAgeArchitecture.MODID,"roof_timber"));ROOF_TIMBER.setUnlocalizedName(IronAgeArchitecture.MODID+".roof_timber");GameRegistry.register(ROOF_TIMBER);
+            GameRegistry.registerTileEntity(ArchitectWorkbench.Desk.class,IronAgeArchitecture.MODID+":architects_workbench");
+        }
         EraCatalog.assignPrimaryTabs();
     }
     private static void registerFireplaces() {
@@ -197,9 +219,12 @@ public final class ArchitectureBlocks {
         throw new IllegalArgumentException("Unregistered smart wall");
     }
     public static boolean available(Item item) {
+        if(item instanceof RoofTimberItem||item instanceof RoofClipboardItem||Block.getBlockFromItem(item) instanceof ArchitectWorkbench)return ArchitectureConfig.buildingMode.automatic();
+        if(item instanceof SmartThatchItem)return ArchitectureConfig.buildingMode.automatic();
         if(item instanceof SmartCobItem)return ArchitectureConfig.buildingMode.automatic();
         if(item instanceof SmartWallItem) return ArchitectureConfig.buildingMode.automatic();
         Block block=Block.getBlockFromItem(item);
+        if(block instanceof RoofBlock&&"thatch".equals(((RoofBlock)block).materialKey))return ArchitectureConfig.buildingMode.manual();
         return ArchitectureConfig.buildingMode.manual()||!(block instanceof FrameBlock)||block instanceof JettyFloorBlock
             ||((FrameBlock)block).family==FrameFamily.INFILL;
     }

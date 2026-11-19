@@ -8,7 +8,7 @@ import net.minecraft.util.math.*;
 
 /** Shared closed skin, cap subtraction and exact triangle selection. */
 public final class SmartCobMesh {
-    private static final Map<SmartCobView,List<Face>> CACHE=new ConcurrentHashMap<>();
+    private static final MeshCache<SmartCobView,List<Face>> CACHE=new MeshCache<>(32768,List::size);
     private SmartCobMesh() { }
     public static final class Face {
         public final double[][] points,normals,uv;
@@ -34,7 +34,7 @@ public final class SmartCobMesh {
         }
         if(!view.topSolid) {Area cap=view.profile.area();if(view.above!=null)cap.subtract(view.above.area());caps(result,cap,true);}
         if(!view.bottomSolid) {Area cap=view.profile.area();if(view.below!=null)cap.subtract(view.below.area());caps(result,cap,false);}
-        found=Collections.unmodifiableList(result);if(CACHE.size()>256)CACHE.clear();CACHE.put(view,found);return found;
+        found=Collections.unmodifiableList(result);CACHE.put(view,found);return found;
     }
     private static void side(List<Face> out,double[] a,double[] b,double[] na,double[] nb,double ua,double ub) {
         out.add(new Face(new double[][]{{a[0],0,a[1]},{a[0],1,a[1]},{b[0],1,b[1]},{b[0],0,b[1]}},

@@ -1,0 +1,40 @@
+{
+  "variants": {
+    "second=false,wood=0": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=true,wood=0": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=false,wood=1": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=true,wood=1": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=false,wood=2": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=true,wood=2": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=false,wood=3": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=true,wood=3": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=false,wood=4": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=true,wood=4": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=false,wood=5": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    },
+    "second=true,wood=5": {
+      "model": "ironagearchitecture:roof_frame_mesh"
+    }
+  }
+}

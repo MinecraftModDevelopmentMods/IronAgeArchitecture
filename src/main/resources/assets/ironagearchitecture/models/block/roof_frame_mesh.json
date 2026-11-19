@@ -1,0 +1,22 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "ironagearchitecture:blocks/beam_oak",
+    "timber": "ironagearchitecture:blocks/beam_oak",
+    "thatch": "ironagearchitecture:blocks/smart_thatch",
+    "thatch_edge": "ironagearchitecture:blocks/smart_thatch_edge",
+    "slate": "ironagearchitecture:blocks/slate",
+    "clay": "ironagearchitecture:blocks/clay_tile",
+    "cob": "ironagearchitecture:blocks/cob",
+    "limewash": "ironagearchitecture:blocks/limewashed_cob",
+    "glass": "minecraft:blocks/glass_silver",
+    "lead": "minecraft:blocks/iron_block",
+    "wood_oak": "ironagearchitecture:blocks/beam_oak",
+    "wood_spruce": "ironagearchitecture:blocks/beam_spruce",
+    "wood_birch": "ironagearchitecture:blocks/beam_birch",
+    "wood_jungle": "ironagearchitecture:blocks/beam_jungle",
+    "wood_acacia": "ironagearchitecture:blocks/beam_acacia",
+    "wood_dark_oak": "ironagearchitecture:blocks/beam_dark_oak"
+  },
+  "elements": []
+}

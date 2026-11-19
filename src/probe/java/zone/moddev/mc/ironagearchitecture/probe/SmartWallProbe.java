@@ -49,7 +49,7 @@ final class SmartWallProbe {
         for(int x=0;x<11;x++) for(int y=0;y<4;y++)
             world.setBlockState(origin.add(x,y,0),full.getDefaultState(),2);
         for(int y=1;y<=2;y++) world.setBlockState(origin.add(3,y,0),opening(),2);
-        for(int i=0;i<100&&SmartWallEvents.pending(world);i++) SmartWallEvents.flush(world);
+        ProbeShapes.flush(world);
         BlockPos unloaded=new BlockPos(160000,100,160000);
         require(!world.isBlockLoaded(unloaded)&&SmartWallPlanner.survey(world,unloaded,EnumFacing.NORTH)==null&&!world.isBlockLoaded(unloaded),
             "unknown chunk remains unloaded");
@@ -60,7 +60,7 @@ final class SmartWallProbe {
         }
         require(braces>0,"planned facade braces, origin="+Integer.toHexString(data.code(origin))+", pending="+SmartWallEvents.pending(world)+", survey="+(SmartWallPlanner.survey(world,origin,EnumFacing.NORTH)!=null));
         world.setBlockState(origin.add(6,1,0),opening(),3);
-        for(int i=0;i<100&&SmartWallEvents.pending(world);i++) SmartWallEvents.flush(world);
+        ProbeShapes.flush(world);
         require(data.code(origin.add(4,1,0))!=before||((SmartWallGeometry.face(data.code(origin.add(5,1,0)),EnumFacing.NORTH)&SmartFacade.RIGHT)!=0),
             "opening edit reframes neighbouring bay");
         NBTTagCompound saved=data.writeToNBT(new NBTTagCompound());

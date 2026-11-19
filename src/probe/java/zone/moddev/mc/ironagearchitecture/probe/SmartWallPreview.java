@@ -24,7 +24,7 @@ final class SmartWallPreview {
         house(world,-15,9,9,4,1,"spruce",1);
         house(world,-3,11,9,4,2,"dark_oak",1);
         if(Boolean.getBoolean("iaa.surfacePreview")) surfaceSamples(world);
-        for(int i=0;i<100&&SmartWallEvents.pending(world);i++) SmartWallEvents.flush(world);
+        ProbeShapes.flush(world);
     }
 
     private static void surfaceSamples(WorldServer world) {

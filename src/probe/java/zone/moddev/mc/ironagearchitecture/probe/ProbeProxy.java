@@ -1,2 +1,2 @@
 package zone.moddev.mc.ironagearchitecture.probe;
-public class ProbeProxy { public void init() { } }
+public class ProbeProxy { public void init() { } public void mpCommand(MPNetwork.Command packet) { } }

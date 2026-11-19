@@ -104,7 +104,7 @@ public final class RoofBakedModel implements IBakedModel {
             model.addFireplacePart(part, facing, texture, tint, false);
         }
         if (block.kind == FireplaceBlock.Kind.COLLAR) {
-            TextureAtlasSprite tile = atlas("ironagearchitecture:blocks/clay_tile");
+            TextureAtlasSprite tile = atlas("ironagearchitecture:blocks/"+((joins&16)!=0?"smart_thatch":"clay_tile"));
             for (Part strip : FireplaceGeometry.collarStrips(joins))
                 model.addFireplacePart(strip, facing, tile, 1, true);
         }

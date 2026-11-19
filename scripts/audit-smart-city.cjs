@@ -1,0 +1,8 @@
+// Inspect the saved roof data, including legacy expanded cells. No Minecraft process required.
+const fs=require('fs'),path=require('path'),zlib=require('zlib'),shapes=require('./shape-save.cjs');
+const file=process.argv[2],expected=Number(process.argv[3]||0),world=path.dirname(path.dirname(file)),data=shapes.roof(world);
+const templates=(data.templates||[]).map(t=>{if(t.v)return t.v;const raw=zlib.inflateSync(t.z),n=raw.readInt32BE();if(n<2||n>60000||raw.length!==4+n*4)throw Error('Invalid template');return Array.from({length:n},(_,i)=>raw.readInt32BE(4+i*4));});
+let owners=0,cells=0,fallbacks=0,faces=0,expandedBytes=0,missing=0;
+for(const group of data.groups){const material=new Set(group.owners.map(p=>p.p.toString())),present=new Set();owners+=material.size;for(const cell of group.cells){cells++;const v=cell.v||templates[cell.t];if(!v)throw Error('Missing template');faces+=v[0];expandedBytes+=v.length*4;present.add(cell.p.toString());let index=1;for(let i=0;i<v[0];i++)index+=4+v[index+3]*8;const cube=v[0]===12&&v[index]===1&&v.slice(index+1).join(',')==='0,0,0,4096,4096,4096';if(material.has(cell.p.toString())&&cube)fallbacks++;}for(const owner of material)if(!present.has(owner))missing++;}
+const result={passed:(!expected||owners===expected)&&fallbacks===0&&missing===0,format:data.format||1,groups:data.groups.length,owners,occupiedCells:cells,templates:templates.length,closedFallbackOwners:fallbacks,missingOwnerCells:missing,faces,expandedBytes,storedBytes:shapes.diskBytes(world,"thatch"),overlayPages:data.pages};
+console.log(JSON.stringify(result,null,2));if(!result.passed)process.exitCode=1;

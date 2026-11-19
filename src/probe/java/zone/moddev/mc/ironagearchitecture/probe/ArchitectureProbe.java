@@ -45,16 +45,39 @@ import net.minecraft.util.Rotation;
 
 /** Disposable packaged-runtime verification mod. Never part of the player jar. */
 @Mod(modid="ironagearchitectureprobe",name="Architecture Verification",version="1",acceptableRemoteVersions="*",
-        dependencies="required-after:ironagearchitecture@[0.1.15.110021]")
+        dependencies="required-after:ironagearchitecture@[0.1.16.110021]")
 public final class ArchitectureProbe {
     @SidedProxy(clientSide="zone.moddev.mc.ironagearchitecture.probe.ClientProbe",serverSide="zone.moddev.mc.ironagearchitecture.probe.ProbeProxy")
     public static ProbeProxy proxy;
-    @Mod.EventHandler public void init(FMLInitializationEvent event) { proxy.init(); }
+    @Mod.EventHandler public void init(FMLInitializationEvent event) { if(Boolean.getBoolean("iaa.mpServer")||Boolean.getBoolean("iaa.mpClient"))MPNetwork.register();proxy.init(); }
     private static void require(boolean condition,String message) { if(!condition) throw new IllegalStateException(message); }
     @Mod.EventHandler public void started(FMLServerStartedEvent event) throws Exception {
         if(!Boolean.getBoolean("iaa.probe")) return;
         MinecraftServer server=FMLCommonHandler.instance().getMinecraftServerInstance();
         WorldServer world=server.worldServerForDimension(0);
+        if(Boolean.getBoolean("iaa.roofCityPrepare")){RoofCityProbe.start(world,server);return;}
+        if(Boolean.getBoolean("iaa.roofDesignPreview"))return;
+        if(Boolean.getBoolean("iaa.roofDesignProbe")){RoofDesignProbe.start(world,server);return;}
+        if(Boolean.getBoolean("iaa.workbenchPreview"))return;
+        if(Boolean.getBoolean("iaa.workbenchProbe")){WorkbenchProbe.start(world,server);return;}
+        if(Boolean.getBoolean("iaa.thatchInteraction"))return;
+        if(Boolean.getBoolean("iaa.mpServer")){MPServerProbe.start(world,server);return;}
+        if(Boolean.getBoolean("iaa.saveBenchmark"))throw new IllegalStateException("The rounded roof save benchmark is retired; simple roofs have no profile store");
+        if(Boolean.getBoolean("iaa.pendingSave")||Boolean.getBoolean("iaa.pendingReload")){PendingShapesProbe.start(world,server,Boolean.getBoolean("iaa.pendingReload"));return;}
+        if(Boolean.getBoolean("iaa.replay")){SmartReplayProbe.start(world,server);return;}
+        if(Boolean.getBoolean("iaa.cityCold"))return;
+        if(Boolean.getBoolean("iaa.cityClient")){CityClientScene.prepare(world);return;}
+        if(Boolean.getBoolean("iaa.performance")){SmartPerformanceProbe.start(world,server);return;}
+        if(Boolean.getBoolean("iaa.legacyCob")) {
+            require(ArchitectureConfig.retainLegacyThatchIds,"upgraded cob config retains old roof identities");
+            BlockPos wall=new BlockPos(-61,13,0),roof=new BlockPos(-69,14,0);
+            require(world.getBlockState(wall).getBlock()==ArchitectureBlocks.SMART_COB,"saved rounded cob identity");
+            require(!SmartCobData.get(world).profile(wall).equals(SmartCobProfile.SQUARE),"saved rounded cob profile");
+            require(world.getBlockState(roof).getBlock() instanceof RoofBlock,"saved manual thatch identity");
+            require(((RoofBlock)world.getBlockState(roof).getBlock()).materialKey.equals("thatch"),"saved golden thatch material");
+            server.saveAllWorlds(false);
+            finish(server,"{\"passed\":true,\"legacyCob\":true,\"legacyThatchIds\":true,\"runtimeSha256\":\""+System.getProperty("iaa.runtimeSha256")+"\"}\n");return;
+        }
         if(Boolean.getBoolean("iaa.legacySmart")) {
             WallRegistrationProbe.verify();
             require(ArchitectureConfig.retainLegacyWallIds,"upgraded config retains old walls");
@@ -101,7 +124,7 @@ public final class ArchitectureProbe {
         if(Boolean.getBoolean("iaa.legacyJetties")) {
             int index=0;
             for(Block block:savedBlocks) {
-                if (ClayTileProbe.isClay(block) || block instanceof FireplaceBlock || block instanceof SmartWallBlock || block instanceof SmartCobBlock) continue;
+                if (ClayTileProbe.isClay(block) || block instanceof FireplaceBlock || block instanceof SmartWallBlock || block instanceof SmartCobBlock || block instanceof SmartThatchBlock) continue;
                 for(int meta=0;meta<16;meta++) {
                     require(world.getBlockState(new BlockPos(100+index,70,100)).equals(block.getStateFromMeta(meta)),"0.1.2 saved state "+index);
                     index++;
@@ -178,12 +201,16 @@ public final class ArchitectureProbe {
         FireplaceProbe.verify(world, reload);
         SmartWallProbe.verify(world,reload);
         SmartCobProbe.verify(world,reload);
-        if(!reload&&cobClient)RoundedCobPreview.build(world);
+        SmartThatchProbe.verify(world,reload);
+        SmartPersistenceProbe.verify(world,reload);
+        if(!reload&&cobClient&&ArchitectureConfig.thatch)SmartThatchPreview.build(world);
+        else if(!reload&&cobClient)RoundedCobPreview.build(world);
         else if (!reload && clayClient) SmartWallPreview.build(world);
         if (Boolean.getBoolean("iaa.clayOnly")) {
             require(variants == 16 && recipes == 20 && RecipeProbe.verifyReachability() == 16, "Standalone clay tiles");
         }
         if(Boolean.getBoolean("iaa.cobOnly"))require(variants==8&&recipes==21&&RecipeProbe.verifyReachability()==8,"Standalone smart cob");
+        if(Boolean.getBoolean("iaa.thatchOnly"))require(variants==1&&recipes==1&&RecipeProbe.verifyReachability()==1,"Standalone smart thatch");
         world.setWorldTime(1000);world.getGameRules().setOrCreateGameRule("doDaylightCycle","false");
         world.getGameRules().setOrCreateGameRule("doFireTick","false");world.getGameRules().setOrCreateGameRule("doMobSpawning","false");
         world.getGameRules().setOrCreateGameRule("spawnRadius","0");
@@ -202,24 +229,25 @@ public final class ArchitectureProbe {
         if(!Boolean.getBoolean("iaa.keepRunning")) server.initiateShutdown();
     }
     private void verifyConfigMatrix() throws Exception {
+        boolean workbench=ArchitectureConfig.architectsWorkbench;
         boolean cob=ArchitectureConfig.cob,smartCob=ArchitectureConfig.smartCob,frames=ArchitectureConfig.frames,thatch=ArchitectureConfig.thatch,slate=ArchitectureConfig.slate,windows=ArchitectureConfig.windows;
         boolean clayTiles = ArchitectureConfig.clayTiles, fireplaces = ArchitectureConfig.fireplaces;
-        boolean retain=ArchitectureConfig.retainLegacyWallIds;
+        boolean retain=ArchitectureConfig.retainLegacyWallIds,retainThatch=ArchitectureConfig.retainLegacyThatchIds;
         zone.moddev.mc.ironagearchitecture.BuildingMode mode=ArchitectureConfig.buildingMode;
         zone.moddev.mc.ironagearchitecture.EraSelection eras=ArchitectureConfig.survivalEras;
         java.nio.file.Path directory=Paths.get("config-matrix");Files.createDirectories(directory);
         try {
-            for(int mask=0;mask<256;mask++) {
+            for(int mask=0;mask<512;mask++) {
                 java.nio.file.Path file=directory.resolve(mask+".cfg");
                 String text="blocks {\n B:cob="+((mask&1)!=0)+"\n B:timberFrames="+((mask&2)!=0)
                         +"\n B:thatch="+((mask&4)!=0)+"\n B:slate="+((mask&8)!=0)+"\n B:leadedWindows="+((mask&16)!=0)
-                        +"\n B:clayTiles="+((mask&32)!=0)+"\n B:fireplaces="+((mask&64)!=0)+"\n B:smartCob="+((mask&128)!=0)+"\n}\n";
+                        +"\n B:clayTiles="+((mask&32)!=0)+"\n B:fireplaces="+((mask&64)!=0)+"\n B:smartCob="+((mask&128)!=0)+"\n B:architectsWorkbench="+((mask&256)!=0)+"\n}\n";
                 Files.write(file,text.getBytes(StandardCharsets.UTF_8));ArchitectureConfig.load(file.toFile());
                 require(ArchitectureConfig.cob==((mask&1)!=0)&&ArchitectureConfig.frames==((mask&3)==3)
                         &&ArchitectureConfig.thatch==((mask&4)!=0)&&ArchitectureConfig.slate==((mask&8)!=0)&&ArchitectureConfig.windows==((mask&19)==19)
-                        &&ArchitectureConfig.clayTiles==((mask&32)!=0)&&ArchitectureConfig.fireplaces==((mask&64)!=0)&&ArchitectureConfig.smartCob==((mask&129)==129),"Config mask "+mask);
+                        &&ArchitectureConfig.clayTiles==((mask&32)!=0)&&ArchitectureConfig.fireplaces==((mask&64)!=0)&&ArchitectureConfig.smartCob==((mask&129)==129),"Config mask "+mask);require(ArchitectureConfig.architectsWorkbench==((mask&256)!=0),"Independent workbench switch "+mask);
             }
-        } finally {ArchitectureConfig.cob=cob;ArchitectureConfig.smartCob=smartCob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clayTiles;ArchitectureConfig.fireplaces=fireplaces;ArchitectureConfig.survivalEras=eras;ArchitectureConfig.buildingMode=mode;ArchitectureConfig.retainLegacyWallIds=retain;}
+        } finally {ArchitectureConfig.architectsWorkbench=workbench;ArchitectureConfig.cob=cob;ArchitectureConfig.smartCob=smartCob;ArchitectureConfig.frames=frames;ArchitectureConfig.thatch=thatch;ArchitectureConfig.slate=slate;ArchitectureConfig.windows=windows;ArchitectureConfig.clayTiles=clayTiles;ArchitectureConfig.fireplaces=fireplaces;ArchitectureConfig.survivalEras=eras;ArchitectureConfig.buildingMode=mode;ArchitectureConfig.retainLegacyWallIds=retain;ArchitectureConfig.retainLegacyThatchIds=retainThatch;}
     }
     private void verifyWallHeads(WorldServer world) {
         BlockPos pos=new BlockPos(95,90,95);

@@ -16,7 +16,9 @@ close studding and diagonal braces. You choose the spacing and pattern, from a m
 to a richly framed townhouse. Matching timbers join around corners and through intersections.
 
 All six vanilla wood types are available. Cob comes in blocks, slabs and stairs, and smooth
-thatch, slate and clay tile roofs have automatic corners and separate ridge caps.
+slate and clay tile roofs have automatic corners and separate ridge caps.
+Smart thatch turns a stepped outline into joined slopes, hips, valleys and ridges,
+with a weathered straw finish, thick cut edges and a sloping underside.
 Clay tiles also come as full and half-depth hanging panels for gables and upper walls.
 Finish clay roofs with timber fascia boards at the eaves and matching trim along the gable and ridge.
 Fit a dark oak soffit underneath to line the eaves.
@@ -38,8 +40,52 @@ Four matching cob in a square make four smart cob. Craft one alone to recover th
 ordinary block, or limewash it singly or in batches of eight. Smart cob is available
 in Automatic and Hybrid, independently of timber framing. Existing cob blocks keep their original shapes.
 
-Smart cob currently focuses on walls and uses the existing doors, windows and roofs.
-Flowing rooflines and cob-specific windows are later additions.
+Smart cob works with the existing doors and windows and the new smart thatch.
+Cob-specific windows remain a later addition.
+
+## Smart thatch
+
+The architect's workbench lets you plan a roof before building it. Lay the attic floor
+inside the wall tops, or across them, and put the bench on the floor. Choose a pitch,
+raise the roof, adjust each overhang and let the eaves drop over the wall edge.
+Choose traditional ties, room-height collars or an open vault.
+
+Make a clipboard with paper above a plank, or use the bench's clipboard button.
+Take it from its slot and walk around your personal preview. Add openable roof
+windows, gabled or wide shed dormers, or turn either roof side into a mansard.
+Choose the timber, leading, wall finish and covering for each feature. Undo and redo
+let you try changes before committing to them.
+
+Return to the bench to check what to add, reuse and recover. Supply the materials
+and build the changed sections. Dormers include their cheeks, windows and covering;
+fit the main roof's thatch, slate or clay tiles by hand. The bench can close each gable
+with matching cob, framed daub or hanging tiles, cut to meet the roof slope.
+Choose each end separately on its gables page, or leave it open. Unchanged sections keep their
+covering and window state. Fit existing gutters to the planned fascia, and add a
+soffit underneath or choose boxed eaves. Downpipe routing remains your choice.
+The bench can be moved afterwards; the roof and its drawing remain.
+
+Place a rough roof in steps, choosing its height and overhang. Smart thatch chooses
+slopes, corners and ridges from the blocks beside it. Three wheat above three sticks
+make six pieces. Leave holes for chimneys and roof openings.
+
+The shapes update with ordinary block changes, using a small set of shared models.
+Lay one rising course per row for a pitched roof. Add another row beyond the walls
+for an overhang, and continue the pitch past the gable for a thick raking edge.
+
+The covering is half a block deep, with its underside following the slope. Low
+edges can reach half a block into the cell below; walls and other supports trim
+that part of the covering. Point at the top or underside to pick or mine the same
+roof section. It still costs and drops one piece.
+
+This update changes the appearance of earlier smart roofs while keeping their
+placed material. Earlier rounded helpers are replaced as their chunks load.
+Try the change on a copy before updating a world.
+
+Automatic uses smart thatch. Hybrid adds it alongside the original golden slopes and
+ridge caps; Manual keeps the individual pieces. Existing configurations retain the old
+roof IDs so saved roofs keep their appearance. Leave `building.retainLegacyThatchIds`
+enabled for worlds containing those older roofs.
 
 ## Smart timber walls
 

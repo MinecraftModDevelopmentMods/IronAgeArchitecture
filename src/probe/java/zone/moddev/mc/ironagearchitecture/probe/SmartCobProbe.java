@@ -78,5 +78,5 @@ final class SmartCobProbe {
         }
         System.out.println("IAA_SMART_COB_PASS oneId=true metadata=16 mixedFinish=true collision=true ray=true chunkBorder=true saved=true packets=true entityRetry=true bounds=true noIdleWork=true");
     }
-    private static void flush(WorldServer world){for(int i=0;i<30&&SmartCobEvents.pending(world);i++)SmartCobEvents.flush(world);require(!SmartCobEvents.pending(world),"survey queue did not drain");}
+    private static void flush(WorldServer world){ProbeShapes.flush(world);require(!SmartCobEvents.pending(world),"survey queue did not drain");}
 }

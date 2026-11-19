@@ -25,6 +25,7 @@ public final class GutterItem extends Item {
     @Override public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
             EnumHand hand, EnumFacing side, float x, float y, float z) {
         IBlockState state = world.getBlockState(pos);
+        if(zone.moddev.mc.ironagearchitecture.roof.RoofDesignInteraction.host(state))return zone.moddev.mc.ironagearchitecture.roof.RoofGutters.fit(world,pos,player,stack,side,outlet)?EnumActionResult.SUCCESS:EnumActionResult.FAIL;
         if (!(state.getBlock() instanceof FasciaBlock) || side != state.getValue(FasciaBlock.FACING).getOpposite())
             return EnumActionResult.PASS;
         if (state.getValue(FasciaBlock.FITTING) != 0 || stack.stackSize <= 0 || !world.isBlockModifiable(player, pos)

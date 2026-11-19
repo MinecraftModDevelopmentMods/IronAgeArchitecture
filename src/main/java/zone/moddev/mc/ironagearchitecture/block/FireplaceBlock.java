@@ -56,7 +56,7 @@ public final class FireplaceBlock extends BlockHorizontal {
     public static final PropertyBool LIT = PropertyBool.create("lit");
     public static final IUnlistedProperty<Integer> JOINS = new IUnlistedProperty<Integer>() {
         public String getName() { return "fireplace_joins"; }
-        public boolean isValid(Integer value) { return value != null && value >= 0 && value <= 15; }
+        public boolean isValid(Integer value) { return value != null && value >= 0 && value <= 31; }
         public Class<Integer> getType() { return Integer.class; }
         public String valueToString(Integer value) { return value.toString(); }
     };
@@ -120,6 +120,7 @@ public final class FireplaceBlock extends BlockHorizontal {
             if (masonry == neighbour.masonry && (kind.flue() ? neighbour.kind.flue()
                     : neighbour.kind.hearth() && other.getValue(FACING) == front)) result |= 1 << i;
         }
+        if(kind==Kind.COLLAR)for(EnumFacing side:EnumFacing.HORIZONTALS)if(world.getBlockState(pos.offset(side)).getBlock() instanceof SmartThatchBlock){result|=16;break;}
         return result;
     }
 
